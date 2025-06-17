@@ -1,10 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, Mail, Shield, Key, CheckCircle } from 'lucide-react';
+import { Mail, Shield, Key, CheckCircle } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 interface ForgotPasswordFormProps {
@@ -18,7 +18,15 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const { toast } = useToast();
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,11 +36,26 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
     setTimeout(() => {
       setIsLoading(false);
       setStep('otp');
+      setCountdown(60); // 60 seconds countdown
       toast({
         title: "OTP Sent",
         description: `Verification code sent to ${email}`,
       });
     }, 2000);
+  };
+
+  const handleResendOTP = async () => {
+    setIsLoading(true);
+    
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      setCountdown(60); // Reset countdown
+      toast({
+        title: "OTP Resent",
+        description: `New verification code sent to ${email}`,
+      });
+    }, 1500);
   };
 
   const handleVerifyOTP = async (e: React.FormEvent) => {
@@ -130,6 +153,13 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
 
   const renderOTPStep = () => (
     <form onSubmit={handleVerifyOTP} className="space-y-4">
+      <div className="text-center mb-4">
+        <p className="text-sm text-gray-600">
+          Verification code sent to
+        </p>
+        <p className="text-sm font-medium text-gray-900">{email}</p>
+      </div>
+      
       <div className="space-y-2">
         <Label htmlFor="otp" className="text-sm font-medium text-gray-700">
           Verification Code
@@ -148,7 +178,7 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
           />
         </div>
         <p className="text-xs text-gray-500">
-          Code sent to {email}. For demo, use: <span className="font-mono font-semibold">123456</span>
+          For demo, use: <span className="font-mono font-semibold">123456</span>
         </p>
       </div>
       
@@ -171,9 +201,10 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
         type="button" 
         variant="outline"
         className="w-full h-11"
-        onClick={() => handleSendOTP(new Event('submit') as any)}
+        onClick={handleResendOTP}
+        disabled={countdown > 0 || isLoading}
       >
-        Resend Code
+        {countdown > 0 ? `Resend Code (${countdown}s)` : 'Resend Code'}
       </Button>
     </form>
   );
@@ -286,21 +317,18 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
   return (
     <Card className="w-full max-w-md mx-auto shadow-xl border-0 bg-white/95 backdrop-blur-sm">
       <CardHeader className="space-y-4 pb-6">
-        <button
-          onClick={step === 'success' ? onBack : () => {
-            if (step === 'email') {
-              onBack();
-            } else if (step === 'otp') {
-              setStep('email');
-            } else if (step === 'newPassword') {
-              setStep('otp');
-            }
-          }}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors self-start"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span className="text-sm">Back</span>
-        </button>
+        {/* Kilimax Logo */}
+        <div className="flex items-center justify-center mb-2">
+          <div className="flex items-center space-x-2">
+            <div className="p-2 bg-blue-600 rounded-lg">
+              <div className="w-6 h-6 bg-white rounded text-blue-600 flex items-center justify-center text-xs font-bold">K</div>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">Kilimax</h1>
+              <p className="text-xs text-gray-500">Enterprise Resource Planning</p>
+            </div>
+          </div>
+        </div>
         
         <div className="text-center">
           <CardTitle className="text-2xl font-semibold text-gray-900">

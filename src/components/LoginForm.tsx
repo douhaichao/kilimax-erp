@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Building, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import Captcha from './Captcha';
 
 interface LoginFormProps {
   onForgotPassword: () => void;
@@ -18,9 +19,16 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isCaptchaValid, setIsCaptchaValid] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isCaptchaValid) {
+      alert('Please complete the captcha verification');
+      return;
+    }
+    
     setIsLoading(true);
     
     // Simulate login process
@@ -46,10 +54,10 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
         <div className="flex items-center justify-center mb-2">
           <div className="flex items-center space-x-2">
             <div className="p-2 bg-blue-600 rounded-lg">
-              <Building className="h-6 w-6 text-white" />
+              <div className="w-6 h-6 bg-white rounded text-blue-600 flex items-center justify-center text-xs font-bold">K</div>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">ERPCore</h1>
+              <h1 className="text-xl font-bold text-gray-900">Kilimax</h1>
               <p className="text-xs text-gray-500">Enterprise Resource Planning</p>
             </div>
           </div>
@@ -139,6 +147,8 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
               </button>
             </div>
           </div>
+
+          <Captcha onVerify={setIsCaptchaValid} />
           
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
@@ -163,7 +173,7 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
           <Button 
             type="submit" 
             className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors duration-200"
-            disabled={isLoading}
+            disabled={isLoading || !isCaptchaValid}
           >
             {isLoading ? (
               <div className="flex items-center space-x-2">
