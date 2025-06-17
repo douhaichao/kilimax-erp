@@ -30,6 +30,15 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
     }
   }, [countdown]);
 
+  const maskEmail = (email: string) => {
+    const [username, domain] = email.split('@');
+    if (username.length <= 2) {
+      return `${username[0]}***@${domain}`;
+    }
+    const maskedUsername = `${username[0]}${'*'.repeat(username.length - 2)}${username[username.length - 1]}`;
+    return `${maskedUsername}@${domain}`;
+  };
+
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -159,7 +168,7 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
         <p className="text-sm text-gray-600">
           Verification code sent to
         </p>
-        <p className="text-sm font-medium text-gray-900">{email}</p>
+        <p className="text-sm font-medium text-gray-900">{maskEmail(email)}</p>
       </div>
       
       <div className="space-y-2">
@@ -296,7 +305,7 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
       <div>
         <h3 className="text-lg font-semibold text-gray-900">Password Reset Successful!</h3>
         <p className="text-gray-600 mt-2">
-          Password for {email} has been updated successfully. You can now sign in with your new password.
+          Password for {maskEmail(email)} has been updated successfully. You can now sign in with your new password.
         </p>
       </div>
       <Button 
