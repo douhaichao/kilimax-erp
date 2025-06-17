@@ -95,30 +95,32 @@ const Captcha = ({ onVerify }: CaptchaProps) => {
         Verification Code
       </label>
       <div className="flex items-center space-x-2">
-        <canvas
-          ref={canvasRef}
-          width={120}
-          height={40}
-          className="border border-gray-300 rounded"
+        <div className="relative">
+          <canvas
+            ref={canvasRef}
+            width={120}
+            height={40}
+            className="border border-gray-300 rounded"
+          />
+          <button
+            type="button"
+            onClick={refreshCaptcha}
+            className="absolute -top-2 -right-2 p-1 bg-white border border-gray-300 rounded-full text-gray-500 hover:text-gray-700 transition-colors shadow-sm"
+            title="Refresh captcha"
+          >
+            <RefreshCw className="h-3 w-3" />
+          </button>
+        </div>
+        <input
+          type="text"
+          placeholder="Enter code"
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value.slice(0, 4))}
+          className="flex-1 h-10 px-3 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+          maxLength={4}
+          required
         />
-        <button
-          type="button"
-          onClick={refreshCaptcha}
-          className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-          title="Refresh captcha"
-        >
-          <RefreshCw className="h-4 w-4" />
-        </button>
       </div>
-      <input
-        type="text"
-        placeholder="Enter code"
-        value={userInput}
-        onChange={(e) => setUserInput(e.target.value.slice(0, 4))}
-        className="w-full h-10 px-3 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-        maxLength={4}
-        required
-      />
     </div>
   );
 };

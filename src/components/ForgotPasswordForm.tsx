@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Shield, Key, CheckCircle } from 'lucide-react';
+import { Mail, Shield, Key, CheckCircle, Eye, EyeOff } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 interface ForgotPasswordFormProps {
@@ -17,6 +16,9 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showPasswordTooltip, setShowPasswordTooltip] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const { toast } = useToast();
@@ -177,9 +179,16 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
             required
           />
         </div>
-        <p className="text-xs text-gray-500">
-          For demo, use: <span className="font-mono font-semibold">123456</span>
-        </p>
+        
+        <Button 
+          type="button" 
+          variant="outline"
+          className="w-full h-11 mt-2"
+          onClick={handleResendOTP}
+          disabled={countdown > 0 || isLoading}
+        >
+          {countdown > 0 ? `Resend Code (${countdown}s)` : 'Resend Code'}
+        </Button>
       </div>
       
       <Button 
@@ -196,22 +205,12 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
           'Verify Code'
         )}
       </Button>
-      
-      <Button 
-        type="button" 
-        variant="outline"
-        className="w-full h-11"
-        onClick={handleResendOTP}
-        disabled={countdown > 0 || isLoading}
-      >
-        {countdown > 0 ? `Resend Code (${countdown}s)` : 'Resend Code'}
-      </Button>
     </form>
   );
 
   const renderNewPasswordStep = () => (
     <form onSubmit={handleResetPassword} className="space-y-4">
-      <div className="space-y-2">
+      <div className="space-y-2 relative">
         <Label htmlFor="new-password" className="text-sm font-medium text-gray-700">
           New Password
         </Label>
@@ -219,14 +218,29 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
           <Key className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
             id="new-password"
-            type="password"
+            type={showNewPassword ? "text" : "password"}
             placeholder="Enter new password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="pl-10 h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+            onFocus={() => setShowPasswordTooltip(true)}
+            onBlur={() => setShowPasswordTooltip(false)}
+            className="pl-10 pr-10 h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowNewPassword(!showNewPassword)}
+            className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+          >
+            {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
         </div>
+        
+        {showPasswordTooltip && (
+          <div className="absolute z-10 top-full left-0 mt-1 p-2 bg-gray-800 text-white text-xs rounded shadow-lg">
+            At least 8 characters long
+          </div>
+        )}
       </div>
       
       <div className="space-y-2">
@@ -237,24 +251,21 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
           <Key className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
           <Input
             id="confirm-password"
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             placeholder="Confirm new password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className="pl-10 h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+            className="pl-10 pr-10 h-11 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute right-3 top-3 text-gray-400 hover:text-gray-600"
+          >
+            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
         </div>
-      </div>
-      
-      <div className="text-xs text-gray-500 space-y-1">
-        <p>Password requirements:</p>
-        <ul className="list-disc list-inside space-y-1 ml-2">
-          <li>At least 8 characters long</li>
-          <li>Include uppercase and lowercase letters</li>
-          <li>Include at least one number</li>
-          <li>Include at least one special character</li>
-        </ul>
       </div>
       
       <Button 
@@ -282,14 +293,14 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
       <div>
         <h3 className="text-lg font-semibold text-gray-900">Password Reset Successful!</h3>
         <p className="text-gray-600 mt-2">
-          Your password has been updated successfully. You can now sign in with your new password.
+          Password for {email} has been updated successfully. You can now sign in with your new password.
         </p>
       </div>
       <Button 
         onClick={onBack}
         className="w-full h-11 bg-blue-600 hover:bg-blue-700 text-white font-medium"
       >
-        Back to Sign In
+        Continue Sign In
       </Button>
     </div>
   );
@@ -309,7 +320,7 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
       case 'email': return 'Enter your email address to receive a verification code';
       case 'otp': return 'Enter the verification code sent to your email';
       case 'newPassword': return 'Choose a strong password for your account';
-      case 'success': return 'Your password has been successfully updated';
+      case 'success': return '';
       default: return '';
     }
   };
