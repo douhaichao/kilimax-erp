@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,14 +16,16 @@ import {
   LogOut,
   BarChart3,
   Calendar,
-  Mail
+  Mail,
+  User
 } from 'lucide-react';
 
 interface DashboardProps {
   onLogout: () => void;
+  onProfileClick: () => void;
 }
 
-const Dashboard = ({ onLogout }: DashboardProps) => {
+const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
   const stats = [
     { title: 'Total Revenue', value: '$124,563', change: '+12.3%', icon: DollarSign, trend: 'up' },
     { title: 'Active Orders', value: '89', change: '+5.2%', icon: ShoppingCart, trend: 'up' },
@@ -85,6 +86,14 @@ const Dashboard = ({ onLogout }: DashboardProps) => {
               
               <Button variant="ghost" size="sm">
                 <Mail className="h-4 w-4" />
+              </Button>
+              
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={onProfileClick}
+              >
+                <User className="h-4 w-4" />
               </Button>
               
               <Button variant="ghost" size="sm">

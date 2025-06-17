@@ -3,9 +3,10 @@ import React, { useState } from 'react';
 import LoginForm from '@/components/LoginForm';
 import ForgotPasswordForm from '@/components/ForgotPasswordForm';
 import Dashboard from '@/components/Dashboard';
+import Profile from '@/pages/Profile';
 
 const Index = () => {
-  const [currentView, setCurrentView] = useState<'login' | 'forgotPassword' | 'dashboard'>('login');
+  const [currentView, setCurrentView] = useState<'login' | 'forgotPassword' | 'dashboard' | 'profile'>('login');
 
   const handleForgotPassword = () => {
     setCurrentView('forgotPassword');
@@ -23,8 +24,20 @@ const Index = () => {
     setCurrentView('login');
   };
 
+  const handleProfileClick = () => {
+    setCurrentView('profile');
+  };
+
+  const handleBackToDashboard = () => {
+    setCurrentView('dashboard');
+  };
+
   if (currentView === 'dashboard') {
-    return <Dashboard onLogout={handleLogout} />;
+    return <Dashboard onLogout={handleLogout} onProfileClick={handleProfileClick} />;
+  }
+
+  if (currentView === 'profile') {
+    return <Profile onBack={handleBackToDashboard} />;
   }
 
   return (
