@@ -95,6 +95,15 @@ const Captcha = ({ onVerify }: CaptchaProps) => {
         Verification Code
       </label>
       <div className="flex items-center space-x-2">
+        <input
+          type="text"
+          placeholder="Enter code"
+          value={userInput}
+          onChange={(e) => setUserInput(e.target.value.slice(0, 4))}
+          className="flex-1 h-10 px-3 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
+          maxLength={4}
+          required
+        />
         <div className="relative">
           <canvas
             ref={canvasRef}
@@ -111,15 +120,6 @@ const Captcha = ({ onVerify }: CaptchaProps) => {
             <RefreshCw className="h-3 w-3" />
           </button>
         </div>
-        <input
-          type="text"
-          placeholder="Enter code"
-          value={userInput}
-          onChange={(e) => setUserInput(e.target.value.slice(0, 4))}
-          className="flex-1 h-10 px-3 border border-gray-300 rounded-md focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
-          maxLength={4}
-          required
-        />
       </div>
     </div>
   );

@@ -180,15 +180,18 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
           />
         </div>
         
-        <Button 
+        <button 
           type="button" 
-          variant="outline"
-          className="w-full h-11 mt-2"
+          className={`mt-2 text-sm font-medium ${
+            countdown > 0 
+              ? 'text-gray-400 cursor-not-allowed' 
+              : 'text-blue-600 hover:text-blue-500 cursor-pointer'
+          }`}
           onClick={handleResendOTP}
           disabled={countdown > 0 || isLoading}
         >
           {countdown > 0 ? `Resend Code (${countdown}s)` : 'Resend Code'}
-        </Button>
+        </button>
       </div>
       
       <Button 
@@ -202,7 +205,7 @@ const ForgotPasswordForm = ({ onBack }: ForgotPasswordFormProps) => {
             <span>Verifying...</span>
           </div>
         ) : (
-          'Verify Code'
+          'Verify'
         )}
       </Button>
     </form>

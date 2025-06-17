@@ -185,10 +185,6 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
             )}
           </Button>
         </form>
-        
-        <div className="text-center text-sm text-gray-600">
-          Need help? Contact your system administrator
-        </div>
       </CardContent>
     </Card>
   );
