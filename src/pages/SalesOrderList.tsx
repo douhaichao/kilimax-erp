@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,16 @@ interface SalesOrder {
   invoiceStatus: 'not_invoiced' | 'invoiced' | 'paid';
   paymentStatus: 'unpaid' | 'partial' | 'paid';
   orderDate: string;
+}
+
+interface StatusConfig {
+  label: string;
+  variant: 'default' | 'secondary' | 'destructive' | 'outline';
+  className: string;
+}
+
+interface StatusConfigMap {
+  [key: string]: StatusConfig;
 }
 
 const SalesOrderList = () => {
@@ -89,31 +98,31 @@ const SalesOrderList = () => {
   ];
 
   const getStatusBadge = (status: string, type: 'approval' | 'shipping' | 'invoice' | 'payment') => {
-    const statusConfig = {
+    const statusConfig: Record<string, StatusConfigMap> = {
       approval: {
-        pending: { label: '待审批', variant: 'outline' as const, className: 'text-yellow-600 border-yellow-300' },
-        approved: { label: '已审批', variant: 'default' as const, className: 'bg-green-500' },
-        rejected: { label: '已拒绝', variant: 'destructive' as const, className: '' }
+        pending: { label: '待审批', variant: 'outline', className: 'text-yellow-600 border-yellow-300' },
+        approved: { label: '已审批', variant: 'default', className: 'bg-green-500' },
+        rejected: { label: '已拒绝', variant: 'destructive', className: '' }
       },
       shipping: {
-        not_shipped: { label: '未发货', variant: 'outline' as const, className: 'text-gray-600' },
-        preparing: { label: '备货中', variant: 'outline' as const, className: 'text-blue-600 border-blue-300' },
-        shipped: { label: '已发货', variant: 'default' as const, className: 'bg-blue-500' },
-        delivered: { label: '已送达', variant: 'default' as const, className: 'bg-green-500' }
+        not_shipped: { label: '未发货', variant: 'outline', className: 'text-gray-600' },
+        preparing: { label: '备货中', variant: 'outline', className: 'text-blue-600 border-blue-300' },
+        shipped: { label: '已发货', variant: 'default', className: 'bg-blue-500' },
+        delivered: { label: '已送达', variant: 'default', className: 'bg-green-500' }
       },
       invoice: {
-        not_invoiced: { label: '未开票', variant: 'outline' as const, className: 'text-gray-600' },
-        invoiced: { label: '已开票', variant: 'default' as const, className: 'bg-purple-500' },
-        paid: { label: '已付款', variant: 'default' as const, className: 'bg-green-500' }
+        not_invoiced: { label: '未开票', variant: 'outline', className: 'text-gray-600' },
+        invoiced: { label: '已开票', variant: 'default', className: 'bg-purple-500' },
+        paid: { label: '已付款', variant: 'default', className: 'bg-green-500' }
       },
       payment: {
-        unpaid: { label: '未付款', variant: 'outline' as const, className: 'text-red-600 border-red-300' },
-        partial: { label: '部分付款', variant: 'outline' as const, className: 'text-orange-600 border-orange-300' },
-        paid: { label: '已付款', variant: 'default' as const, className: 'bg-green-500' }
+        unpaid: { label: '未付款', variant: 'outline', className: 'text-red-600 border-red-300' },
+        partial: { label: '部分付款', variant: 'outline', className: 'text-orange-600 border-orange-300' },
+        paid: { label: '已付款', variant: 'default', className: 'bg-green-500' }
       }
     };
 
-    const config = statusConfig[type][status as keyof typeof statusConfig[typeof type]];
+    const config = statusConfig[type]?.[status];
     if (!config) return null;
 
     return (

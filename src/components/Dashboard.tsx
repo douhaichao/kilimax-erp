@@ -23,7 +23,7 @@ import {
   Home,
   ShoppingBag,
   Truck,
-  Receipt3,
+  Receipt,
   UserCheck,
   Warehouse
 } from 'lucide-react';
@@ -94,7 +94,7 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
     },
     {
       title: "财务管理",
-      icon: Receipt3,
+      icon: Receipt,
       key: "finance"
     },
     {
