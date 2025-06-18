@@ -68,37 +68,37 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
       key: "dashboard"
     },
     {
-      title: "采购订单",
+      title: "Purchase Orders",
       icon: ShoppingBag,
       key: "purchase-orders"
     },
     {
-      title: "销售订单",
+      title: "Sales Orders",
       icon: ShoppingCart,
       key: "sales-orders"
     },
     {
-      title: "库存管理",
+      title: "Inventory Management",
       icon: Warehouse,
       key: "inventory"
     },
     {
-      title: "客户管理",
+      title: "Customer Management",
       icon: UserCheck,
       key: "customers"
     },
     {
-      title: "供应商管理",
+      title: "Supplier Management",
       icon: Truck,
       key: "suppliers"
     },
     {
-      title: "财务管理",
+      title: "Financial Management",
       icon: Receipt,
       key: "finance"
     },
     {
-      title: "报表分析",
+      title: "Report Analysis",
       icon: BarChart3,
       key: "reports"
     }
@@ -113,13 +113,13 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
           </div>
           <div>
             <h1 className="text-lg font-bold text-gray-900">ERPCore</h1>
-            <p className="text-xs text-gray-500">企业管理系统</p>
+            <p className="text-xs text-gray-500">Enterprise Management System</p>
           </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>主要模块</SidebarGroupLabel>
+          <SidebarGroupLabel>Main Modules</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {sidebarMenuItems.map((item) => (
@@ -276,43 +276,43 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
       case 'purchase-orders':
         return (
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">采购订单</h2>
-            <p className="text-gray-600">采购订单管理功能正在开发中...</p>
+            <h2 className="text-2xl font-bold mb-4">Purchase Orders</h2>
+            <p className="text-gray-600">Purchase order management feature is under development...</p>
           </div>
         );
       case 'inventory':
         return (
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">库存管理</h2>
-            <p className="text-gray-600">库存管理功能正在开发中...</p>
+            <h2 className="text-2xl font-bold mb-4">Inventory Management</h2>
+            <p className="text-gray-600">Inventory management feature is under development...</p>
           </div>
         );
       case 'customers':
         return (
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">客户管理</h2>
-            <p className="text-gray-600">客户管理功能正在开发中...</p>
+            <h2 className="text-2xl font-bold mb-4">Customer Management</h2>
+            <p className="text-gray-600">Customer management feature is under development...</p>
           </div>
         );
       case 'suppliers':
         return (
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">供应商管理</h2>
-            <p className="text-gray-600">供应商管理功能正在开发中...</p>
+            <h2 className="text-2xl font-bold mb-4">Supplier Management</h2>
+            <p className="text-gray-600">Supplier management feature is under development...</p>
           </div>
         );
       case 'finance':
         return (
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">财务管理</h2>
-            <p className="text-gray-600">财务管理功能正在开发中...</p>
+            <h2 className="text-2xl font-bold mb-4">Financial Management</h2>
+            <p className="text-gray-600">Financial management feature is under development...</p>
           </div>
         );
       case 'reports':
         return (
           <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">报表分析</h2>
-            <p className="text-gray-600">报表分析功能正在开发中...</p>
+            <h2 className="text-2xl font-bold mb-4">Report Analysis</h2>
+            <p className="text-gray-600">Report analysis feature is under development...</p>
           </div>
         );
       default:

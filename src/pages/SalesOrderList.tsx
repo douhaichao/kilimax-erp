@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,14 +34,14 @@ const SalesOrderList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
 
-  // 模拟销售订单数据
+  // Sample sales order data
   const salesOrders: SalesOrder[] = [
     {
       id: '1',
       orderNumber: 'SO-2024-001',
       customer: 'Acme Corporation',
       amount: 15600,
-      salesperson: '张三',
+      salesperson: 'John Smith',
       approvalStatus: 'approved',
       shippingStatus: 'shipped',
       invoiceStatus: 'invoiced',
@@ -52,7 +53,7 @@ const SalesOrderList = () => {
       orderNumber: 'SO-2024-002',
       customer: 'TechStart Inc.',
       amount: 28900,
-      salesperson: '李四',
+      salesperson: 'Jane Doe',
       approvalStatus: 'pending',
       shippingStatus: 'not_shipped',
       invoiceStatus: 'not_invoiced',
@@ -64,7 +65,7 @@ const SalesOrderList = () => {
       orderNumber: 'SO-2024-003',
       customer: 'Global Systems Ltd',
       amount: 42300,
-      salesperson: '王五',
+      salesperson: 'Mike Johnson',
       approvalStatus: 'approved',
       shippingStatus: 'preparing',
       invoiceStatus: 'invoiced',
@@ -76,7 +77,7 @@ const SalesOrderList = () => {
       orderNumber: 'SO-2024-004',
       customer: 'Innovation Hub',
       amount: 8750,
-      salesperson: '赵六',
+      salesperson: 'Sarah Wilson',
       approvalStatus: 'rejected',
       shippingStatus: 'not_shipped',
       invoiceStatus: 'not_invoiced',
@@ -88,7 +89,7 @@ const SalesOrderList = () => {
       orderNumber: 'SO-2024-005',
       customer: 'Future Solutions',
       amount: 67200,
-      salesperson: '张三',
+      salesperson: 'John Smith',
       approvalStatus: 'approved',
       shippingStatus: 'delivered',
       invoiceStatus: 'paid',
@@ -100,25 +101,25 @@ const SalesOrderList = () => {
   const getStatusBadge = (status: string, type: 'approval' | 'shipping' | 'invoice' | 'payment') => {
     const statusConfig: Record<string, StatusConfigMap> = {
       approval: {
-        pending: { label: '待审批', variant: 'outline', className: 'text-yellow-600 border-yellow-300' },
-        approved: { label: '已审批', variant: 'default', className: 'bg-green-500' },
-        rejected: { label: '已拒绝', variant: 'destructive', className: '' }
+        pending: { label: 'Pending Approval', variant: 'outline', className: 'text-yellow-600 border-yellow-300' },
+        approved: { label: 'Approved', variant: 'default', className: 'bg-green-500' },
+        rejected: { label: 'Rejected', variant: 'destructive', className: '' }
       },
       shipping: {
-        not_shipped: { label: '未发货', variant: 'outline', className: 'text-gray-600' },
-        preparing: { label: '备货中', variant: 'outline', className: 'text-blue-600 border-blue-300' },
-        shipped: { label: '已发货', variant: 'default', className: 'bg-blue-500' },
-        delivered: { label: '已送达', variant: 'default', className: 'bg-green-500' }
+        not_shipped: { label: 'Not Shipped', variant: 'outline', className: 'text-gray-600' },
+        preparing: { label: 'Preparing', variant: 'outline', className: 'text-blue-600 border-blue-300' },
+        shipped: { label: 'Shipped', variant: 'default', className: 'bg-blue-500' },
+        delivered: { label: 'Delivered', variant: 'default', className: 'bg-green-500' }
       },
       invoice: {
-        not_invoiced: { label: '未开票', variant: 'outline', className: 'text-gray-600' },
-        invoiced: { label: '已开票', variant: 'default', className: 'bg-purple-500' },
-        paid: { label: '已付款', variant: 'default', className: 'bg-green-500' }
+        not_invoiced: { label: 'Not Invoiced', variant: 'outline', className: 'text-gray-600' },
+        invoiced: { label: 'Invoiced', variant: 'default', className: 'bg-purple-500' },
+        paid: { label: 'Paid', variant: 'default', className: 'bg-green-500' }
       },
       payment: {
-        unpaid: { label: '未付款', variant: 'outline', className: 'text-red-600 border-red-300' },
-        partial: { label: '部分付款', variant: 'outline', className: 'text-orange-600 border-orange-300' },
-        paid: { label: '已付款', variant: 'default', className: 'bg-green-500' }
+        unpaid: { label: 'Unpaid', variant: 'outline', className: 'text-red-600 border-red-300' },
+        partial: { label: 'Partial Payment', variant: 'outline', className: 'text-orange-600 border-orange-300' },
+        paid: { label: 'Paid', variant: 'default', className: 'bg-green-500' }
       }
     };
 
@@ -147,32 +148,32 @@ const SalesOrderList = () => {
 
   return (
     <div className="space-y-6">
-      {/* 页面标题和操作按钮 */}
+      {/* Page title and action buttons */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">销售订单</h1>
-          <p className="text-gray-600 mt-1">管理和跟踪所有销售订单</p>
+          <h1 className="text-2xl font-bold text-gray-900">Sales Orders</h1>
+          <p className="text-gray-600 mt-1">Manage and track all sales orders</p>
         </div>
         <div className="flex space-x-3">
           <Button variant="outline" size="sm">
             <Download className="h-4 w-4 mr-2" />
-            导出
+            Export
           </Button>
           <Button className="bg-blue-600 hover:bg-blue-700">
             <Plus className="h-4 w-4 mr-2" />
-            新建订单
+            New Order
           </Button>
         </div>
       </div>
 
-      {/* 搜索和筛选 */}
+      {/* Search and filter */}
       <Card>
         <CardContent className="p-4">
           <div className="flex space-x-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="搜索订单号、客户或业务员..."
+                placeholder="Search order number, customer or salesperson..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -180,19 +181,19 @@ const SalesOrderList = () => {
             </div>
             <Button variant="outline">
               <Filter className="h-4 w-4 mr-2" />
-              筛选
+              Filter
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      {/* 订单统计 */}
+      {/* Order statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="p-4">
             <div className="text-center">
               <div className="text-2xl font-bold text-blue-600">{salesOrders.length}</div>
-              <div className="text-sm text-gray-500">总订单数</div>
+              <div className="text-sm text-gray-500">Total Orders</div>
             </div>
           </CardContent>
         </Card>
@@ -202,7 +203,7 @@ const SalesOrderList = () => {
               <div className="text-2xl font-bold text-green-600">
                 {salesOrders.filter(o => o.approvalStatus === 'approved').length}
               </div>
-              <div className="text-sm text-gray-500">已审批</div>
+              <div className="text-sm text-gray-500">Approved</div>
             </div>
           </CardContent>
         </Card>
@@ -212,7 +213,7 @@ const SalesOrderList = () => {
               <div className="text-2xl font-bold text-orange-600">
                 {salesOrders.filter(o => o.shippingStatus === 'shipped' || o.shippingStatus === 'delivered').length}
               </div>
-              <div className="text-sm text-gray-500">已发货</div>
+              <div className="text-sm text-gray-500">Shipped</div>
             </div>
           </CardContent>
         </Card>
@@ -222,29 +223,29 @@ const SalesOrderList = () => {
               <div className="text-2xl font-bold text-purple-600">
                 {formatCurrency(salesOrders.reduce((sum, order) => sum + order.amount, 0))}
               </div>
-              <div className="text-sm text-gray-500">总金额</div>
+              <div className="text-sm text-gray-500">Total Amount</div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* 订单列表 */}
+      {/* Order list */}
       <Card>
         <CardHeader>
-          <CardTitle>订单列表</CardTitle>
+          <CardTitle>Order List</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>订单号</TableHead>
-                  <TableHead>客户</TableHead>
-                  <TableHead>金额</TableHead>
-                  <TableHead>业务员</TableHead>
-                  <TableHead>状态</TableHead>
-                  <TableHead>订单日期</TableHead>
-                  <TableHead className="text-right">操作</TableHead>
+                  <TableHead>Order Number</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Salesperson</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Order Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
