@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +24,8 @@ import {
   Truck,
   Receipt,
   UserCheck,
-  Warehouse
+  Warehouse,
+  Mountain
 } from 'lucide-react';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import SalesOrderList from '@/pages/SalesOrderList';
@@ -46,12 +46,12 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
   ];
 
   const modules = [
-    { name: 'Sales & CRM', description: 'Manage customers and sales pipeline', icon: TrendingUp, color: 'bg-blue-500' },
-    { name: 'Inventory', description: 'Track stock levels and orders', icon: Package, color: 'bg-green-500' },
-    { name: 'Finance', description: 'Accounting and financial reports', icon: DollarSign, color: 'bg-purple-500' },
-    { name: 'HR & Payroll', description: 'Employee management system', icon: Users, color: 'bg-orange-500' },
-    { name: 'Reports', description: 'Analytics and business intelligence', icon: BarChart3, color: 'bg-red-500' },
-    { name: 'Documents', description: 'Document management system', icon: FileText, color: 'bg-indigo-500' },
+    { name: 'Sales & CRM', description: 'Manage customers and sales pipeline', icon: TrendingUp, color: 'bg-green-500' },
+    { name: 'Inventory', description: 'Track stock levels and orders', icon: Package, color: 'bg-emerald-500' },
+    { name: 'Finance', description: 'Accounting and financial reports', icon: DollarSign, color: 'bg-teal-500' },
+    { name: 'HR & Payroll', description: 'Employee management system', icon: Users, color: 'bg-green-600' },
+    { name: 'Reports', description: 'Analytics and business intelligence', icon: BarChart3, color: 'bg-lime-500' },
+    { name: 'Documents', description: 'Document management system', icon: FileText, color: 'bg-emerald-600' },
   ];
 
   const recentActivities = [
@@ -106,20 +106,20 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
 
   const AppSidebar = () => (
     <Sidebar>
-      <SidebarHeader className="border-b">
-        <div className="flex items-center space-x-2 px-2">
-          <div className="p-2 bg-blue-600 rounded-lg">
-            <Building className="h-5 w-5 text-white" />
+      <SidebarHeader className="border-b border-green-200">
+        <div className="flex items-center space-x-3 px-2">
+          <div className="p-2 bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl shadow-lg">
+            <Mountain className="h-6 w-6 text-white" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-gray-900">ERPCore</h1>
-            <p className="text-xs text-gray-500">Enterprise Management System</p>
+            <h1 className="text-xl font-bold text-green-800">Kilimax</h1>
+            <p className="text-xs text-green-600">Enterprise Management System</p>
           </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Main Modules</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-green-700">Main Modules</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {sidebarMenuItems.map((item) => (
@@ -127,6 +127,7 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
                   <SidebarMenuButton 
                     isActive={currentModule === item.key}
                     onClick={() => setCurrentModule(item.key)}
+                    className={currentModule === item.key ? 'bg-green-100 text-green-800 hover:bg-green-150' : 'hover:bg-green-50 hover:text-green-700'}
                   >
                     <item.icon className="h-4 w-4" />
                     <span>{item.title}</span>
@@ -151,7 +152,7 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat, index) => (
-          <Card key={index} className="bg-white shadow-sm hover:shadow-md transition-shadow">
+          <Card key={index} className="bg-white shadow-sm hover:shadow-md transition-shadow border-green-100">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -162,8 +163,8 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
                     {stat.change}
                   </p>
                 </div>
-                <div className="p-3 bg-gray-100 rounded-full">
-                  <stat.icon className="h-6 w-6 text-gray-600" />
+                <div className="p-3 bg-green-100 rounded-full">
+                  <stat.icon className="h-6 w-6 text-green-600" />
                 </div>
               </div>
             </CardContent>
@@ -175,7 +176,7 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* ERP Modules */}
         <div className="lg:col-span-2">
-          <Card className="bg-white shadow-sm">
+          <Card className="bg-white shadow-sm border-green-100">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-gray-900">ERP Modules</CardTitle>
               <CardDescription>Access your business management tools</CardDescription>
@@ -185,14 +186,14 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
                 {modules.map((module, index) => (
                   <div
                     key={index}
-                    className="p-4 border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-sm transition-all cursor-pointer group"
+                    className="p-4 border border-green-200 rounded-lg hover:border-green-300 hover:shadow-sm transition-all cursor-pointer group"
                   >
                     <div className="flex items-start space-x-3">
                       <div className={`p-2 ${module.color} rounded-lg group-hover:scale-110 transition-transform`}>
                         <module.icon className="h-5 w-5 text-white" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-medium text-gray-900 group-hover:text-blue-600 transition-colors">
+                        <h3 className="font-medium text-gray-900 group-hover:text-green-600 transition-colors">
                           {module.name}
                         </h3>
                         <p className="text-sm text-gray-500 mt-1">{module.description}</p>
@@ -207,7 +208,7 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
 
         {/* Recent Activities */}
         <div>
-          <Card className="bg-white shadow-sm">
+          <Card className="bg-white shadow-sm border-green-100">
             <CardHeader>
               <CardTitle className="text-lg font-semibold text-gray-900">Recent Activities</CardTitle>
               <CardDescription>Latest system updates and notifications</CardDescription>
@@ -215,8 +216,8 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
             <CardContent>
               <div className="space-y-4">
                 {recentActivities.map((activity, index) => (
-                  <div key={index} className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <div key={index} className="flex items-start space-x-3 p-3 hover:bg-green-50 rounded-lg transition-colors">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900">{activity.action}</p>
                       <p className="text-sm text-gray-500 truncate">{activity.detail}</p>
@@ -225,7 +226,7 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
                   </div>
                 ))}
               </div>
-              <Button variant="outline" className="w-full mt-4">
+              <Button variant="outline" className="w-full mt-4 border-green-300 text-green-700 hover:bg-green-50">
                 View All Activities
               </Button>
             </CardContent>
@@ -235,30 +236,30 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
 
       {/* Quick Actions */}
       <div className="mt-8">
-        <Card className="bg-white shadow-sm">
+        <Card className="bg-white shadow-sm border-green-100">
           <CardHeader>
             <CardTitle className="text-lg font-semibold text-gray-900">Quick Actions</CardTitle>
             <CardDescription>Frequently used operations</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-3">
-              <Button className="bg-blue-600 hover:bg-blue-700">
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
                 <ShoppingCart className="h-4 w-4 mr-2" />
                 New Order
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50">
                 <Users className="h-4 w-4 mr-2" />
                 Add Customer
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50">
                 <FileText className="h-4 w-4 mr-2" />
                 Generate Report
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50">
                 <Package className="h-4 w-4 mr-2" />
                 Update Inventory
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50">
                 <Calendar className="h-4 w-4 mr-2" />
                 Schedule Meeting
               </Button>
@@ -321,39 +322,39 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
       <SidebarProvider>
         <div className="min-h-screen flex w-full">
           <AppSidebar />
           <SidebarInset className="flex-1">
             {/* Header */}
-            <header className="bg-white shadow-sm border-b sticky top-0 z-10">
+            <header className="bg-white shadow-sm border-b border-green-200 sticky top-0 z-10">
               <div className="flex justify-between items-center h-16 px-6">
                 <div className="flex items-center space-x-4">
-                  <SidebarTrigger />
-                  <div className="text-lg font-semibold text-gray-900">
+                  <SidebarTrigger className="text-green-600 hover:text-green-800" />
+                  <div className="text-lg font-semibold text-green-800">
                     {sidebarMenuItems.find(item => item.key === currentModule)?.title || 'Dashboard'}
                   </div>
                 </div>
                 
                 <div className="flex items-center space-x-4">
                   <div className="relative">
-                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+                    <Search className="absolute left-3 top-2.5 h-4 w-4 text-green-400" />
                     <input
                       type="text"
                       placeholder="Search..."
-                      className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="pl-10 pr-4 py-2 border border-green-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     />
                   </div>
                   
-                  <Button variant="ghost" size="sm" className="relative">
+                  <Button variant="ghost" size="sm" className="relative text-green-600 hover:text-green-800 hover:bg-green-50">
                     <Bell className="h-4 w-4" />
-                    <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs bg-red-500 text-white">
+                    <Badge className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center text-xs bg-green-500 text-white">
                       3
                     </Badge>
                   </Button>
                   
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-800 hover:bg-green-50">
                     <Mail className="h-4 w-4" />
                   </Button>
                   
@@ -361,11 +362,12 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
                     variant="ghost" 
                     size="sm"
                     onClick={onProfileClick}
+                    className="text-green-600 hover:text-green-800 hover:bg-green-50"
                   >
                     <User className="h-4 w-4" />
                   </Button>
                   
-                  <Button variant="ghost" size="sm">
+                  <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-800 hover:bg-green-50">
                     <Settings className="h-4 w-4" />
                   </Button>
                   
@@ -373,7 +375,7 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
                     variant="outline" 
                     size="sm"
                     onClick={onLogout}
-                    className="text-gray-600 hover:text-gray-800"
+                    className="text-green-600 hover:text-green-800 border-green-300 hover:bg-green-50"
                   >
                     <LogOut className="h-4 w-4 mr-2" />
                     Logout
