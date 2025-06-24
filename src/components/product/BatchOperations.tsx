@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -152,7 +153,7 @@ const BatchOperations = ({ selectedProducts, products, systemUOMs, onClose }: Ba
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>操作类型</Label>
-                  <Select value={priceAction} onValueChange={setPriceAction}>
+                  <Select value={priceAction} onValueChange={(value) => setPriceAction(value as 'set' | 'increase' | 'decrease')}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -165,7 +166,7 @@ const BatchOperations = ({ selectedProducts, products, systemUOMs, onClose }: Ba
                 </div>
                 <div>
                   <Label>值类型</Label>
-                  <Select value={priceType} onValueChange={setPriceType}>
+                  <Select value={priceType} onValueChange={(value) => setPriceType(value as 'fixed' | 'percentage')}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -191,7 +192,7 @@ const BatchOperations = ({ selectedProducts, products, systemUOMs, onClose }: Ba
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>操作类型</Label>
-                  <Select value={stockAction} onValueChange={setStockAction}>
+                  <Select value={stockAction} onValueChange={(value) => setStockAction(value as 'set' | 'add' | 'subtract')}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -243,7 +244,7 @@ const BatchOperations = ({ selectedProducts, products, systemUOMs, onClose }: Ba
             <TabsContent value="status" className="space-y-4">
               <div>
                 <Label>新状态</Label>
-                <Select value={newStatus} onValueChange={setNewStatus}>
+                <Select value={newStatus} onValueChange={(value) => setNewStatus(value as 'active' | 'inactive' | 'archived')}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

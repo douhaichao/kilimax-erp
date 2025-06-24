@@ -86,12 +86,12 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
   }, [selectedProducts, onBatchSelect]);
 
   const getStatusBadge = (status: string) => {
-    const variants = {
+    const variants: Record<string, "default" | "secondary" | "outline"> = {
       active: 'default',
       inactive: 'secondary',
       archived: 'outline'
     };
-    return <Badge variant={variants[status as keyof typeof variants]}>{status}</Badge>;
+    return <Badge variant={variants[status] || 'default'}>{status}</Badge>;
   };
 
   const isLowStock = (product: Product) => product.stock <= product.safetyStock;

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,7 +15,7 @@ export interface UOM {
   id: string;
   name: string;
   symbol: string;
-  type: 'base' | 'secondary';
+  type: 'length' | 'weight' | 'volume' | 'piece';
   conversionFactor: number; // 转换为基础单位的因子
   isActive: boolean;
 }
@@ -44,6 +45,7 @@ export interface Product {
   variants: ProductVariant[];
   uoms: ProductUOM[]; // 多单位支持
   baseUomId: string; // 基础单位ID
+  primaryUOM: string; // Add this to match ProductList interface
   createdAt: string;
   updatedAt: string;
 }
@@ -75,14 +77,14 @@ const ProductManagement = () => {
 
   // 系统预定义的计量单位
   const systemUOMs: UOM[] = [
-    { id: 'kg', name: 'Kilogram', symbol: 'kg', type: 'base', conversionFactor: 1, isActive: true },
-    { id: 'g', name: 'Gram', symbol: 'g', type: 'secondary', conversionFactor: 0.001, isActive: true },
-    { id: 'lb', name: 'Pound', symbol: 'lb', type: 'secondary', conversionFactor: 0.453592, isActive: true },
-    { id: 'pcs', name: 'Pieces', symbol: 'pcs', type: 'base', conversionFactor: 1, isActive: true },
-    { id: 'box', name: 'Box', symbol: 'box', type: 'secondary', conversionFactor: 12, isActive: true },
-    { id: 'pack', name: 'Pack', symbol: 'pack', type: 'secondary', conversionFactor: 6, isActive: true },
-    { id: 'l', name: 'Liter', symbol: 'L', type: 'base', conversionFactor: 1, isActive: true },
-    { id: 'ml', name: 'Milliliter', symbol: 'ml', type: 'secondary', conversionFactor: 0.001, isActive: true }
+    { id: 'kg', name: 'Kilogram', symbol: 'kg', type: 'weight', conversionFactor: 1, isActive: true },
+    { id: 'g', name: 'Gram', symbol: 'g', type: 'weight', conversionFactor: 0.001, isActive: true },
+    { id: 'lb', name: 'Pound', symbol: 'lb', type: 'weight', conversionFactor: 0.453592, isActive: true },
+    { id: 'pcs', name: 'Pieces', symbol: 'pcs', type: 'piece', conversionFactor: 1, isActive: true },
+    { id: 'box', name: 'Box', symbol: 'box', type: 'piece', conversionFactor: 12, isActive: true },
+    { id: 'pack', name: 'Pack', symbol: 'pack', type: 'piece', conversionFactor: 6, isActive: true },
+    { id: 'l', name: 'Liter', symbol: 'L', type: 'volume', conversionFactor: 1, isActive: true },
+    { id: 'ml', name: 'Milliliter', symbol: 'ml', type: 'volume', conversionFactor: 0.001, isActive: true }
   ];
 
   // Sample product data with UOM support
@@ -101,6 +103,7 @@ const ProductManagement = () => {
       description: 'Premium organic coffee beans sourced from Mount Kilimanjaro',
       images: [],
       baseUomId: 'kg',
+      primaryUOM: 'kg', // Add this field
       uoms: [
         {
           id: 'uom1-1',
@@ -178,6 +181,7 @@ const ProductManagement = () => {
       description: 'Handcrafted traditional jewelry made by Maasai artisans',
       images: [],
       baseUomId: 'pcs',
+      primaryUOM: 'pcs', // Add this field
       uoms: [
         {
           id: 'uom2-1',
@@ -229,6 +233,7 @@ const ProductManagement = () => {
       description: 'Durable backpack designed for African safari adventures',
       images: [],
       baseUomId: 'pcs',
+      primaryUOM: 'pcs', // Add this field
       uoms: [
         {
           id: 'uom3-1',
