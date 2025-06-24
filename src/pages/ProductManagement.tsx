@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,24 @@ import ProductDetail from '@/components/product/ProductDetail';
 import QuickCreateForm from '@/components/product/QuickCreateForm';
 import BatchOperations from '@/components/product/BatchOperations';
 import CategoryManagement from '@/components/product/CategoryManagement';
+
+export interface UOM {
+  id: string;
+  name: string;
+  symbol: string;
+  type: 'base' | 'secondary';
+  conversionFactor: number; // 转换为基础单位的因子
+  isActive: boolean;
+}
+
+export interface ProductUOM {
+  id: string;
+  uomId: string;
+  uom: UOM;
+  barcode?: string;
+  price: number;
+  isDefault: boolean;
+}
 
 export interface Product {
   id: string;
@@ -25,6 +42,8 @@ export interface Product {
   description: string;
   images: string[];
   variants: ProductVariant[];
+  uoms: ProductUOM[]; // 多单位支持
+  baseUomId: string; // 基础单位ID
   createdAt: string;
   updatedAt: string;
 }
@@ -36,6 +55,7 @@ export interface ProductVariant {
   sku: string;
   stock: number;
   price: number;
+  uoms?: ProductUOM[]; // 规格也可以有独立的单位
 }
 
 export interface Category {
@@ -53,7 +73,19 @@ const ProductManagement = () => {
   const [showQuickCreate, setShowQuickCreate] = useState(false);
   const [showBatchOperations, setShowBatchOperations] = useState(false);
 
-  // Sample product data
+  // 系统预定义的计量单位
+  const systemUOMs: UOM[] = [
+    { id: 'kg', name: 'Kilogram', symbol: 'kg', type: 'base', conversionFactor: 1, isActive: true },
+    { id: 'g', name: 'Gram', symbol: 'g', type: 'secondary', conversionFactor: 0.001, isActive: true },
+    { id: 'lb', name: 'Pound', symbol: 'lb', type: 'secondary', conversionFactor: 0.453592, isActive: true },
+    { id: 'pcs', name: 'Pieces', symbol: 'pcs', type: 'base', conversionFactor: 1, isActive: true },
+    { id: 'box', name: 'Box', symbol: 'box', type: 'secondary', conversionFactor: 12, isActive: true },
+    { id: 'pack', name: 'Pack', symbol: 'pack', type: 'secondary', conversionFactor: 6, isActive: true },
+    { id: 'l', name: 'Liter', symbol: 'L', type: 'base', conversionFactor: 1, isActive: true },
+    { id: 'ml', name: 'Milliliter', symbol: 'ml', type: 'secondary', conversionFactor: 0.001, isActive: true }
+  ];
+
+  // Sample product data with UOM support
   const products: Product[] = [
     {
       id: '1',
@@ -68,9 +100,66 @@ const ProductManagement = () => {
       supplier: 'Kili Coffee Co.',
       description: 'Premium organic coffee beans sourced from Mount Kilimanjaro',
       images: [],
+      baseUomId: 'kg',
+      uoms: [
+        {
+          id: 'uom1-1',
+          uomId: 'kg',
+          uom: systemUOMs.find(u => u.id === 'kg')!,
+          price: 24.99,
+          barcode: '1234567890123',
+          isDefault: true
+        },
+        {
+          id: 'uom1-2',
+          uomId: 'g',
+          uom: systemUOMs.find(u => u.id === 'g')!,
+          price: 0.025,
+          barcode: '1234567890124',
+          isDefault: false
+        },
+        {
+          id: 'uom1-3',
+          uomId: 'pack',
+          uom: systemUOMs.find(u => u.id === 'pack')!,
+          price: 149.99,
+          barcode: '1234567890125',
+          isDefault: false
+        }
+      ],
       variants: [
-        { id: 'v1', size: '250g', sku: 'KLMX-001-250', stock: 25, price: 24.99 },
-        { id: 'v2', size: '500g', sku: 'KLMX-001-500', stock: 20, price: 45.99 }
+        { 
+          id: 'v1', 
+          size: '250g', 
+          sku: 'KLMX-001-250', 
+          stock: 25, 
+          price: 24.99,
+          uoms: [
+            {
+              id: 'uom1-1-v1',
+              uomId: 'g',
+              uom: systemUOMs.find(u => u.id === 'g')!,
+              price: 0.1,
+              isDefault: true
+            }
+          ]
+        },
+        { 
+          id: 'v2', 
+          size: '500g', 
+          sku: 'KLMX-001-500', 
+          stock: 20, 
+          price: 45.99,
+          uoms: [
+            {
+              id: 'uom1-2-v1',
+              uomId: 'g',
+              uom: systemUOMs.find(u => u.id === 'g')!,
+              price: 0.092,
+              isDefault: true
+            }
+          ]
+        }
       ],
       createdAt: '2024-01-15',
       updatedAt: '2024-01-20'
@@ -88,9 +177,40 @@ const ProductManagement = () => {
       supplier: 'Maasai Artisans Ltd',
       description: 'Handcrafted traditional jewelry made by Maasai artisans',
       images: [],
+      baseUomId: 'pcs',
+      uoms: [
+        {
+          id: 'uom2-1',
+          uomId: 'pcs',
+          uom: systemUOMs.find(u => u.id === 'pcs')!,
+          price: 89.99,
+          barcode: '2234567890123',
+          isDefault: true
+        },
+        {
+          id: 'uom2-2',
+          uomId: 'box',
+          uom: systemUOMs.find(u => u.id === 'box')!,
+          price: 1079.88,
+          barcode: '2234567890124',
+          isDefault: false
+        }
+      ],
       variants: [
-        { id: 'v3', color: 'Red', sku: 'KLMX-002-RED', stock: 8, price: 89.99 },
-        { id: 'v4', color: 'Blue', sku: 'KLMX-002-BLU', stock: 4, price: 89.99 }
+        { 
+          id: 'v3', 
+          color: 'Red', 
+          sku: 'KLMX-002-RED', 
+          stock: 8, 
+          price: 89.99
+        },
+        { 
+          id: 'v4', 
+          color: 'Blue', 
+          sku: 'KLMX-002-BLU', 
+          stock: 4, 
+          price: 89.99
+        }
       ],
       createdAt: '2024-01-16',
       updatedAt: '2024-01-18'
@@ -108,9 +228,34 @@ const ProductManagement = () => {
       supplier: 'Adventure Gear Africa',
       description: 'Durable backpack designed for African safari adventures',
       images: [],
+      baseUomId: 'pcs',
+      uoms: [
+        {
+          id: 'uom3-1',
+          uomId: 'pcs',
+          uom: systemUOMs.find(u => u.id === 'pcs')!,
+          price: 129.99,
+          barcode: '3234567890123',
+          isDefault: true
+        }
+      ],
       variants: [
-        { id: 'v5', size: '30L', color: 'Khaki', sku: 'KLMX-003-30K', stock: 5, price: 129.99 },
-        { id: 'v6', size: '45L', color: 'Olive', sku: 'KLMX-003-45O', stock: 3, price: 159.99 }
+        { 
+          id: 'v5', 
+          size: '30L', 
+          color: 'Khaki', 
+          sku: 'KLMX-003-30K', 
+          stock: 5, 
+          price: 129.99
+        },
+        { 
+          id: 'v6', 
+          size: '45L', 
+          color: 'Olive', 
+          sku: 'KLMX-003-45O', 
+          stock: 3, 
+          price: 159.99
+        }
       ],
       createdAt: '2024-01-17',
       updatedAt: '2024-01-19'
@@ -169,7 +314,7 @@ const ProductManagement = () => {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-blue-800">Product Management</h1>
-            <p className="text-blue-600 mt-1">Manage your product catalog with Kilimax</p>
+            <p className="text-blue-600 mt-1">Manage your product catalog with Kilimax - Multi UOM Support</p>
           </div>
         </div>
         <div className="flex space-x-3">
@@ -241,8 +386,8 @@ const ProductManagement = () => {
         <Card className="border-blue-200 shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-indigo-600">{categories.length}</div>
-              <div className="text-sm text-gray-600 font-medium">Categories</div>
+              <div className="text-3xl font-bold text-indigo-600">{systemUOMs.filter(u => u.isActive).length}</div>
+              <div className="text-sm text-gray-600 font-medium">Active UOMs</div>
             </div>
           </CardContent>
         </Card>
@@ -270,6 +415,7 @@ const ProductManagement = () => {
               <ProductList 
                 products={products} 
                 categories={categories}
+                systemUOMs={systemUOMs}
                 onProductSelect={handleProductSelect}
                 onBatchSelect={handleBatchSelect}
               />
@@ -279,6 +425,7 @@ const ProductManagement = () => {
               {selectedProduct ? (
                 <ProductDetail 
                   product={selectedProduct}
+                  systemUOMs={systemUOMs}
                   onBack={() => setActiveTab('list')}
                 />
               ) : (
@@ -301,6 +448,7 @@ const ProductManagement = () => {
         <QuickCreateForm 
           onClose={() => setShowQuickCreate(false)}
           categories={categories}
+          systemUOMs={systemUOMs}
         />
       )}
 
@@ -309,6 +457,7 @@ const ProductManagement = () => {
         <BatchOperations 
           selectedProducts={selectedProducts}
           products={products}
+          systemUOMs={systemUOMs}
           onClose={() => {
             setShowBatchOperations(false);
             setSelectedProducts([]);

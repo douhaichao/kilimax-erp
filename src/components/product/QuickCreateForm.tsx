@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,12 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { X, Camera, Save, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
-import { Category } from '@/pages/ProductManagement';
+import { X, Camera, Save, ArrowRight, ArrowLeft, CheckCircle, Scale, Plus, Trash2 } from 'lucide-react';
+import { Category, UOM, ProductUOM } from '@/pages/ProductManagement';
 
 interface QuickCreateFormProps {
   onClose: () => void;
   categories: Category[];
+  systemUOMs: UOM[];
 }
 
 interface FormData {
@@ -25,6 +25,13 @@ interface FormData {
   price: string;
   stock: string;
   safetyStock: string;
+  baseUomId: string;
+  uoms: Array<{
+    uomId: string;
+    price: string;
+    barcode: string;
+    isDefault: boolean;
+  }>;
   variants: Array<{
     size?: string;
     color?: string;
@@ -34,7 +41,7 @@ interface FormData {
   }>;
 }
 
-const QuickCreateForm = ({ onClose, categories }: QuickCreateFormProps) => {
+const QuickCreateForm = ({ onClose, categories, systemUOMs }: QuickCreateFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -45,19 +52,76 @@ const QuickCreateForm = ({ onClose, categories }: QuickCreateFormProps) => {
     price: '',
     stock: '',
     safetyStock: '',
+    baseUomId: 'pcs',
+    uoms: [
+      {
+        uomId: 'pcs',
+        price: '',
+        barcode: '',
+        isDefault: true
+      }
+    ],
     variants: []
   });
 
   const steps = [
     { number: 1, title: 'Basic Info', description: 'Product details and category' },
-    { number: 2, title: 'Variants', description: 'Size, color, and specifications' },
-    { number: 3, title: 'Pricing', description: 'Price and inventory settings' }
+    { number: 2, title: 'Units & Pricing', description: 'UOM and pricing setup' },
+    { number: 3, title: 'Variants', description: 'Size, color, and specifications' },
+    { number: 4, title: 'Inventory', description: 'Stock and safety levels' }
   ];
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
+    }));
+  };
+
+  const addUOM = () => {
+    const availableUOMs = systemUOMs.filter(uom => 
+      !formData.uoms.some(existingUom => existingUom.uomId === uom.id)
+    );
+    
+    if (availableUOMs.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        uoms: [
+          ...prev.uoms,
+          {
+            uomId: availableUOMs[0].id,
+            price: prev.price,
+            barcode: '',
+            isDefault: false
+          }
+        ]
+      }));
+    }
+  };
+
+  const updateUOM = (index: number, field: string, value: string | boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      uoms: prev.uoms.map((uom, i) => 
+        i === index ? { ...uom, [field]: value } : uom
+      )
+    }));
+  };
+
+  const removeUOM = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      uoms: prev.uoms.filter((_, i) => i !== index)
+    }));
+  };
+
+  const setAsDefaultUOM = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      uoms: prev.uoms.map((uom, i) => ({
+        ...uom,
+        isDefault: i === index
+      }))
     }));
   };
 
@@ -94,7 +158,7 @@ const QuickCreateForm = ({ onClose, categories }: QuickCreateFormProps) => {
   };
 
   const handleNext = () => {
-    if (currentStep < 3) {
+    if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -107,7 +171,6 @@ const QuickCreateForm = ({ onClose, categories }: QuickCreateFormProps) => {
 
   const handleSave = () => {
     console.log('Saving product:', formData);
-    // Here you would typically save to your backend
     onClose();
   };
 
@@ -116,9 +179,11 @@ const QuickCreateForm = ({ onClose, categories }: QuickCreateFormProps) => {
       case 1:
         return formData.name && formData.sku && formData.category;
       case 2:
-        return true; // Variants are optional
+        return formData.uoms.length > 0 && formData.uoms.some(uom => uom.isDefault);
       case 3:
-        return formData.price && formData.stock;
+        return true; // Variants are optional
+      case 4:
+        return formData.stock;
       default:
         return false;
     }
@@ -128,15 +193,15 @@ const QuickCreateForm = ({ onClose, categories }: QuickCreateFormProps) => {
     <Dialog open={true} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-2xl text-blue-800">Quick Create Product</DialogTitle>
+          <DialogTitle className="text-2xl text-blue-800">Quick Create Product - Multi UOM</DialogTitle>
         </DialogHeader>
 
         {/* Progress Steps */}
-        <div className="flex items-center justify-center space-x-8 py-6 border-b border-blue-200">
+        <div className="flex items-center justify-center space-x-4 py-6 border-b border-blue-200 overflow-x-auto">
           {steps.map((step) => (
-            <div key={step.number} className="flex items-center">
+            <div key={step.number} className="flex items-center min-w-0">
               <div className={`
-                flex items-center justify-center w-10 h-10 rounded-full border-2 
+                flex items-center justify-center w-10 h-10 rounded-full border-2 flex-shrink-0
                 ${currentStep >= step.number 
                   ? 'bg-blue-600 border-blue-600 text-white' 
                   : 'border-gray-300 text-gray-400'
@@ -148,14 +213,14 @@ const QuickCreateForm = ({ onClose, categories }: QuickCreateFormProps) => {
                   step.number
                 )}
               </div>
-              <div className="ml-3">
-                <p className={`text-sm font-medium ${currentStep >= step.number ? 'text-blue-800' : 'text-gray-500'}`}>
+              <div className="ml-3 min-w-0">
+                <p className={`text-sm font-medium truncate ${currentStep >= step.number ? 'text-blue-800' : 'text-gray-500'}`}>
                   {step.title}
                 </p>
-                <p className="text-xs text-gray-500">{step.description}</p>
+                <p className="text-xs text-gray-500 truncate">{step.description}</p>
               </div>
               {step.number < steps.length && (
-                <ArrowRight className="h-4 w-4 text-gray-400 ml-8" />
+                <ArrowRight className="h-4 w-4 text-gray-400 ml-4 flex-shrink-0" />
               )}
             </div>
           ))}
@@ -239,6 +304,116 @@ const QuickCreateForm = ({ onClose, categories }: QuickCreateFormProps) => {
           {currentStep === 2 && (
             <div className="space-y-6">
               <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold text-blue-800">Units of Measure & Pricing</h3>
+                  <p className="text-sm text-gray-600">Configure different selling units and their prices</p>
+                </div>
+                <Button onClick={addUOM} className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add UOM
+                </Button>
+              </div>
+
+              <div className="space-y-4">
+                {formData.uoms.map((uom, index) => {
+                  const selectedUOM = systemUOMs.find(u => u.id === uom.uomId);
+                  return (
+                    <Card key={index} className={`border-blue-200 ${uom.isDefault ? 'ring-2 ring-blue-400' : ''}`}>
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start mb-4">
+                          <h4 className="font-medium text-blue-800 flex items-center">
+                            <Scale className="h-4 w-4 mr-2" />
+                            UOM {index + 1}
+                            {uom.isDefault && <Badge className="ml-2 bg-blue-600 text-white text-xs">Default</Badge>}
+                          </h4>
+                          {formData.uoms.length > 1 && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeUOM(index)}
+                              className="text-red-600 hover:text-red-800"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                          <div>
+                            <Label className="text-blue-700">Unit</Label>
+                            <Select
+                              value={uom.uomId}
+                              onValueChange={(value) => updateUOM(index, 'uomId', value)}
+                            >
+                              <SelectTrigger className="mt-1 border-blue-200">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {systemUOMs.filter(u => u.isActive).map(systemUom => (
+                                  <SelectItem key={systemUom.id} value={systemUom.id}>
+                                    {systemUom.name} ({systemUom.symbol})
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          
+                          <div>
+                            <Label className="text-blue-700">Price *</Label>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              value={uom.price}
+                              onChange={(e) => updateUOM(index, 'price', e.target.value)}
+                              placeholder="0.00"
+                              className="mt-1 border-blue-200"
+                            />
+                          </div>
+
+                          <div>
+                            <Label className="text-blue-700">Barcode</Label>
+                            <Input
+                              value={uom.barcode}
+                              onChange={(e) => updateUOM(index, 'barcode', e.target.value)}
+                              placeholder="Optional"
+                              className="mt-1 border-blue-200"
+                            />
+                          </div>
+
+                          <div>
+                            <Label className="text-blue-700">Default Unit</Label>
+                            <div className="mt-1">
+                              <Button
+                                variant={uom.isDefault ? "default" : "outline"}
+                                size="sm"
+                                onClick={() => setAsDefaultUOM(index)}
+                                className={uom.isDefault ? "bg-blue-600" : "border-blue-300"}
+                              >
+                                {uom.isDefault ? 'Default' : 'Set Default'}
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {selectedUOM && (
+                          <div className="mt-3 p-2 bg-blue-50 rounded text-sm">
+                            <p className="text-blue-700">
+                              <strong>Type:</strong> {selectedUOM.type} | 
+                              <strong> Conversion:</strong> {selectedUOM.conversionFactor}x base unit
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {currentStep === 3 && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-blue-800">Product Variants</h3>
                 <Button onClick={addVariant} className="bg-blue-600 hover:bg-blue-700 text-white">
                   Add Variant
@@ -307,22 +482,11 @@ const QuickCreateForm = ({ onClose, categories }: QuickCreateFormProps) => {
             </div>
           )}
 
-          {currentStep === 3 && (
+          {currentStep === 4 && (
             <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-blue-800">Inventory Settings</h3>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="price" className="text-blue-800 font-medium">Base Price *</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    value={formData.price}
-                    onChange={(e) => handleInputChange('price', e.target.value)}
-                    placeholder="0.00"
-                    className="mt-2 border-blue-200 focus:border-blue-400"
-                  />
-                </div>
-
                 <div>
                   <Label htmlFor="stock" className="text-blue-800 font-medium">Initial Stock *</Label>
                   <Input
@@ -333,63 +497,49 @@ const QuickCreateForm = ({ onClose, categories }: QuickCreateFormProps) => {
                     placeholder="0"
                     className="mt-2 border-blue-200 focus:border-blue-400"
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Stock in {systemUOMs.find(u => u.id === formData.baseUomId)?.symbol || 'base unit'}
+                  </p>
                 </div>
-              </div>
 
-              <div>
-                <Label htmlFor="safetyStock" className="text-blue-800 font-medium">Safety Stock Level</Label>
-                <Input
-                  id="safetyStock"
-                  type="number"
-                  value={formData.safetyStock}
-                  onChange={(e) => handleInputChange('safetyStock', e.target.value)}
-                  placeholder="0"
-                  className="mt-2 border-blue-200 focus:border-blue-400"
-                />
-                <p className="text-xs text-gray-500 mt-1">Alert when stock falls below this level</p>
-              </div>
-
-              {/* Variant Pricing */}
-              {formData.variants.length > 0 && (
                 <div>
-                  <h4 className="text-lg font-semibold text-blue-800 mb-4">Variant Pricing</h4>
-                  <div className="space-y-3">
-                    {formData.variants.map((variant, index) => (
-                      <div key={index} className="flex items-center space-x-4 p-3 bg-blue-50 rounded-lg">
-                        <div className="flex-1">
-                          <p className="font-medium text-blue-800">
-                            {variant.size && `Size: ${variant.size}`}
-                            {variant.size && variant.color && ' • '}
-                            {variant.color && `Color: ${variant.color}`}
-                          </p>
-                          <p className="text-sm text-gray-600">{variant.sku}</p>
-                        </div>
-                        <div className="flex space-x-3">
-                          <div>
-                            <Label className="text-xs text-blue-700">Stock</Label>
-                            <Input
-                              type="number"
-                              value={variant.stock}
-                              onChange={(e) => updateVariant(index, 'stock', e.target.value)}
-                              className="w-20 h-8 text-sm border-blue-200"
-                            />
-                          </div>
-                          <div>
-                            <Label className="text-xs text-blue-700">Price</Label>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              value={variant.price}
-                              onChange={(e) => updateVariant(index, 'price', e.target.value)}
-                              className="w-24 h-8 text-sm border-blue-200"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <Label htmlFor="safetyStock" className="text-blue-800 font-medium">Safety Stock Level</Label>
+                  <Input
+                    id="safetyStock"
+                    type="number"
+                    value={formData.safetyStock}
+                    onChange={(e) => handleInputChange('safetyStock', e.target.value)}
+                    placeholder="0"
+                    className="mt-2 border-blue-200 focus:border-blue-400"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">Alert when stock falls below this level</p>
                 </div>
-              )}
+              </div>
+
+              {/* UOM Summary */}
+              <Card className="border-blue-200 bg-blue-50">
+                <CardHeader>
+                  <CardTitle className="text-lg text-blue-800">UOM Summary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {formData.uoms.map((uom, index) => {
+                      const selectedUOM = systemUOMs.find(u => u.id === uom.uomId);
+                      return (
+                        <div key={index} className="flex justify-between items-center">
+                          <span className="text-blue-700">
+                            {selectedUOM?.name} ({selectedUOM?.symbol})
+                            {uom.isDefault && <Badge className="ml-2 bg-blue-600 text-white text-xs">Default</Badge>}
+                          </span>
+                          <span className="font-medium text-green-600">
+                            ${uom.price || '0.00'}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           )}
         </div>
@@ -415,7 +565,7 @@ const QuickCreateForm = ({ onClose, categories }: QuickCreateFormProps) => {
             <Button variant="outline" onClick={onClose} className="border-gray-300">
               Cancel
             </Button>
-            {currentStep < 3 ? (
+            {currentStep < 4 ? (
               <Button 
                 onClick={handleNext} 
                 disabled={!isStepValid(currentStep)}
