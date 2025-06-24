@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,23 +9,44 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter, Plus, Download, Upload, Eye, AlertTriangle } from 'lucide-react';
 
+interface ProductUOM {
+  id: string;
+  uomId: string;
+  uom: UOM;
+  barcode?: string;
+  price: number;
+  isDefault: boolean;
+}
+
 interface Product {
   id: string;
   sku: string;
   name: string;
   category: string;
+  categoryId: string;
   stock: number;
   status: 'active' | 'inactive' | 'archived';
   price: number;
   supplier: string;
   safetyStock: number;
   primaryUOM: string;
-  uoms: Array<{
-    id: string;
-    name: string;
-    ratio: number;
-    isDefault: boolean;
-  }>;
+  uoms: ProductUOM[];
+  description: string;
+  images: string[];
+  variants: ProductVariant[];
+  baseUomId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ProductVariant {
+  id: string;
+  size?: string;
+  color?: string;
+  sku: string;
+  stock: number;
+  price: number;
+  uoms?: ProductUOM[];
 }
 
 interface Category {
@@ -39,6 +61,8 @@ interface UOM {
   name: string;
   symbol: string;
   type: 'length' | 'weight' | 'volume' | 'piece';
+  conversionFactor: number;
+  isActive: boolean;
 }
 
 interface ProductListProps {
@@ -86,7 +110,7 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
   }, [selectedProducts, onBatchSelect]);
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "outline"> = {
+    const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
       active: 'default',
       inactive: 'secondary',
       archived: 'outline'

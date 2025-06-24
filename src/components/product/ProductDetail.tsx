@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -360,7 +361,7 @@ const ProductDetail = ({ product, systemUOMs, onBack }: ProductDetailProps) => {
                           <div>
                             <Label className="text-sm text-blue-700">Type</Label>
                             <p className="text-sm">
-                              <Badge variant={productUom.uom.type === 'base' ? 'default' : 'secondary'}>
+                              <Badge variant={productUom.uom.type === 'piece' ? 'default' : 'secondary'}>
                                 {productUom.uom.type}
                               </Badge>
                             </p>
