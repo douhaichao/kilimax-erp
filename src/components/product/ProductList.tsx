@@ -1,298 +1,245 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, Eye, Edit, Trash2, AlertTriangle } from 'lucide-react';
-import { Product, Category } from '@/pages/ProductManagement';
+import { Search, Filter, Plus, Download, Upload, Eye, AlertTriangle } from 'lucide-react';
+
+interface Product {
+  id: string;
+  sku: string;
+  name: string;
+  category: string;
+  stock: number;
+  status: 'active' | 'inactive' | 'archived';
+  price: number;
+  supplier: string;
+  safetyStock: number;
+  primaryUOM: string;
+  uoms: Array<{
+    id: string;
+    name: string;
+    ratio: number;
+    isDefault: boolean;
+  }>;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  parentId?: string;
+  children?: Category[];
+}
+
+interface UOM {
+  id: string;
+  name: string;
+  symbol: string;
+  type: 'length' | 'weight' | 'volume' | 'piece';
+}
 
 interface ProductListProps {
   products: Product[];
   categories: Category[];
+  systemUOMs: UOM[];
   onProductSelect: (product: Product) => void;
   onBatchSelect: (productIds: string[]) => void;
 }
 
-const ProductList = ({ products, categories, onProductSelect, onBatchSelect }: ProductListProps) => {
+const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatchSelect }: ProductListProps) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedSupplier, setSelectedSupplier] = useState('');
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
-  const [sortField, setSortField] = useState<string>('name');
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [showFilters, setShowFilters] = useState(false);
 
-  const filteredProducts = products.filter(product => {
-    const matchesSearch = 
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.supplier.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesCategory = selectedCategory === 'all' || product.categoryId === selectedCategory;
-    const matchesStatus = selectedStatus === 'all' || product.status === selectedStatus;
-    
-    return matchesSearch && matchesCategory && matchesStatus;
-  }).sort((a, b) => {
-    const aValue = a[sortField as keyof Product];
-    const bValue = b[sortField as keyof Product];
-    
-    if (typeof aValue === 'string' && typeof bValue === 'string') {
-      return sortDirection === 'asc' 
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
-    }
-    
-    if (typeof aValue === 'number' && typeof bValue === 'number') {
-      return sortDirection === 'asc' ? aValue - bValue : bValue - aValue;
-    }
-    
-    return 0;
-  });
-
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      const allIds = filteredProducts.map(p => p.id);
-      setSelectedProducts(allIds);
-      onBatchSelect(allIds);
-    } else {
-      setSelectedProducts([]);
-      onBatchSelect([]);
-    }
-  };
-
-  const handleSelectProduct = (productId: string, checked: boolean) => {
-    let newSelected;
-    if (checked) {
-      newSelected = [...selectedProducts, productId];
-    } else {
-      newSelected = selectedProducts.filter(id => id !== productId);
-    }
-    setSelectedProducts(newSelected);
-    onBatchSelect(newSelected);
-  };
-
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      active: { label: 'Active', className: 'bg-green-600 text-white' },
-      inactive: { label: 'Inactive', className: 'bg-gray-500 text-white' },
-      archived: { label: 'Archived', className: 'bg-gray-400 text-white' }
-    };
-    
-    const config = statusConfig[status as keyof typeof statusConfig];
-    return (
-      <Badge className={`text-xs font-medium ${config.className}`}>
-        {config.label}
-      </Badge>
+  const handleProductSelect = (productId: string) => {
+    setSelectedProducts(prev => 
+      prev.includes(productId) 
+        ? prev.filter(id => id !== productId)
+        : [...prev, productId]
     );
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
-
-  const handleSort = (field: string) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+  const handleSelectAll = () => {
+    if (selectedProducts.length === filteredProducts.length) {
+      setSelectedProducts([]);
     } else {
-      setSortField(field);
-      setSortDirection('asc');
+      setSelectedProducts(filteredProducts.map(p => p.id));
     }
   };
 
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         product.sku.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = !selectedCategory || product.category === selectedCategory;
+    const matchesSupplier = !selectedSupplier || product.supplier === selectedSupplier;
+    
+    return matchesSearch && matchesCategory && matchesSupplier;
+  });
+
+  React.useEffect(() => {
+    onBatchSelect(selectedProducts);
+  }, [selectedProducts, onBatchSelect]);
+
+  const getStatusBadge = (status: string) => {
+    const variants = {
+      active: 'default',
+      inactive: 'secondary',
+      archived: 'outline'
+    };
+    return <Badge variant={variants[status as keyof typeof variants]}>{status}</Badge>;
+  };
+
+  const isLowStock = (product: Product) => product.stock <= product.safetyStock;
+
   return (
-    <div className="space-y-6">
-      {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-4 top-3 h-5 w-5 text-blue-500" />
-          <Input
-            placeholder="Search products by name, SKU, or supplier..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-12 h-12 border-blue-200 focus:border-blue-400 focus:ring-blue-400"
-          />
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle>商品列表</CardTitle>
+            <CardDescription>管理您的商品库存和信息</CardDescription>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm">
+              <Upload className="h-4 w-4 mr-2" />
+              批量导入
+            </Button>
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4 mr-2" />
+              导出
+            </Button>
+            <Button size="sm">
+              <Plus className="h-4 w-4 mr-2" />
+              新增商品
+            </Button>
+          </div>
         </div>
-        
-        <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-          <SelectTrigger className="w-full md:w-48 h-12 border-blue-200">
-            <SelectValue placeholder="Category" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Categories</SelectItem>
-            {categories.map(category => (
-              <SelectItem key={category.id} value={category.id}>{category.name}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="flex gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="搜索商品名称或SKU..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => setShowFilters(!showFilters)}
+            >
+              <Filter className="h-4 w-4 mr-2" />
+              筛选
+            </Button>
+          </div>
 
-        <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-          <SelectTrigger className="w-full md:w-48 h-12 border-blue-200">
-            <SelectValue placeholder="Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="active">Active</SelectItem>
-            <SelectItem value="inactive">Inactive</SelectItem>
-            <SelectItem value="archived">Archived</SelectItem>
-          </SelectContent>
-        </Select>
-
-        <Button variant="outline" className="h-12 border-blue-300 text-blue-700 hover:bg-blue-50">
-          <Filter className="h-4 w-4 mr-2" />
-          Advanced Filters
-        </Button>
-      </div>
-
-      {/* Batch Actions */}
-      {selectedProducts.length > 0 && (
-        <Card className="border-blue-200 bg-blue-50">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <span className="text-blue-700 font-medium">
-                {selectedProducts.length} product(s) selected
-              </span>
-              <div className="flex space-x-2">
-                <Button size="sm" variant="outline" className="border-blue-300 text-blue-700">
-                  Bulk Edit Price
-                </Button>
-                <Button size="sm" variant="outline" className="border-blue-300 text-blue-700">
-                  Update Stock
-                </Button>
-                <Button size="sm" variant="outline" className="border-blue-300 text-blue-700">
-                  Change Category
-                </Button>
+          {showFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+              <div>
+                <label className="text-sm font-medium mb-2 block">分类</label>
+                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择分类" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">全部分类</SelectItem>
+                    {categories.map(category => (
+                      <SelectItem key={category.id} value={category.name}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">供应商</label>
+                <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="选择供应商" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">全部供应商</SelectItem>
+                    {Array.from(new Set(products.map(p => p.supplier))).map(supplier => (
+                      <SelectItem key={supplier} value={supplier}>
+                        {supplier}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          )}
 
-      {/* Products Table */}
-      <Card className="border-blue-200 shadow-sm">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-blue-200 bg-blue-50">
-                  <TableHead className="w-12">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
+                    onCheckedChange={handleSelectAll}
+                  />
+                </TableHead>
+                <TableHead>SKU</TableHead>
+                <TableHead>商品名称</TableHead>
+                <TableHead>分类</TableHead>
+                <TableHead>库存</TableHead>
+                <TableHead>状态</TableHead>
+                <TableHead>价格</TableHead>
+                <TableHead>主单位</TableHead>
+                <TableHead>操作</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredProducts.map((product) => (
+                <TableRow 
+                  key={product.id}
+                  className={`cursor-pointer hover:bg-gray-50 ${isLowStock(product) ? 'bg-yellow-50' : ''}`}
+                  onClick={() => onProductSelect(product)}
+                >
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox
-                      checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
-                      onCheckedChange={handleSelectAll}
+                      checked={selectedProducts.includes(product.id)}
+                      onCheckedChange={() => handleProductSelect(product.id)}
                     />
-                  </TableHead>
-                  <TableHead 
-                    className="font-semibold text-blue-700 cursor-pointer hover:text-blue-800"
-                    onClick={() => handleSort('sku')}
-                  >
-                    SKU {sortField === 'sku' && (sortDirection === 'asc' ? '↑' : '↓')}
-                  </TableHead>
-                  <TableHead 
-                    className="font-semibold text-blue-700 cursor-pointer hover:text-blue-800"
-                    onClick={() => handleSort('name')}
-                  >
-                    Product Name {sortField === 'name' && (sortDirection === 'asc' ? '↑' : '↓')}
-                  </TableHead>
-                  <TableHead className="font-semibold text-blue-700">Category</TableHead>
-                  <TableHead 
-                    className="font-semibold text-blue-700 cursor-pointer hover:text-blue-800"
-                    onClick={() => handleSort('stock')}
-                  >
-                    Stock {sortField === 'stock' && (sortDirection === 'asc' ? '↑' : '↓')}
-                  </TableHead>
-                  <TableHead 
-                    className="font-semibold text-blue-700 cursor-pointer hover:text-blue-800"
-                    onClick={() => handleSort('price')}
-                  >
-                    Price {sortField === 'price' && (sortDirection === 'asc' ? '↑' : '↓')}
-                  </TableHead>
-                  <TableHead className="font-semibold text-blue-700">Status</TableHead>
-                  <TableHead className="font-semibold text-blue-700">Supplier</TableHead>
-                  <TableHead className="text-right font-semibold text-blue-700">Actions</TableHead>
+                  </TableCell>
+                  <TableCell className="font-mono text-sm">{product.sku}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {product.name}
+                      {isLowStock(product) && (
+                        <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>{product.category}</TableCell>
+                  <TableCell>
+                    <span className={isLowStock(product) ? 'text-yellow-600 font-medium' : ''}>
+                      {product.stock}
+                    </span>
+                  </TableCell>
+                  <TableCell>{getStatusBadge(product.status)}</TableCell>
+                  <TableCell>¥{product.price.toFixed(2)}</TableCell>
+                  <TableCell>{product.primaryUOM}</TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="sm">
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredProducts.map((product, index) => {
-                  const isLowStock = product.stock <= product.safetyStock;
-                  const isArchived = product.status === 'archived';
-                  
-                  return (
-                    <TableRow 
-                      key={product.id} 
-                      className={`
-                        border-blue-100 hover:bg-blue-25 cursor-pointer
-                        ${index % 2 === 0 ? 'bg-white' : 'bg-blue-25'}
-                        ${isLowStock ? 'bg-amber-50 hover:bg-amber-100' : ''}
-                        ${isArchived ? 'bg-gray-100 text-gray-500 hover:bg-gray-150' : ''}
-                      `}
-                      onClick={() => onProductSelect(product)}
-                    >
-                      <TableCell onClick={(e) => e.stopPropagation()}>
-                        <Checkbox
-                          checked={selectedProducts.includes(product.id)}
-                          onCheckedChange={(checked) => handleSelectProduct(product.id, checked as boolean)}
-                        />
-                      </TableCell>
-                      <TableCell className="font-medium text-blue-700">
-                        <div className="flex items-center">
-                          {product.sku}
-                          {isLowStock && (
-                            <AlertTriangle className="h-4 w-4 text-amber-500 ml-2" />
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-medium">{product.name}</TableCell>
-                      <TableCell className="text-gray-700">{product.category}</TableCell>
-                      <TableCell className={`font-medium ${isLowStock ? 'text-amber-600' : 'text-gray-900'}`}>
-                        {product.stock}
-                        {isLowStock && (
-                          <span className="text-xs text-amber-600 ml-1">(Low)</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="font-medium text-green-600">
-                        {formatCurrency(product.price)}
-                      </TableCell>
-                      <TableCell>
-                        {getStatusBadge(product.status)}
-                      </TableCell>
-                      <TableCell className="text-gray-600">{product.supplier}</TableCell>
-                      <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                        <div className="flex justify-end space-x-2">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                            onClick={() => onProductSelect(product)}
-                          >
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-800 hover:bg-green-50">
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-800 hover:bg-red-50">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Results Summary */}
-      <div className="text-sm text-gray-600 text-center">
-        Showing {filteredProducts.length} of {products.length} products
-      </div>
-    </div>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

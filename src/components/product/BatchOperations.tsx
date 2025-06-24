@@ -1,360 +1,292 @@
-
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { X, DollarSign, Package, Tag, CheckCircle, AlertCircle } from 'lucide-react';
-import { Product } from '@/pages/ProductManagement';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { X, Package, DollarSign, Archive, Tag, Loader2 } from 'lucide-react';
+
+interface Product {
+  id: string;
+  sku: string;
+  name: string;
+  category: string;
+  stock: number;
+  status: 'active' | 'inactive' | 'archived';
+  price: number;
+  supplier: string;
+  safetyStock: number;
+  primaryUOM: string;
+  uoms: Array<{
+    id: string;
+    name: string;
+    ratio: number;
+    isDefault: boolean;
+  }>;
+}
+
+interface UOM {
+  id: string;
+  name: string;
+  symbol: string;
+  type: 'length' | 'weight' | 'volume' | 'piece';
+}
 
 interface BatchOperationsProps {
   selectedProducts: string[];
   products: Product[];
+  systemUOMs: UOM[];
   onClose: () => void;
 }
 
-const BatchOperations = ({ selectedProducts, products, onClose }: BatchOperationsProps) => {
-  const [operation, setOperation] = useState<'price' | 'stock' | 'category' | null>(null);
+const BatchOperations = ({ selectedProducts, products, systemUOMs, onClose }: BatchOperationsProps) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [results, setResults] = useState<{ success: number; failed: number; total: number } | null>(null);
+  const [operation, setOperation] = useState<'price' | 'stock' | 'category' | 'status'>('price');
+  
+  // Batch price update
+  const [priceAction, setPriceAction] = useState<'set' | 'increase' | 'decrease'>('set');
+  const [priceValue, setPriceValue] = useState('');
+  const [priceType, setPriceType] = useState<'fixed' | 'percentage'>('fixed');
+  
+  // Batch stock update
+  const [stockAction, setStockAction] = useState<'set' | 'add' | 'subtract'>('set');
+  const [stockValue, setStockValue] = useState('');
+  const [stockUOM, setStockUOM] = useState('');
+  
+  // Batch category update
+  const [newCategory, setNewCategory] = useState('');
+  
+  // Batch status update
+  const [newStatus, setNewStatus] = useState<'active' | 'inactive' | 'archived'>('active');
 
-  // Form states
-  const [priceUpdate, setPriceUpdate] = useState({ type: 'absolute', value: '' });
-  const [stockUpdate, setStockUpdate] = useState({ type: 'set', value: '' });
-  const [categoryUpdate, setCategoryUpdate] = useState('');
-
-  const selectedProductDetails = products.filter(p => selectedProducts.includes(p.id));
+  const selectedProductsList = products.filter(p => selectedProducts.includes(p.id));
 
   const handleBatchOperation = async () => {
     setIsProcessing(true);
     setProgress(0);
     
     // Simulate batch processing
-    const total = selectedProducts.length;
-    let processed = 0;
-    let success = 0;
-    let failed = 0;
-
-    for (const productId of selectedProducts) {
-      // Simulate processing time
-      await new Promise(resolve => setTimeout(resolve, 200));
-      
-      processed++;
-      
-      // Simulate some failures
-      if (Math.random() > 0.1) {
-        success++;
-      } else {
-        failed++;
-      }
-      
-      setProgress((processed / total) * 100);
+    for (let i = 0; i <= 100; i += 10) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      setProgress(i);
     }
-
-    setResults({ success, failed, total });
+    
     setIsProcessing(false);
+    // Here you would implement the actual batch update logic
+    console.log(`Batch ${operation} operation completed for ${selectedProducts.length} products`);
   };
 
-  const resetForm = () => {
-    setOperation(null);
-    setResults(null);
-    setProgress(0);
-    setPriceUpdate({ type: 'absolute', value: '' });
-    setStockUpdate({ type: 'set', value: '' });
-    setCategoryUpdate('');
-  };
-
-  const getOperationIcon = (op: string) => {
-    switch (op) {
-      case 'price': return <DollarSign className="h-5 w-5" />;
-      case 'stock': return <Package className="h-5 w-5" />;
-      case 'category': return <Tag className="h-5 w-5" />;
-      default: return null;
-    }
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
+  if (selectedProducts.length === 0) {
+    return (
+      <Card>
+        <CardContent className="p-6 text-center">
+          <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <p className="text-gray-500">请先选择要操作的商品</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl text-blue-800">Batch Operations</DialogTitle>
-        </DialogHeader>
-
+    <Card>
+      <CardHeader>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5" />
+              批量操作
+            </CardTitle>
+            <CardDescription>
+              已选择 {selectedProducts.length} 个商品进行批量操作
+            </CardDescription>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
         <div className="space-y-6">
-          {/* Selected Products Summary */}
-          <Card className="border-blue-200 bg-blue-50">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-blue-800">Selected Products</h3>
-                  <p className="text-blue-600">{selectedProducts.length} products selected for batch operation</p>
-                </div>
-                <Badge className="bg-blue-600 text-white">
-                  {selectedProducts.length} items
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Product Preview */}
-          <div className="max-h-40 overflow-y-auto border border-blue-200 rounded-lg">
-            <div className="p-3 bg-blue-50 border-b border-blue-200">
-              <h4 className="font-medium text-blue-800">Selected Products Preview</h4>
-            </div>
-            <div className="divide-y divide-blue-100">
-              {selectedProductDetails.slice(0, 5).map((product) => (
-                <div key={product.id} className="p-3 flex justify-between items-center">
+          {/* Selected Products Preview */}
+          <div>
+            <Label className="text-sm font-medium">选中的商品</Label>
+            <div className="mt-2 space-y-2 max-h-40 overflow-y-auto">
+              {selectedProductsList.map(product => (
+                <div key={product.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
                   <div>
-                    <p className="font-medium text-sm">{product.name}</p>
-                    <p className="text-xs text-gray-600">{product.sku}</p>
+                    <span className="font-medium">{product.name}</span>
+                    <span className="text-sm text-gray-500 ml-2">({product.sku})</span>
                   </div>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">{formatCurrency(product.price)}</p>
-                    <p className="text-xs text-gray-600">Stock: {product.stock}</p>
-                  </div>
+                  <Badge variant="outline">{product.category}</Badge>
                 </div>
               ))}
-              {selectedProductDetails.length > 5 && (
-                <div className="p-3 text-center text-sm text-gray-500">
-                  ... and {selectedProductDetails.length - 5} more products
-                </div>
-              )}
             </div>
           </div>
 
-          {!operation && !results && (
-            <div>
-              <h3 className="text-lg font-semibold text-blue-800 mb-4">Choose Operation</h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card 
-                  className="border-blue-200 cursor-pointer hover:border-blue-400 hover:shadow-md transition-all"
-                  onClick={() => setOperation('price')}
-                >
-                  <CardContent className="p-6 text-center">
-                    <DollarSign className="h-8 w-8 text-blue-600 mx-auto mb-3" />
-                    <h4 className="font-semibold text-blue-800">Update Prices</h4>
-                    <p className="text-sm text-gray-600 mt-2">Change product prices in bulk</p>
-                  </CardContent>
-                </Card>
+          {/* Operation Tabs */}
+          <Tabs value={operation} onValueChange={(value) => setOperation(value as any)}>
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="price" className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4" />
+                调价
+              </TabsTrigger>
+              <TabsTrigger value="stock" className="flex items-center gap-2">
+                <Package className="h-4 w-4" />
+                库存
+              </TabsTrigger>
+              <TabsTrigger value="category" className="flex items-center gap-2">
+                <Tag className="h-4 w-4" />
+                分类
+              </TabsTrigger>
+              <TabsTrigger value="status" className="flex items-center gap-2">
+                <Archive className="h-4 w-4" />
+                状态
+              </TabsTrigger>
+            </TabsList>
 
-                <Card 
-                  className="border-blue-200 cursor-pointer hover:border-blue-400 hover:shadow-md transition-all"
-                  onClick={() => setOperation('stock')}
-                >
-                  <CardContent className="p-6 text-center">
-                    <Package className="h-8 w-8 text-blue-600 mx-auto mb-3" />
-                    <h4 className="font-semibold text-blue-800">Update Stock</h4>
-                    <p className="text-sm text-gray-600 mt-2">Adjust inventory levels</p>
-                  </CardContent>
-                </Card>
-
-                <Card 
-                  className="border-blue-200 cursor-pointer hover:border-blue-400 hover:shadow-md transition-all"
-                  onClick={() => setOperation('category')}
-                >
-                  <CardContent className="p-6 text-center">
-                    <Tag className="h-8 w-8 text-blue-600 mx-auto mb-3" />
-                    <h4 className="font-semibold text-blue-800">Change Category</h4>
-                    <p className="text-sm text-gray-600 mt-2">Move products to new category</p>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          )}
-
-          {operation && !isProcessing && !results && (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-2">
-                  {getOperationIcon(operation)}
-                  <h3 className="text-lg font-semibold text-blue-800">
-                    {operation === 'price' && 'Update Prices'}
-                    {operation === 'stock' && 'Update Stock'}
-                    {operation === 'category' && 'Change Category'}
-                  </h3>
-                </div>
-                <Button variant="ghost" onClick={resetForm} className="text-gray-500">
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-
-              {operation === 'price' && (
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-blue-800 font-medium">Price Update Method</Label>
-                    <Select value={priceUpdate.type} onValueChange={(value) => setPriceUpdate({...priceUpdate, type: value})}>
-                      <SelectTrigger className="mt-2 border-blue-200">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="absolute">Set absolute price</SelectItem>
-                        <SelectItem value="increase">Increase by amount</SelectItem>
-                        <SelectItem value="decrease">Decrease by amount</SelectItem>
-                        <SelectItem value="percentage">Increase by percentage</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="text-blue-800 font-medium">
-                      {priceUpdate.type === 'absolute' && 'New Price'}
-                      {priceUpdate.type === 'increase' && 'Increase Amount'}
-                      {priceUpdate.type === 'decrease' && 'Decrease Amount'}
-                      {priceUpdate.type === 'percentage' && 'Percentage Increase'}
-                    </Label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={priceUpdate.value}
-                      onChange={(e) => setPriceUpdate({...priceUpdate, value: e.target.value})}
-                      placeholder={priceUpdate.type === 'percentage' ? '10' : '0.00'}
-                      className="mt-2 border-blue-200 focus:border-blue-400"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {operation === 'stock' && (
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-blue-800 font-medium">Stock Update Method</Label>
-                    <Select value={stockUpdate.type} onValueChange={(value) => setStockUpdate({...stockUpdate, type: value})}>
-                      <SelectTrigger className="mt-2 border-blue-200">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="set">Set stock level</SelectItem>
-                        <SelectItem value="add">Add to current stock</SelectItem>
-                        <SelectItem value="subtract">Subtract from current stock</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label className="text-blue-800 font-medium">
-                      {stockUpdate.type === 'set' && 'New Stock Level'}
-                      {stockUpdate.type === 'add' && 'Add Quantity'}
-                      {stockUpdate.type === 'subtract' && 'Subtract Quantity'}
-                    </Label>
-                    <Input
-                      type="number"
-                      value={stockUpdate.value}
-                      onChange={(e) => setStockUpdate({...stockUpdate, value: e.target.value})}
-                      placeholder="0"
-                      className="mt-2 border-blue-200 focus:border-blue-400"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {operation === 'category' && (
+            <TabsContent value="price" className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-blue-800 font-medium">New Category</Label>
-                  <Select value={categoryUpdate} onValueChange={setCategoryUpdate}>
-                    <SelectTrigger className="mt-2 border-blue-200">
-                      <SelectValue placeholder="Select new category" />
+                  <Label>操作类型</Label>
+                  <Select value={priceAction} onValueChange={setPriceAction}>
+                    <SelectTrigger>
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="cat-1">Beverages</SelectItem>
-                      <SelectItem value="cat-2">Handicrafts</SelectItem>
-                      <SelectItem value="cat-3">Outdoor Gear</SelectItem>
+                      <SelectItem value="set">设置价格</SelectItem>
+                      <SelectItem value="increase">增加价格</SelectItem>
+                      <SelectItem value="decrease">减少价格</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-              )}
-
-              <div className="flex justify-end space-x-3 pt-6">
-                <Button variant="outline" onClick={resetForm} className="border-gray-300">
-                  Cancel
-                </Button>
-                <Button 
-                  onClick={handleBatchOperation}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                  disabled={
-                    (operation === 'price' && !priceUpdate.value) ||
-                    (operation === 'stock' && !stockUpdate.value) ||
-                    (operation === 'category' && !categoryUpdate)
-                  }
-                >
-                  Apply to {selectedProducts.length} Products
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {isProcessing && (
-            <div className="text-center space-y-4">
-              <div className="flex items-center justify-center space-x-2 mb-4">
-                {getOperationIcon(operation!)}
-                <h3 className="text-lg font-semibold text-blue-800">Processing Batch Operation</h3>
-              </div>
-              <Progress value={progress} className="w-full" />
-              <p className="text-blue-600">
-                Processing {Math.round(progress)}% complete...
-              </p>
-            </div>
-          )}
-
-          {results && (
-            <div className="text-center space-y-4">
-              <div className="flex items-center justify-center space-x-2 mb-4">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-                <h3 className="text-lg font-semibold text-green-800">Batch Operation Complete</h3>
-              </div>
-              
-              <div className="grid grid-cols-3 gap-4">
-                <Card className="border-green-200 bg-green-50">
-                  <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold text-green-600">{results.success}</div>
-                    <div className="text-sm text-green-700">Successful</div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-red-200 bg-red-50">
-                  <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold text-red-600">{results.failed}</div>
-                    <div className="text-sm text-red-700">Failed</div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-blue-200 bg-blue-50">
-                  <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold text-blue-600">{results.total}</div>
-                    <div className="text-sm text-blue-700">Total</div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {results.failed > 0 && (
-                <div className="flex items-center justify-center space-x-2 text-amber-600">
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="text-sm">Some operations failed. Check the error log for details.</span>
+                <div>
+                  <Label>值类型</Label>
+                  <Select value={priceType} onValueChange={setPriceType}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fixed">固定金额</SelectItem>
+                      <SelectItem value="percentage">百分比</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              )}
-
-              <div className="flex justify-center space-x-3 pt-4">
-                <Button variant="outline" onClick={resetForm} className="border-blue-300 text-blue-700">
-                  Run Another Operation
-                </Button>
-                <Button onClick={onClose} className="bg-blue-600 hover:bg-blue-700 text-white">
-                  Close
-                </Button>
               </div>
+              <div>
+                <Label>价格值</Label>
+                <Input
+                  type="number"
+                  placeholder={priceType === 'fixed' ? '输入金额' : '输入百分比'}
+                  value={priceValue}
+                  onChange={(e) => setPriceValue(e.target.value)}
+                />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="stock" className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>操作类型</Label>
+                  <Select value={stockAction} onValueChange={setStockAction}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="set">设置库存</SelectItem>
+                      <SelectItem value="add">增加库存</SelectItem>
+                      <SelectItem value="subtract">减少库存</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>单位</Label>
+                  <Select value={stockUOM} onValueChange={setStockUOM}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="选择单位" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {systemUOMs.map(uom => (
+                        <SelectItem key={uom.id} value={uom.id}>
+                          {uom.name} ({uom.symbol})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div>
+                <Label>库存数量</Label>
+                <Input
+                  type="number"
+                  placeholder="输入数量"
+                  value={stockValue}
+                  onChange={(e) => setStockValue(e.target.value)}
+                />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="category" className="space-y-4">
+              <div>
+                <Label>新分类</Label>
+                <Input
+                  placeholder="输入新的分类名称"
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                />
+              </div>
+            </TabsContent>
+
+            <TabsContent value="status" className="space-y-4">
+              <div>
+                <Label>新状态</Label>
+                <Select value={newStatus} onValueChange={setNewStatus}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">启用</SelectItem>
+                    <SelectItem value="inactive">禁用</SelectItem>
+                    <SelectItem value="archived">归档</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          {/* Progress Bar (show when processing) */}
+          {isProcessing && (
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>处理进度</span>
+                <span>{progress}%</span>
+              </div>
+              <Progress value={progress} />
             </div>
           )}
+
+          {/* Action Buttons */}
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={onClose} disabled={isProcessing}>
+              取消
+            </Button>
+            <Button onClick={handleBatchOperation} disabled={isProcessing}>
+              {isProcessing ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  处理中...
+                </>
+              ) : (
+                '执行批量操作'
+              )}
+            </Button>
+          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </CardContent>
+    </Card>
   );
 };
 
