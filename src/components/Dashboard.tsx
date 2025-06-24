@@ -68,6 +68,12 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
       key: "dashboard"
     },
     {
+      title: "Product Management",
+      icon: Package,
+      key: "product-management",
+      url: "/products"
+    },
+    {
       title: "Purchase Orders",
       icon: ShoppingBag,
       key: "purchase-orders"
@@ -126,7 +132,13 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
                 <SidebarMenuItem key={item.key}>
                   <SidebarMenuButton 
                     isActive={currentModule === item.key}
-                    onClick={() => setCurrentModule(item.key)}
+                    onClick={() => {
+                      if (item.url) {
+                        window.location.href = item.url;
+                      } else {
+                        setCurrentModule(item.key);
+                      }
+                    }}
                     className={currentModule === item.key ? 'bg-green-100 text-green-800 hover:bg-green-150' : 'hover:bg-green-50 hover:text-green-700'}
                   >
                     <item.icon className="h-4 w-4" />
