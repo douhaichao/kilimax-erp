@@ -13,7 +13,12 @@ import {
   MapPin,
   Clock,
   User,
-  FileText
+  FileText,
+  CheckCircle,
+  Truck,
+  XCircle,
+  Send,
+  Eye
 } from 'lucide-react';
 import {
   Table,
@@ -50,6 +55,79 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
     );
   };
 
+  const handleStatusChange = (newStatus: TransferOrderStatus) => {
+    const updatedOrder = {
+      ...order,
+      status: newStatus,
+      updatedAt: new Date().toISOString()
+    };
+
+    // Add appropriate dates based on status change
+    switch (newStatus) {
+      case 'pending':
+        updatedOrder.approvedDate = new Date().toISOString();
+        updatedOrder.approvedBy = 'Current User'; // In real app, get from auth
+        break;
+      case 'in_transit':
+        updatedOrder.shippedDate = new Date().toISOString();
+        // Update shipped quantities to match requested
+        updatedOrder.items = order.items.map(item => ({
+          ...item,
+          shippedQuantity: item.requestedQuantity
+        }));
+        break;
+      case 'completed':
+        updatedOrder.receivedDate = new Date().toISOString();
+        // Update received quantities to match shipped
+        updatedOrder.items = order.items.map(item => ({
+          ...item,
+          receivedQuantity: item.shippedQuantity || item.requestedQuantity
+        }));
+        break;
+    }
+
+    onUpdate(updatedOrder);
+  };
+
+  const getAvailableActions = () => {
+    const actions = [];
+
+    switch (order.status) {
+      case 'draft':
+        actions.push(
+          <Button key="submit" onClick={() => handleStatusChange('pending')}>
+            <Send className="mr-2 h-4 w-4" />
+            Submit for Approval
+          </Button>
+        );
+        break;
+      case 'pending':
+        actions.push(
+          <Button key="approve" onClick={() => handleStatusChange('in_transit')}>
+            <Truck className="mr-2 h-4 w-4" />
+            Mark as Shipped
+          </Button>
+        );
+        actions.push(
+          <Button key="cancel" variant="outline" onClick={() => handleStatusChange('cancelled')}>
+            <XCircle className="mr-2 h-4 w-4" />
+            Cancel
+          </Button>
+        );
+        break;
+      case 'in_transit':
+        actions.push(
+          <Button key="receive" onClick={() => handleStatusChange('completed')}>
+            <CheckCircle className="mr-2 h-4 w-4" />
+            Mark as Received
+          </Button>
+        );
+        break;
+    }
+
+    return actions;
+  };
+
   const canEdit = order.status === 'draft' || order.status === 'pending';
   const canDelete = order.status === 'draft';
 
@@ -67,6 +145,9 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
           </div>
         </div>
         <div className="flex space-x-2">
+          {/* Status Action Buttons */}
+          {getAvailableActions()}
+          
           {canEdit && (
             <Button variant="outline" onClick={onEdit}>
               <Edit className="mr-2 h-4 w-4" />
@@ -81,6 +162,59 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
           )}
         </div>
       </div>
+
+      {/* Status Flow Indicator */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center space-x-2">
+            <Clock className="h-5 w-5" />
+            <span>Status Flow</span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            {['draft', 'pending', 'in_transit', 'completed'].map((status, index) => {
+              const isActive = order.status === status;
+              const isCompleted = ['draft', 'pending', 'in_transit', 'completed'].indexOf(order.status) > index;
+              const isCancelled = order.status === 'cancelled';
+              
+              return (
+                <div key={status} className="flex items-center">
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
+                    isActive ? 'bg-blue-500 border-blue-500 text-white' :
+                    isCompleted ? 'bg-green-500 border-green-500 text-white' :
+                    isCancelled ? 'bg-red-500 border-red-500 text-white' :
+                    'bg-gray-100 border-gray-300 text-gray-500'
+                  }`}>
+                    {isCompleted || isActive ? (
+                      <CheckCircle className="h-4 w-4" />
+                    ) : (
+                      <span className="text-xs">{index + 1}</span>
+                    )}
+                  </div>
+                  <div className="ml-2">
+                    <p className={`text-sm font-medium ${isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-500'}`}>
+                      {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
+                    </p>
+                  </div>
+                  {index < 3 && (
+                    <div className={`mx-4 h-0.5 w-12 ${isCompleted ? 'bg-green-500' : 'bg-gray-300'}`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          {order.status === 'cancelled' && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+              <div className="flex items-center">
+                <XCircle className="h-5 w-5 text-red-500 mr-2" />
+                <span className="text-red-700 font-medium">This transfer order has been cancelled</span>
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Order Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

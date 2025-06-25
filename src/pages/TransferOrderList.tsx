@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,7 +15,9 @@ import {
   XCircle,
   Eye,
   Edit,
-  Trash2
+  Trash2,
+  Send,
+  Truck
 } from 'lucide-react';
 import {
   Table,
@@ -26,6 +27,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { TransferOrder, TransferOrderStatus } from '@/types/transferOrder';
 import TransferOrderDetail from '@/components/transfer/TransferOrderDetail';
 import TransferOrderForm from '@/components/transfer/TransferOrderForm';
@@ -165,6 +172,77 @@ const TransferOrderList = () => {
   const handleOrderDelete = (orderId: string) => {
     setTransferOrders(orders => orders.filter(order => order.id !== orderId));
     setCurrentView('list');
+  };
+
+  const handleQuickStatusChange = (order: TransferOrder, newStatus: TransferOrderStatus) => {
+    const updatedOrder = {
+      ...order,
+      status: newStatus,
+      updatedAt: new Date().toISOString()
+    };
+
+    // Add appropriate dates based on status change
+    switch (newStatus) {
+      case 'pending':
+        updatedOrder.approvedDate = new Date().toISOString();
+        updatedOrder.approvedBy = 'Current User';
+        break;
+      case 'in_transit':
+        updatedOrder.shippedDate = new Date().toISOString();
+        updatedOrder.items = order.items.map(item => ({
+          ...item,
+          shippedQuantity: item.requestedQuantity
+        }));
+        break;
+      case 'completed':
+        updatedOrder.receivedDate = new Date().toISOString();
+        updatedOrder.items = order.items.map(item => ({
+          ...item,
+          receivedQuantity: item.shippedQuantity || item.requestedQuantity
+        }));
+        break;
+    }
+
+    handleOrderUpdate(updatedOrder);
+  };
+
+  const getQuickActions = (order: TransferOrder) => {
+    const actions = [];
+
+    switch (order.status) {
+      case 'draft':
+        actions.push(
+          <DropdownMenuItem key="submit" onClick={() => handleQuickStatusChange(order, 'pending')}>
+            <Send className="mr-2 h-4 w-4" />
+            Submit for Approval
+          </DropdownMenuItem>
+        );
+        break;
+      case 'pending':
+        actions.push(
+          <DropdownMenuItem key="ship" onClick={() => handleQuickStatusChange(order, 'in_transit')}>
+            <Truck className="mr-2 h-4 w-4" />
+            Mark as Shipped
+          </DropdownMenuItem>
+        );
+        actions.push(
+          <DropdownMenuItem key="cancel" onClick={() => handleQuickStatusChange(order, 'cancelled')}>
+            <XCircle className="mr-2 h-4 w-4" />
+            Cancel
+          </DropdownMenuItem>
+        );
+        break;
+      case 'in_transit':
+        actions.push(
+          <DropdownMenuItem key="receive" onClick={() => handleQuickStatusChange(order, 'completed')}>
+            <CheckCircle className="mr-2 h-4 w-4" />
+            Mark as Received
+          </DropdownMenuItem>
+        );
+        break;
+    }
+
+    return actions;
   };
 
   const filteredOrders = transferOrders.filter(order =>
@@ -342,13 +420,20 @@ const TransferOrderList = () => {
                       >
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleOrderDelete(order.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {getQuickActions(order)}
+                          <DropdownMenuItem onClick={() => handleOrderDelete(order.id)}>
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </TableCell>
                 </TableRow>

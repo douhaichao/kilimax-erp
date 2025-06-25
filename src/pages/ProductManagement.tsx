@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,7 +75,7 @@ export interface UOM {
   name: string;
   symbol: string;
   type: 'length' | 'weight' | 'volume' | 'piece';
-  isActive?: boolean;
+  isActive: boolean;
   conversionFactor: number;
 }
 
@@ -351,7 +350,6 @@ const ProductManagement = () => {
             {currentView === 'detail' && selectedProduct && (
               <ProductDetail
                 product={selectedProduct}
-                categories={categories}
                 onUpdate={handleProductUpdate}
                 onDelete={handleProductDelete}
                 onBack={() => setCurrentView('list')}
@@ -361,7 +359,7 @@ const ProductManagement = () => {
             {currentView === 'create' && (
               <QuickCreateForm
                 categories={categories}
-                onProductCreate={handleProductCreate}
+                onCreate={handleProductCreate}
                 onCancel={() => setCurrentView('list')}
               />
             )}
