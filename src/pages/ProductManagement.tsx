@@ -77,7 +77,7 @@ export interface UOM {
   symbol: string;
   type: 'length' | 'weight' | 'volume' | 'piece';
   isActive?: boolean;
-  conversionFactor?: number;
+  conversionFactor: number;
 }
 
 export interface Category {
@@ -125,6 +125,11 @@ const ProductManagement = () => {
     ));
   };
 
+  const handleProductCreate = (product: Product) => {
+    setProducts([...products, product]);
+    setCurrentView('list');
+  };
+
   const mockProducts: Product[] = [
     {
       id: '1',
@@ -141,8 +146,8 @@ const ProductManagement = () => {
       images: ['/placeholder.svg'],
       variants: [],
       uoms: [
-        { id: 'uom-1', uomId: 'piece', ratio: 1, isDefault: true },
-        { id: 'uom-2', uomId: 'pack', ratio: 6, isDefault: false }
+        { id: 'uom-1', uomId: 'piece', ratio: 1, isDefault: true, price: 299.99 },
+        { id: 'uom-2', uomId: 'pack', ratio: 6, isDefault: false, price: 1799.94 }
       ],
       supplier: 'TechCorp Inc.',
       tags: ['electronics', 'audio', 'wireless'],
@@ -166,7 +171,7 @@ const ProductManagement = () => {
       images: ['/placeholder.svg'],
       variants: [],
       uoms: [
-        { id: 'uom-3', uomId: 'piece', ratio: 1, isDefault: true }
+        { id: 'uom-3', uomId: 'piece', ratio: 1, isDefault: true, price: 349.00 }
       ],
       supplier: 'Office Solutions Ltd.',
       tags: ['furniture', 'office', 'ergonomic'],
@@ -190,7 +195,7 @@ const ProductManagement = () => {
       images: ['/placeholder.svg'],
       variants: [],
       uoms: [
-        { id: 'uom-4', uomId: 'piece', ratio: 1, isDefault: true }
+        { id: 'uom-4', uomId: 'piece', ratio: 1, isDefault: true, price: 25.50 }
       ],
       supplier: 'EcoLife Products',
       tags: ['home', 'kitchen', 'eco-friendly'],
@@ -202,10 +207,10 @@ const ProductManagement = () => {
   ];
 
   const mockUOMs: UOM[] = [
-    { id: 'piece', name: 'Piece', symbol: 'pc', type: 'piece', isActive: true },
-    { id: 'kg', name: 'Kilogram', symbol: 'kg', type: 'weight', isActive: true },
-    { id: 'liter', name: 'Liter', symbol: 'L', type: 'volume', isActive: true },
-    { id: 'meter', name: 'Meter', symbol: 'm', type: 'length', isActive: true },
+    { id: 'piece', name: 'Piece', symbol: 'pc', type: 'piece', isActive: true, conversionFactor: 1 },
+    { id: 'kg', name: 'Kilogram', symbol: 'kg', type: 'weight', isActive: true, conversionFactor: 1 },
+    { id: 'liter', name: 'Liter', symbol: 'L', type: 'volume', isActive: true, conversionFactor: 1 },
+    { id: 'meter', name: 'Meter', symbol: 'm', type: 'length', isActive: true, conversionFactor: 1 },
     { id: 'pack', name: 'Pack', symbol: 'pack', type: 'piece', isActive: true, conversionFactor: 6 }
   ];
 
@@ -240,7 +245,16 @@ const ProductManagement = () => {
   ];
 
   useEffect(() => {
-    setProducts(mockProducts);
+    // Add UOM references to product UOMs
+    const productsWithUOMs = mockProducts.map(product => ({
+      ...product,
+      uoms: product.uoms.map(productUom => ({
+        ...productUom,
+        uom: mockUOMs.find(uom => uom.id === productUom.uomId)
+      }))
+    }));
+    
+    setProducts(productsWithUOMs);
     setUoms(mockUOMs);
     setCategories(mockCategories);
   }, []);
@@ -347,10 +361,7 @@ const ProductManagement = () => {
             {currentView === 'create' && (
               <QuickCreateForm
                 categories={categories}
-                onProductCreate={(product) => {
-                  setProducts([...products, product]);
-                  setCurrentView('list');
-                }}
+                onProductCreate={handleProductCreate}
                 onCancel={() => setCurrentView('list')}
               />
             )}

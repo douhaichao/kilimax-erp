@@ -10,20 +10,31 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Upload, Edit, Save, X, Plus, Trash2, Scale } from 'lucide-react';
-import { Product, UOM, ProductUOM } from '@/pages/ProductManagement';
+import { Product, UOM, ProductUOM, Category } from '@/pages/ProductManagement';
 
 interface ProductDetailProps {
   product: Product;
-  systemUOMs: UOM[];
+  categories: Category[];
+  onUpdate: (updatedProduct: Product) => void;
+  onDelete: (productId: string) => void;
   onBack: () => void;
 }
 
-const ProductDetail = ({ product, systemUOMs, onBack }: ProductDetailProps) => {
+const ProductDetail = ({ product, categories, onUpdate, onDelete, onBack }: ProductDetailProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editedProduct, setEditedProduct] = useState(product);
 
+  const systemUOMs: UOM[] = [
+    { id: 'piece', name: 'Piece', symbol: 'pc', type: 'piece', isActive: true, conversionFactor: 1 },
+    { id: 'kg', name: 'Kilogram', symbol: 'kg', type: 'weight', isActive: true, conversionFactor: 1 },
+    { id: 'liter', name: 'Liter', symbol: 'L', type: 'volume', isActive: true, conversionFactor: 1 },
+    { id: 'meter', name: 'Meter', symbol: 'm', type: 'length', isActive: true, conversionFactor: 1 },
+    { id: 'pack', name: 'Pack', symbol: 'pack', type: 'piece', isActive: true, conversionFactor: 6 }
+  ];
+
   const handleSave = () => {
     console.log('Saving product:', editedProduct);
+    onUpdate(editedProduct);
     setIsEditing(false);
   };
 
@@ -59,6 +70,7 @@ const ProductDetail = ({ product, systemUOMs, onBack }: ProductDetailProps) => {
       id: `uom-${Date.now()}`,
       uomId: systemUOMs[0].id,
       uom: systemUOMs[0],
+      ratio: 1,
       price: editedProduct.price,
       isDefault: false
     };
@@ -325,7 +337,7 @@ const ProductDetail = ({ product, systemUOMs, onBack }: ProductDetailProps) => {
                                 </SelectContent>
                               </Select>
                             ) : (
-                              <p className="text-sm font-medium">{productUom.uom.name} ({productUom.uom.symbol})</p>
+                              <p className="text-sm font-medium">{productUom.uom?.name} ({productUom.uom?.symbol})</p>
                             )}
                           </div>
                           
@@ -335,12 +347,12 @@ const ProductDetail = ({ product, systemUOMs, onBack }: ProductDetailProps) => {
                               <Input
                                 type="number"
                                 step="0.01"
-                                value={productUom.price}
+                                value={productUom.price || 0}
                                 onChange={(e) => updateUOM(index, 'price', parseFloat(e.target.value))}
                                 className="mt-1 border-blue-200"
                               />
                             ) : (
-                              <p className="text-sm font-medium text-green-600">{formatCurrency(productUom.price)}</p>
+                              <p className="text-sm font-medium text-green-600">{formatCurrency(productUom.price || 0)}</p>
                             )}
                           </div>
 
@@ -361,8 +373,8 @@ const ProductDetail = ({ product, systemUOMs, onBack }: ProductDetailProps) => {
                           <div>
                             <Label className="text-sm text-blue-700">Type</Label>
                             <p className="text-sm">
-                              <Badge variant={productUom.uom.type === 'piece' ? 'default' : 'secondary'}>
-                                {productUom.uom.type}
+                              <Badge variant={productUom.uom?.type === 'piece' ? 'default' : 'secondary'}>
+                                {productUom.uom?.type || 'N/A'}
                               </Badge>
                             </p>
                           </div>
@@ -502,16 +514,16 @@ const ProductDetail = ({ product, systemUOMs, onBack }: ProductDetailProps) => {
                         <div key={productUom.id} className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
                           <div>
                             <p className="font-medium text-blue-800">
-                              {productUom.uom.name} ({productUom.uom.symbol})
+                              {productUom.uom?.name} ({productUom.uom?.symbol})
                               {productUom.isDefault && <Badge className="ml-2 bg-blue-600 text-white text-xs">Default</Badge>}
                             </p>
                             <p className="text-sm text-gray-600">
-                              Conversion: {productUom.uom.conversionFactor}x base unit
+                              Ratio: {productUom.ratio}x base unit
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-xl font-bold text-green-600">{formatCurrency(productUom.price)}</p>
-                            <p className="text-sm text-gray-500">per {productUom.uom.symbol}</p>
+                            <p className="text-xl font-bold text-green-600">{formatCurrency(productUom.price || 0)}</p>
+                            <p className="text-sm text-gray-500">per {productUom.uom?.symbol}</p>
                           </div>
                         </div>
                       ))}
