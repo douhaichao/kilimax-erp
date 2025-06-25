@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import LoginForm from '@/components/LoginForm';
 import ForgotPasswordForm from '@/components/ForgotPasswordForm';
@@ -79,7 +80,7 @@ const Index = () => {
                 </div>
               </div>
               <Badge variant="secondary" className="bg-blue-100 text-blue-700 border-blue-200">
-                现代化企业管理解决方案
+                Modern Enterprise Management
               </Badge>
             </div>
 
@@ -87,63 +88,63 @@ const Index = () => {
             <div className="space-y-8">
               <div>
                 <h2 className="text-4xl font-bold text-gray-900 mb-4 leading-tight">
-                  让企业管理
+                  Make Business Management
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
-                    更智能
+                    Smarter
                   </span>
                 </h2>
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  集成商品管理、库存控制、销售分析于一体的全功能ERP系统，助您轻松管理企业运营的每一个环节。
+                  Comprehensive ERP system integrating inventory management, sales analytics, and operations control in one powerful platform.
                 </p>
               </div>
 
               {/* Key Features */}
-              <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 gap-5">
                 <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <Package className="w-6 h-6 text-green-600" />
+                  <div className="flex-shrink-0 w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                    <Package className="w-5 h-5 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">智能商品管理</h3>
-                    <p className="text-gray-600">多单位支持、批量操作、自动库存预警，让商品管理变得简单高效</p>
+                    <h3 className="font-semibold text-gray-900 mb-1">Smart Inventory</h3>
+                    <p className="text-gray-600 text-sm">Multi-unit support with automated stock alerts</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <BarChart3 className="w-6 h-6 text-blue-600" />
+                  <div className="flex-shrink-0 w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <BarChart3 className="w-5 h-5 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">实时数据分析</h3>
-                    <p className="text-gray-600">可视化报表、趋势分析、关键指标监控，数据驱动决策</p>
+                    <h3 className="font-semibold text-gray-900 mb-1">Real-time Analytics</h3>
+                    <p className="text-gray-600 text-sm">Visual reports and trend analysis</p>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-4">
-                  <div className="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                    <Zap className="w-6 h-6 text-purple-600" />
+                  <div className="flex-shrink-0 w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-purple-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">自动化流程</h3>
-                    <p className="text-gray-600">减少重复工作、提升效率、降低人为错误，专注核心业务</p>
+                    <h3 className="font-semibold text-gray-900 mb-1">Process Automation</h3>
+                    <p className="text-gray-600 text-sm">Reduce manual work and errors</p>
                   </div>
                 </div>
               </div>
 
               {/* Statistics */}
-              <div className="mt-12 pt-8 border-t border-gray-200">
-                <div className="grid grid-cols-3 gap-6">
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <div className="grid grid-cols-3 gap-4">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-600">10,000+</div>
-                    <div className="text-sm text-gray-600">企业用户</div>
+                    <div className="text-xl font-bold text-blue-600">10K+</div>
+                    <div className="text-xs text-gray-600">Businesses</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-green-600">99.9%</div>
-                    <div className="text-sm text-gray-600">系统稳定性</div>
+                    <div className="text-xl font-bold text-green-600">99.9%</div>
+                    <div className="text-xs text-gray-600">Uptime</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-600">24/7</div>
-                    <div className="text-sm text-gray-600">技术支持</div>
+                    <div className="text-xl font-bold text-purple-600">24/7</div>
+                    <div className="text-xs text-gray-600">Support</div>
                   </div>
                 </div>
               </div>
@@ -162,27 +163,27 @@ const Index = () => {
                 />
                 
                 {/* Additional Features Preview */}
-                <Card className="mt-6 bg-white/80 backdrop-blur-sm border-gray-200">
-                  <CardContent className="p-4">
-                    <div className="text-center mb-3">
-                      <h4 className="text-sm font-semibold text-gray-900 mb-2">核心功能模块</h4>
+                <Card className="mt-4 bg-white/80 backdrop-blur-sm border-gray-200">
+                  <CardContent className="p-3">
+                    <div className="text-center mb-2">
+                      <h4 className="text-sm font-semibold text-gray-900 mb-2">Core Modules</h4>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <Package className="w-4 h-4 text-blue-600" />
-                        <span>商品管理</span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="flex items-center space-x-2 text-xs text-gray-600">
+                        <Package className="w-3 h-3 text-blue-600" />
+                        <span>Inventory</span>
                       </div>
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <CreditCard className="w-4 h-4 text-green-600" />
-                        <span>销售订单</span>
+                      <div className="flex items-center space-x-2 text-xs text-gray-600">
+                        <CreditCard className="w-3 h-3 text-green-600" />
+                        <span>Sales</span>
                       </div>
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <BarChart3 className="w-4 h-4 text-purple-600" />
-                        <span>数据分析</span>
+                      <div className="flex items-center space-x-2 text-xs text-gray-600">
+                        <BarChart3 className="w-3 h-3 text-purple-600" />
+                        <span>Analytics</span>
                       </div>
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <Settings className="w-4 h-4 text-orange-600" />
-                        <span>系统设置</span>
+                      <div className="flex items-center space-x-2 text-xs text-gray-600">
+                        <Settings className="w-3 h-3 text-orange-600" />
+                        <span>Settings</span>
                       </div>
                     </div>
                   </CardContent>
@@ -200,23 +201,23 @@ const Index = () => {
       </div>
 
       {/* Trust Indicators */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t border-gray-200 py-4 px-6">
-        <div className="flex items-center justify-center space-x-8 text-sm text-gray-600">
-          <div className="flex items-center space-x-2">
-            <Shield className="w-4 h-4 text-green-600" />
-            <span>银行级安全</span>
+      <div className="absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm border-t border-gray-200 py-3 px-6">
+        <div className="flex items-center justify-center space-x-6 text-xs text-gray-600">
+          <div className="flex items-center space-x-1">
+            <Shield className="w-3 h-3 text-green-600" />
+            <span>Bank-level Security</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Globe className="w-4 h-4 text-blue-600" />
-            <span>云端部署</span>
+          <div className="flex items-center space-x-1">
+            <Globe className="w-3 h-3 text-blue-600" />
+            <span>Cloud-based</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <Users className="w-4 h-4 text-purple-600" />
-            <span>团队协作</span>
+          <div className="flex items-center space-x-1">
+            <Users className="w-3 h-3 text-purple-600" />
+            <span>Team Collaboration</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <TrendingUp className="w-4 h-4 text-orange-600" />
-            <span>持续升级</span>
+          <div className="flex items-center space-x-1">
+            <TrendingUp className="w-3 h-3 text-orange-600" />
+            <span>Continuous Updates</span>
           </div>
         </div>
       </div>

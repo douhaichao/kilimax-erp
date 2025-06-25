@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,9 +65,9 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
           </div>
         </div>
         <div className="text-center">
-          <CardTitle className="text-3xl font-bold text-gray-900">欢迎回来</CardTitle>
+          <CardTitle className="text-3xl font-bold text-gray-900">Welcome Back</CardTitle>
           <CardDescription className="text-gray-600 mt-2 text-base">
-            登录您的 Kilimax ERP 管理系统
+            Sign in to your Kilimax ERP system
           </CardDescription>
         </div>
       </CardHeader>
@@ -83,7 +84,7 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
           {isGoogleLoading ? (
             <div className="flex items-center space-x-3">
               <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
-              <span>正在通过 Google 登录...</span>
+              <span>Signing in with Google...</span>
             </div>
           ) : (
             <div className="flex items-center space-x-3">
@@ -93,7 +94,7 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              <span>使用 Google 账户登录</span>
+              <span>Continue with Google</span>
             </div>
           )}
         </Button>
@@ -101,21 +102,21 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
         <div className="relative">
           <Separator />
           <div className="absolute inset-0 flex items-center justify-center">
-            <span className="bg-white px-3 text-sm text-gray-500">或使用邮箱登录</span>
+            <span className="bg-white px-3 text-sm text-gray-500">or sign in with email</span>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-              邮箱地址
+              Email Address
             </Label>
             <div className="relative group">
               <Mail className="absolute left-3 top-3.5 h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
               <Input
                 id="email"
                 type="email"
-                placeholder="输入您的邮箱地址"
+                placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-11 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
@@ -126,14 +127,14 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
           
           <div className="space-y-2">
             <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-              密码
+              Password
             </Label>
             <div className="relative group">
               <Lock className="absolute left-3 top-3.5 h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="输入您的密码"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="pl-11 pr-11 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200"
@@ -159,7 +160,7 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <Label htmlFor="remember" className="text-sm text-gray-600">
-                记住我
+                Remember me
               </Label>
             </div>
             <button
@@ -167,7 +168,7 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
               onClick={onForgotPassword}
               className="text-sm text-blue-600 hover:text-blue-500 font-medium transition-colors"
             >
-              忘记密码？
+              Forgot password?
             </button>
           </div>
           
@@ -179,11 +180,11 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
             {isLoading ? (
               <div className="flex items-center space-x-3">
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <span>正在登录...</span>
+                <span>Signing in...</span>
               </div>
             ) : (
               <div className="flex items-center space-x-2">
-                <span>立即登录</span>
+                <span>Sign In</span>
                 <ArrowRight className="w-4 h-4" />
               </div>
             )}
@@ -192,10 +193,10 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
 
         {/* Demo Account Hint */}
         <div className="text-center pt-4 border-t border-gray-100">
-          <p className="text-xs text-gray-500 mb-2">演示账户</p>
+          <p className="text-xs text-gray-500 mb-2">Demo Account</p>
           <div className="text-xs text-gray-400 space-y-1">
-            <div>邮箱: demo@kilimax.com</div>
-            <div>密码: demo123</div>
+            <div>Email: demo@kilimax.com</div>
+            <div>Password: demo123</div>
           </div>
         </div>
       </CardContent>
