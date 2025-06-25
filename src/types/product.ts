@@ -22,8 +22,8 @@ export interface Product {
   cost: number;
   status: 'active' | 'inactive';
   supplier?: string;
-  stock?: number;
-  safetyStock?: number;
+  stock: number;
+  safetyStock: number;
   variants?: any[];
   primaryUOM: UOM;
   baseUomId: string;
@@ -48,6 +48,6 @@ export interface UOM {
   isDefault: boolean;
   symbol: string;
   isActive: boolean;
-  type: string;
+  type: 'piece' | 'weight' | 'volume' | 'length';
   conversionFactor: number;
 }

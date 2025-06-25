@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -226,16 +225,7 @@ const ProductManagement = () => {
 
   const handleProductCreate = (product: Product) => {
     console.log('Creating product:', product);
-    const newProduct: Product = {
-      ...product,
-      id: `${Date.now()}`,
-      categoryId: product.category,
-      primaryUOM: systemUOMs.find(u => u.id === product.baseUomId) || systemUOMs[0],
-      images: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    setProducts([...products, newProduct]);
+    setProducts([...products, product]);
     setCurrentView('list');
   };
 
@@ -247,8 +237,8 @@ const ProductManagement = () => {
   const getProductStats = () => {
     const totalProducts = products.length;
     const activeProducts = products.filter(p => p.status === 'active').length;
-    const lowStockProducts = products.filter(p => p.stock && p.safetyStock && p.stock <= p.safetyStock).length;
-    const totalValue = products.reduce((sum, p) => sum + (p.price * (p.stock || 0)), 0);
+    const lowStockProducts = products.filter(p => p.stock <= p.safetyStock).length;
+    const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
 
     return { totalProducts, activeProducts, lowStockProducts, totalValue };
   };

@@ -8,15 +8,16 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { X, Camera, Save, ArrowRight, ArrowLeft, CheckCircle, Scale, Plus, Trash2 } from 'lucide-react';
-import { Category, UOM, ProductUOM } from '@/types/product';
+import { Category, UOM, ProductUOM, Product } from '@/types/product';
 
 interface QuickCreateFormProps {
   onClose: () => void;
+  onSave?: (product: Product) => void;
   categories: Category[];
   systemUOMs?: UOM[];
 }
 
-const QuickCreateForm = ({ onClose, categories, systemUOMs = [] }: QuickCreateFormProps) => {
+const QuickCreateForm = ({ onClose, onSave, categories, systemUOMs = [] }: QuickCreateFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
   
   const defaultSystemUOMs: UOM[] = [
@@ -181,7 +182,39 @@ const QuickCreateForm = ({ onClose, categories, systemUOMs = [] }: QuickCreateFo
   };
 
   const handleSave = () => {
-    console.log('Saving product:', formData);
+    if (onSave) {
+      const product: Product = {
+        id: `${Date.now()}`,
+        name: formData.name,
+        sku: formData.sku,
+        description: formData.description,
+        category: categories.find(c => c.id === formData.category)?.name || '',
+        categoryId: formData.category,
+        uoms: formData.uoms.map(uom => ({
+          id: `${Date.now()}-${uom.uomId}`,
+          name: uoms.find(u => u.id === uom.uomId)?.name || '',
+          ratio: uoms.find(u => u.id === uom.uomId)?.ratio || 1,
+          isDefault: uom.isDefault,
+          uomId: uom.uomId,
+          uom: uoms.find(u => u.id === uom.uomId),
+          price: parseFloat(uom.price) || 0,
+          barcode: uom.barcode
+        })),
+        price: parseFloat(formData.price) || 0,
+        cost: parseFloat(formData.price) * 0.7 || 0, // Default cost calculation
+        status: 'active' as const,
+        supplier: formData.supplier,
+        stock: parseInt(formData.stock) || 0,
+        safetyStock: parseInt(formData.safetyStock) || 0,
+        variants: formData.variants,
+        primaryUOM: uoms.find(u => u.id === formData.baseUomId) || uoms[0],
+        baseUomId: formData.baseUomId,
+        images: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      onSave(product);
+    }
     onClose();
   };
 
