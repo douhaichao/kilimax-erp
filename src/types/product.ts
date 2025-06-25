@@ -16,6 +16,7 @@ export interface Product {
   sku: string;
   description: string;
   category: string;
+  categoryId: string;
   uoms: ProductUOM[];
   price: number;
   cost: number;
@@ -24,6 +25,9 @@ export interface Product {
   stock?: number;
   safetyStock?: number;
   variants?: any[];
+  primaryUOM: UOM;
+  baseUomId: string;
+  images: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -32,7 +36,7 @@ export interface Category {
   id: string;
   name: string;
   description: string;
-  productCount?: number;
+  productCount: number;
   children?: Category[];
   parentId?: string;
 }
@@ -42,8 +46,8 @@ export interface UOM {
   name: string;
   ratio: number;
   isDefault: boolean;
-  symbol?: string;
-  isActive?: boolean;
-  type?: string;
-  conversionFactor?: number;
+  symbol: string;
+  isActive: boolean;
+  type: string;
+  conversionFactor: number;
 }

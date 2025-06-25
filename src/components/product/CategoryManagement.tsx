@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Label } from "@/components/ui/label";
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import { ChevronRight, ChevronDown, Folder, FolderOpen, Plus, Edit, Trash2, MoreVertical, Move } from 'lucide-react';
-import { Category } from '@/pages/ProductManagement';
+import { Category } from '@/types/product';
 
 interface CategoryManagementProps {
   categories: Category[];
