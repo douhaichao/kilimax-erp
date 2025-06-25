@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,7 +66,7 @@ export interface ProductUOM {
   ratio: number;
   isDefault: boolean;
   uom: UOM;
-  price?: number;
+  price: number;
   barcode?: string;
 }
 
@@ -370,7 +369,6 @@ const ProductManagement = () => {
             {currentView === 'detail' && selectedProduct && (
               <ProductDetail
                 product={selectedProduct}
-                categories={categories}
                 onUpdate={handleProductUpdate}
                 onDelete={handleProductDelete}
                 onBack={() => setCurrentView('list')}

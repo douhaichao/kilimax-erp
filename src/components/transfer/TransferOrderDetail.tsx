@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,7 +42,6 @@ interface TransferOrderDetailProps {
 
 const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: TransferOrderDetailProps) => {
   const [editableItems, setEditableItems] = useState(order.items);
-  const [isEditingQuantities, setIsEditingQuantities] = useState(false);
 
   const getStatusBadge = (status: TransferOrderStatus) => {
     const statusConfig = {
@@ -80,6 +78,11 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
       case 'approved':
         updatedOrder.approvedDate = new Date().toISOString();
         updatedOrder.approvedBy = 'Current User';
+        // Set default shipped quantities to requested quantities when approved
+        updatedOrder.items = editableItems.map(item => ({
+          ...item,
+          shippedQuantity: item.requestedQuantity
+        }));
         break;
       case 'pending':
         // This status is now set after approval
@@ -112,7 +115,6 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
       updatedAt: new Date().toISOString()
     };
     onUpdate(updatedOrder);
-    setIsEditingQuantities(false);
   };
 
   const getAvailableActions = () => {
@@ -143,9 +145,9 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         break;
       case 'approved':
         actions.push(
-          <Button key="ship" onClick={() => handleStatusChange('in_transit')}>
+          <Button key="ship" onClick={() => handleStatusChange('pending')}>
             <Truck className="mr-2 h-4 w-4" />
-            Mark as Shipped
+            Mark as Pending
           </Button>
         );
         break;
@@ -153,7 +155,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         actions.push(
           <Button key="ship" onClick={() => handleStatusChange('in_transit')}>
             <Truck className="mr-2 h-4 w-4" />
-            Mark as Shipped
+            Mark as In Transit
           </Button>
         );
         break;
@@ -172,7 +174,9 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
 
   const canEdit = order.status === 'draft' || order.status === 'submitted';
   const canDelete = order.status === 'draft';
-  const canEditQuantities = order.status === 'approved' || order.status === 'pending' || order.status === 'in_transit';
+  const isApproved = order.status === 'approved';
+  const isPending = order.status === 'pending';
+  const isInTransit = order.status === 'in_transit';
 
   return (
     <div className="space-y-6">
@@ -190,28 +194,6 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         <div className="flex space-x-2">
           {/* Status Action Buttons */}
           {getAvailableActions()}
-          
-          {canEditQuantities && !isEditingQuantities && (
-            <Button variant="outline" onClick={() => setIsEditingQuantities(true)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Quantities
-            </Button>
-          )}
-
-          {isEditingQuantities && (
-            <>
-              <Button onClick={saveQuantityChanges}>
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Save Changes
-              </Button>
-              <Button variant="outline" onClick={() => {
-                setEditableItems(order.items);
-                setIsEditingQuantities(false);
-              }}>
-                Cancel
-              </Button>
-            </>
-          )}
           
           {canEdit && (
             <Button variant="outline" onClick={onEdit}>
@@ -238,9 +220,9 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
-            {['draft', 'submitted', 'approved', 'in_transit', 'completed'].map((status, index) => {
+            {['draft', 'submitted', 'approved', 'pending', 'in_transit', 'completed'].map((status, index) => {
               const isActive = order.status === status;
-              const isCompleted = ['draft', 'submitted', 'approved', 'in_transit', 'completed'].indexOf(order.status) > index;
+              const isCompleted = ['draft', 'submitted', 'approved', 'pending', 'in_transit', 'completed'].indexOf(order.status) > index;
               const isCancelled = order.status === 'cancelled';
               
               return (
@@ -262,7 +244,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                       {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
                     </p>
                   </div>
-                  {index < 4 && (
+                  {index < 5 && (
                     <div className={`mx-4 h-0.5 w-12 ${isCompleted ? 'bg-green-500' : 'bg-gray-300'}`} />
                   )}
                 </div>
@@ -403,7 +385,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         </Card>
       </div>
 
-      {/* Items Table */}
+      {/* Items Table - Updated with inline editing based on status */}
       <Card>
         <CardHeader>
           <CardTitle>Transfer Items</CardTitle>
@@ -417,7 +399,8 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                 <TableHead>UOM</TableHead>
                 <TableHead>Requested</TableHead>
                 <TableHead>Shipped</TableHead>
-                {order.status !== 'approved' && order.status !== 'pending' && (
+                {/* Only show Received column for in_transit and completed status */}
+                {(isInTransit || order.status === 'completed') && (
                   <TableHead>Received</TableHead>
                 )}
                 <TableHead>Unit Cost</TableHead>
@@ -432,25 +415,34 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                   <TableCell>{item.uom}</TableCell>
                   <TableCell>{item.requestedQuantity}</TableCell>
                   <TableCell>
-                    {isEditingQuantities && canEditQuantities ? (
+                    {/* Editable shipped quantity for approved and pending status */}
+                    {(isApproved || isPending) ? (
                       <Input
                         type="number"
-                        value={item.shippedQuantity || ''}
+                        value={item.shippedQuantity || item.requestedQuantity}
                         onChange={(e) => handleQuantityUpdate(item.id, 'shippedQuantity', parseInt(e.target.value) || 0)}
+                        onBlur={saveQuantityChanges}
                         className="w-20"
+                        min={0}
+                        max={item.requestedQuantity}
                       />
                     ) : (
                       item.shippedQuantity || '-'
                     )}
                   </TableCell>
-                  {order.status !== 'approved' && order.status !== 'pending' && (
+                  {/* Only show Received column for in_transit and completed status */}
+                  {(isInTransit || order.status === 'completed') && (
                     <TableCell>
-                      {isEditingQuantities && canEditQuantities ? (
+                      {/* Editable received quantity for in_transit status */}
+                      {isInTransit ? (
                         <Input
                           type="number"
-                          value={item.receivedQuantity || ''}
+                          value={item.receivedQuantity || item.shippedQuantity || 0}
                           onChange={(e) => handleQuantityUpdate(item.id, 'receivedQuantity', parseInt(e.target.value) || 0)}
+                          onBlur={saveQuantityChanges}
                           className="w-20"
+                          min={0}
+                          max={item.shippedQuantity || 0}
                         />
                       ) : (
                         item.receivedQuantity || '-'
