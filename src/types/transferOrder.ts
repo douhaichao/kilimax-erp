@@ -1,5 +1,4 @@
 
-
 export interface TransferOrder {
   id: string;
   transferNumber: string;
@@ -7,7 +6,7 @@ export interface TransferOrder {
   fromLocationName: string;
   toLocationId: string;
   toLocationName: string;
-  status: 'draft' | 'submitted' | 'approved' | 'pending' | 'in_transit' | 'completed' | 'cancelled';
+  status: 'draft' | 'submitted' | 'approved' | 'rejected' | 'in_transit' | 'completed';
   items: TransferOrderItem[];
   requestedBy: string;
   requestedDate: string;
@@ -15,6 +14,9 @@ export interface TransferOrder {
   submittedDate?: string;
   approvedBy?: string;
   approvedDate?: string;
+  rejectedBy?: string;
+  rejectedDate?: string;
+  rejectionReason?: string;
   shippedDate?: string;
   receivedDate?: string;
   notes?: string;
@@ -33,6 +35,7 @@ export interface TransferOrderItem {
   requestedQuantity: number;
   shippedQuantity?: number;
   receivedQuantity?: number;
+  serialNumbers?: string[];
   unitCost: number;
   totalCost: number;
   notes?: string;
@@ -47,5 +50,4 @@ export interface Location {
   isActive: boolean;
 }
 
-export type TransferOrderStatus = 'draft' | 'submitted' | 'approved' | 'pending' | 'in_transit' | 'completed' | 'cancelled';
-
+export type TransferOrderStatus = 'draft' | 'submitted' | 'approved' | 'rejected' | 'in_transit' | 'completed';

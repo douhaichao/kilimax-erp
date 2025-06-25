@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -20,7 +21,11 @@ import {
   XCircle,
   Send,
   Eye,
-  UserCheck
+  UserCheck,
+  UserX,
+  QrCode,
+  Plus,
+  Minus
 } from 'lucide-react';
 import {
   Table,
@@ -42,16 +47,17 @@ interface TransferOrderDetailProps {
 
 const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: TransferOrderDetailProps) => {
   const [editableItems, setEditableItems] = useState(order.items);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [showRejectDialog, setShowRejectDialog] = useState(false);
 
   const getStatusBadge = (status: TransferOrderStatus) => {
     const statusConfig = {
       draft: { label: 'Draft', className: 'bg-gray-100 text-gray-800' },
       submitted: { label: 'Submitted', className: 'bg-blue-100 text-blue-800' },
       approved: { label: 'Approved', className: 'bg-purple-100 text-purple-800' },
-      pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800' },
+      rejected: { label: 'Rejected', className: 'bg-red-100 text-red-800' },
       in_transit: { label: 'In Transit', className: 'bg-blue-100 text-blue-800' },
-      completed: { label: 'Completed', className: 'bg-green-100 text-green-800' },
-      cancelled: { label: 'Cancelled', className: 'bg-red-100 text-red-800' }
+      completed: { label: 'Completed', className: 'bg-green-100 text-green-800' }
     };
 
     return (
@@ -61,7 +67,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
     );
   };
 
-  const handleStatusChange = (newStatus: TransferOrderStatus) => {
+  const handleStatusChange = (newStatus: TransferOrderStatus, reason?: string) => {
     const updatedOrder = {
       ...order,
       status: newStatus,
@@ -84,8 +90,10 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
           shippedQuantity: item.requestedQuantity
         }));
         break;
-      case 'pending':
-        // This status is now set after approval
+      case 'rejected':
+        updatedOrder.rejectedDate = new Date().toISOString();
+        updatedOrder.rejectedBy = 'Current User';
+        updatedOrder.rejectionReason = reason;
         break;
       case 'in_transit':
         updatedOrder.shippedDate = new Date().toISOString();
@@ -108,6 +116,16 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
     );
   };
 
+  const handleSerialNumberUpdate = (itemId: string, serialNumbers: string[]) => {
+    setEditableItems(items => 
+      items.map(item => 
+        item.id === itemId 
+          ? { ...item, serialNumbers }
+          : item
+      )
+    );
+  };
+
   const saveQuantityChanges = () => {
     const updatedOrder = {
       ...order,
@@ -115,6 +133,12 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
       updatedAt: new Date().toISOString()
     };
     onUpdate(updatedOrder);
+  };
+
+  const handleReject = () => {
+    handleStatusChange('rejected', rejectionReason);
+    setShowRejectDialog(false);
+    setRejectionReason('');
   };
 
   const getAvailableActions = () => {
@@ -137,21 +161,42 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
           </Button>
         );
         actions.push(
-          <Button key="cancel" variant="outline" onClick={() => handleStatusChange('cancelled')}>
-            <XCircle className="mr-2 h-4 w-4" />
-            Cancel
-          </Button>
+          <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
+            <DialogTrigger asChild>
+              <Button key="reject" variant="outline">
+                <UserX className="mr-2 h-4 w-4" />
+                Reject
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Reject Transfer Order</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="rejection-reason">Rejection Reason</Label>
+                  <Textarea
+                    id="rejection-reason"
+                    value={rejectionReason}
+                    onChange={(e) => setRejectionReason(e.target.value)}
+                    placeholder="Please provide a reason for rejection..."
+                    rows={4}
+                  />
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <Button variant="outline" onClick={() => setShowRejectDialog(false)}>
+                    Cancel
+                  </Button>
+                  <Button variant="destructive" onClick={handleReject} disabled={!rejectionReason.trim()}>
+                    Reject Order
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
         );
         break;
       case 'approved':
-        actions.push(
-          <Button key="ship" onClick={() => handleStatusChange('pending')}>
-            <Truck className="mr-2 h-4 w-4" />
-            Mark as Pending
-          </Button>
-        );
-        break;
-      case 'pending':
         actions.push(
           <Button key="ship" onClick={() => handleStatusChange('in_transit')}>
             <Truck className="mr-2 h-4 w-4" />
@@ -172,10 +217,63 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
     return actions;
   };
 
+  const SerialNumberInput = ({ item }: { item: any }) => {
+    const [serialNumbers, setSerialNumbers] = useState<string[]>(item.serialNumbers || []);
+    const [newSerial, setNewSerial] = useState('');
+
+    const addSerialNumber = () => {
+      if (newSerial.trim() && !serialNumbers.includes(newSerial.trim())) {
+        const updated = [...serialNumbers, newSerial.trim()];
+        setSerialNumbers(updated);
+        handleSerialNumberUpdate(item.id, updated);
+        setNewSerial('');
+      }
+    };
+
+    const removeSerialNumber = (index: number) => {
+      const updated = serialNumbers.filter((_, i) => i !== index);
+      setSerialNumbers(updated);
+      handleSerialNumberUpdate(item.id, updated);
+    };
+
+    return (
+      <div className="space-y-2">
+        <div className="flex space-x-2">
+          <Input
+            value={newSerial}
+            onChange={(e) => setNewSerial(e.target.value)}
+            placeholder="Scan or enter serial number"
+            className="flex-1"
+            onKeyPress={(e) => e.key === 'Enter' && addSerialNumber()}
+          />
+          <Button size="sm" onClick={addSerialNumber} disabled={!newSerial.trim()}>
+            <Plus className="h-3 w-3" />
+          </Button>
+        </div>
+        {serialNumbers.length > 0 && (
+          <div className="space-y-1">
+            {serialNumbers.map((serial, index) => (
+              <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded text-xs">
+                <span className="font-mono">{serial}</span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => removeSerialNumber(index)}
+                  className="h-4 w-4 p-0"
+                >
+                  <Minus className="h-3 w-3" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   const canEdit = order.status === 'draft' || order.status === 'submitted';
   const canDelete = order.status === 'draft';
   const isApproved = order.status === 'approved';
-  const isPending = order.status === 'pending';
   const isInTransit = order.status === 'in_transit';
 
   return (
@@ -210,7 +308,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         </div>
       </div>
 
-      {/* Status Flow Indicator */}
+      {/* Status Flow Indicator - Updated to remove pending */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
@@ -220,17 +318,17 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
-            {['draft', 'submitted', 'approved', 'pending', 'in_transit', 'completed'].map((status, index) => {
+            {['draft', 'submitted', 'approved', 'in_transit', 'completed'].map((status, index) => {
               const isActive = order.status === status;
-              const isCompleted = ['draft', 'submitted', 'approved', 'pending', 'in_transit', 'completed'].indexOf(order.status) > index;
-              const isCancelled = order.status === 'cancelled';
+              const isCompleted = ['draft', 'submitted', 'approved', 'in_transit', 'completed'].indexOf(order.status) > index;
+              const isRejected = order.status === 'rejected';
               
               return (
                 <div key={status} className="flex items-center">
                   <div className={`flex items-center justify-center w-8 h-8 rounded-full border-2 ${
                     isActive ? 'bg-blue-500 border-blue-500 text-white' :
                     isCompleted ? 'bg-green-500 border-green-500 text-white' :
-                    isCancelled ? 'bg-red-500 border-red-500 text-white' :
+                    isRejected ? 'bg-red-500 border-red-500 text-white' :
                     'bg-gray-100 border-gray-300 text-gray-500'
                   }`}>
                     {isCompleted || isActive ? (
@@ -244,7 +342,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                       {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
                     </p>
                   </div>
-                  {index < 5 && (
+                  {index < 4 && (
                     <div className={`mx-4 h-0.5 w-12 ${isCompleted ? 'bg-green-500' : 'bg-gray-300'}`} />
                   )}
                 </div>
@@ -252,12 +350,15 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
             })}
           </div>
           
-          {order.status === 'cancelled' && (
+          {order.status === 'rejected' && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex items-center">
                 <XCircle className="h-5 w-5 text-red-500 mr-2" />
-                <span className="text-red-700 font-medium">This transfer order has been cancelled</span>
+                <span className="text-red-700 font-medium">This transfer order has been rejected</span>
               </div>
+              {order.rejectionReason && (
+                <p className="text-red-600 text-sm mt-2">{order.rejectionReason}</p>
+              )}
             </div>
           )}
         </CardContent>
@@ -361,6 +462,17 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                 </div>
               )}
 
+              {order.rejectedDate && (
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                  <div>
+                    <p className="text-sm font-medium">Rejected</p>
+                    <p className="text-xs text-gray-500">{new Date(order.rejectedDate).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500">by {order.rejectedBy}</p>
+                  </div>
+                </div>
+              )}
+
               {order.shippedDate && (
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
@@ -385,7 +497,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         </Card>
       </div>
 
-      {/* Items Table - Updated with inline editing based on status */}
+      {/* Items Table - Updated with serial number functionality */}
       <Card>
         <CardHeader>
           <CardTitle>Transfer Items</CardTitle>
@@ -403,6 +515,10 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                 {(isInTransit || order.status === 'completed') && (
                   <TableHead>Received</TableHead>
                 )}
+                {/* Show Serial Numbers column for in_transit status */}
+                {isInTransit && (
+                  <TableHead>Serial Numbers</TableHead>
+                )}
                 <TableHead>Unit Cost</TableHead>
                 <TableHead>Total Cost</TableHead>
               </TableRow>
@@ -415,8 +531,8 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                   <TableCell>{item.uom}</TableCell>
                   <TableCell>{item.requestedQuantity}</TableCell>
                   <TableCell>
-                    {/* Editable shipped quantity for approved and pending status */}
-                    {(isApproved || isPending) ? (
+                    {/* Editable shipped quantity for approved status */}
+                    {isApproved ? (
                       <Input
                         type="number"
                         value={item.shippedQuantity || item.requestedQuantity}
@@ -447,6 +563,12 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                       ) : (
                         item.receivedQuantity || '-'
                       )}
+                    </TableCell>
+                  )}
+                  {/* Show Serial Numbers column for in_transit status */}
+                  {isInTransit && (
+                    <TableCell>
+                      <SerialNumberInput item={item} />
                     </TableCell>
                   )}
                   <TableCell>${item.unitCost.toFixed(2)}</TableCell>

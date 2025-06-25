@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +18,8 @@ import {
   Trash2,
   Send,
   Truck,
-  UserCheck
+  UserCheck,
+  UserX
 } from 'lucide-react';
 import {
   Table,
@@ -154,10 +154,9 @@ const TransferOrderList = () => {
       draft: { label: 'Draft', className: 'bg-gray-100 text-gray-800' },
       submitted: { label: 'Submitted', className: 'bg-blue-100 text-blue-800' },
       approved: { label: 'Approved', className: 'bg-purple-100 text-purple-800' },
-      pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800' },
+      rejected: { label: 'Rejected', className: 'bg-red-100 text-red-800' },
       in_transit: { label: 'In Transit', className: 'bg-blue-100 text-blue-800' },
-      completed: { label: 'Completed', className: 'bg-green-100 text-green-800' },
-      cancelled: { label: 'Cancelled', className: 'bg-red-100 text-red-800' }
+      completed: { label: 'Completed', className: 'bg-green-100 text-green-800' }
     };
 
     return (
@@ -201,6 +200,10 @@ const TransferOrderList = () => {
         updatedOrder.approvedDate = new Date().toISOString();
         updatedOrder.approvedBy = 'Current User';
         break;
+      case 'rejected':
+        updatedOrder.rejectedDate = new Date().toISOString();
+        updatedOrder.rejectedBy = 'Current User';
+        break;
       case 'in_transit':
         updatedOrder.shippedDate = new Date().toISOString();
         updatedOrder.items = order.items.map(item => ({
@@ -240,14 +243,13 @@ const TransferOrderList = () => {
           </DropdownMenuItem>
         );
         actions.push(
-          <DropdownMenuItem key="cancel" onClick={() => handleQuickStatusChange(order, 'cancelled')}>
-            <XCircle className="mr-2 h-4 w-4" />
-            Cancel
+          <DropdownMenuItem key="reject" onClick={() => handleQuickStatusChange(order, 'rejected')}>
+            <UserX className="mr-2 h-4 w-4" />
+            Reject
           </DropdownMenuItem>
         );
         break;
       case 'approved':
-      case 'pending':
         actions.push(
           <DropdownMenuItem key="ship" onClick={() => handleQuickStatusChange(order, 'in_transit')}>
             <Truck className="mr-2 h-4 w-4" />
@@ -317,7 +319,7 @@ const TransferOrderList = () => {
         </Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - Updated to remove pending and add rejected */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="flex items-center space-x-4 p-4">
