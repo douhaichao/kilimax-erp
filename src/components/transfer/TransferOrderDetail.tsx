@@ -57,6 +57,8 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
   const [editableItems, setEditableItems] = useState(order.items);
   const [rejectionReason, setRejectionReason] = useState('');
   const [showRejectDialog, setShowRejectDialog] = useState(false);
+  const [serialNumberDialogOpen, setSerialNumberDialogOpen] = useState(false);
+  const [currentItem, setCurrentItem] = useState<any>(null);
 
   const getStatusBadge = (status: TransferOrderStatus) => {
     const statusConfig = {
@@ -105,6 +107,11 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         break;
       case 'in_transit':
         updatedOrder.shippedDate = new Date().toISOString();
+        // Set default received quantities to shipped quantities
+        updatedOrder.items = editableItems.map(item => ({
+          ...item,
+          receivedQuantity: item.shippedQuantity || item.requestedQuantity
+        }));
         break;
       case 'completed':
         updatedOrder.receivedDate = new Date().toISOString();
@@ -225,15 +232,16 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
     return actions;
   };
 
-  const SerialNumberInput = ({ item }: { item: any }) => {
-    const [serialNumbers, setSerialNumbers] = useState<string[]>(item.serialNumbers || []);
+  // Serial Number Dialog Component
+  const SerialNumberDialog = ({ item, open, onOpenChange }: { item: any, open: boolean, onOpenChange: (open: boolean) => void }) => {
+    const [serialNumbers, setSerialNumbers] = useState<string[]>(item?.serialNumbers || []);
     const [newSerial, setNewSerial] = useState('');
+    const [bulkInput, setBulkInput] = useState('');
 
     const addSerialNumber = () => {
       if (newSerial.trim() && !serialNumbers.includes(newSerial.trim())) {
         const updated = [...serialNumbers, newSerial.trim()];
         setSerialNumbers(updated);
-        handleSerialNumberUpdate(item.id, updated);
         setNewSerial('');
       }
     };
@@ -241,42 +249,105 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
     const removeSerialNumber = (index: number) => {
       const updated = serialNumbers.filter((_, i) => i !== index);
       setSerialNumbers(updated);
-      handleSerialNumberUpdate(item.id, updated);
+    };
+
+    const addBulkSerialNumbers = () => {
+      const newSerials = bulkInput
+        .split('\n')
+        .map(s => s.trim())
+        .filter(s => s && !serialNumbers.includes(s));
+      
+      if (newSerials.length > 0) {
+        const updated = [...serialNumbers, ...newSerials];
+        setSerialNumbers(updated);
+        setBulkInput('');
+      }
+    };
+
+    const saveSerialNumbers = () => {
+      if (item) {
+        handleSerialNumberUpdate(item.id, serialNumbers);
+        saveQuantityChanges();
+      }
+      onOpenChange(false);
     };
 
     return (
-      <div className="space-y-2">
-        <div className="flex space-x-2">
-          <Input
-            value={newSerial}
-            onChange={(e) => setNewSerial(e.target.value)}
-            placeholder="Scan or enter serial number"
-            className="flex-1"
-            onKeyPress={(e) => e.key === 'Enter' && addSerialNumber()}
-          />
-          <Button size="sm" onClick={addSerialNumber} disabled={!newSerial.trim()}>
-            <Plus className="h-3 w-3" />
-          </Button>
-        </div>
-        {serialNumbers.length > 0 && (
-          <div className="space-y-1">
-            {serialNumbers.map((serial, index) => (
-              <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded text-xs">
-                <span className="font-mono">{serial}</span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => removeSerialNumber(index)}
-                  className="h-4 w-4 p-0"
-                >
-                  <Minus className="h-3 w-3" />
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Serial Numbers - {item?.productName}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {/* Single Serial Number Input */}
+            <div>
+              <Label>Scan or Enter Serial Number</Label>
+              <div className="flex space-x-2">
+                <Input
+                  value={newSerial}
+                  onChange={(e) => setNewSerial(e.target.value)}
+                  placeholder="Scan or type serial number"
+                  onKeyPress={(e) => e.key === 'Enter' && addSerialNumber()}
+                />
+                <Button onClick={addSerialNumber} disabled={!newSerial.trim()}>
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
-            ))}
+            </div>
+
+            {/* Bulk Input */}
+            <div>
+              <Label>Bulk Input (One per line)</Label>
+              <Textarea
+                value={bulkInput}
+                onChange={(e) => setBulkInput(e.target.value)}
+                placeholder="Enter multiple serial numbers, one per line"
+                rows={3}
+              />
+              <Button onClick={addBulkSerialNumbers} disabled={!bulkInput.trim()} className="mt-2 w-full">
+                Add Bulk Serial Numbers
+              </Button>
+            </div>
+
+            {/* Serial Numbers List */}
+            {serialNumbers.length > 0 && (
+              <div>
+                <Label>Serial Numbers ({serialNumbers.length})</Label>
+                <div className="max-h-40 overflow-y-auto space-y-1 border rounded p-2">
+                  {serialNumbers.map((serial, index) => (
+                    <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded text-sm">
+                      <span className="font-mono">{serial}</span>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => removeSerialNumber(index)}
+                        className="h-6 w-6 p-0"
+                      >
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end space-x-2">
+              <Button variant="outline" onClick={() => onOpenChange(false)}>
+                Cancel
+              </Button>
+              <Button onClick={saveSerialNumbers}>
+                Save Serial Numbers
+              </Button>
+            </div>
           </div>
-        )}
-      </div>
+        </DialogContent>
+      </Dialog>
     );
+  };
+
+  const openSerialNumberDialog = (item: any) => {
+    setCurrentItem(item);
+    setSerialNumberDialogOpen(true);
   };
 
   const canEdit = order.status === 'draft' || order.status === 'submitted';
@@ -316,7 +387,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         </div>
       </div>
 
-      {/* Status Flow Indicator - Updated to remove pending */}
+      {/* Status Flow Indicator */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
@@ -505,7 +576,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         </Card>
       </div>
 
-      {/* Items Table - Updated with serial number functionality */}
+      {/* Items Table */}
       <Card>
         <CardHeader>
           <CardTitle>Transfer Items</CardTitle>
@@ -519,13 +590,16 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                 <TableHead>UOM</TableHead>
                 <TableHead>Requested</TableHead>
                 <TableHead>Shipped</TableHead>
-                {/* Only show Received column for in_transit and completed status */}
-                {(isInTransit || order.status === 'completed') && (
-                  <TableHead>Received</TableHead>
-                )}
-                {/* Show Serial Numbers column for in_transit status */}
-                {isInTransit && (
+                {/* For Approved status, add Serial Number column after Shipped */}
+                {isApproved && (
                   <TableHead>Serial Numbers</TableHead>
+                )}
+                {/* For In Transit and Completed status, show Received and Serial Numbers */}
+                {(isInTransit || order.status === 'completed') && (
+                  <>
+                    <TableHead>Received</TableHead>
+                    <TableHead>Serial Numbers</TableHead>
+                  </>
                 )}
                 <TableHead>Unit Cost</TableHead>
                 <TableHead>Total Cost</TableHead>
@@ -554,30 +628,60 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                       item.shippedQuantity || '-'
                     )}
                   </TableCell>
-                  {/* Only show Received column for in_transit and completed status */}
-                  {(isInTransit || order.status === 'completed') && (
+                  {/* For Approved status, add Serial Number column after Shipped */}
+                  {isApproved && (
                     <TableCell>
-                      {/* Editable received quantity for in_transit status */}
-                      {isInTransit ? (
-                        <Input
-                          type="number"
-                          value={item.receivedQuantity || item.shippedQuantity || 0}
-                          onChange={(e) => handleQuantityUpdate(item.id, 'receivedQuantity', parseInt(e.target.value) || 0)}
-                          onBlur={saveQuantityChanges}
-                          className="w-20"
-                          min={0}
-                          max={item.shippedQuantity || 0}
-                        />
-                      ) : (
-                        item.receivedQuantity || '-'
-                      )}
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => openSerialNumberDialog(item)}
+                        className="text-xs"
+                      >
+                        <QrCode className="mr-1 h-3 w-3" />
+                        {item.serialNumbers?.length || 0} SNs
+                      </Button>
                     </TableCell>
                   )}
-                  {/* Show Serial Numbers column for in_transit status */}
-                  {isInTransit && (
-                    <TableCell>
-                      <SerialNumberInput item={item} />
-                    </TableCell>
+                  {/* For In Transit and Completed status, show Received and Serial Numbers */}
+                  {(isInTransit || order.status === 'completed') && (
+                    <>
+                      <TableCell>
+                        {/* Editable received quantity for in_transit status */}
+                        {isInTransit ? (
+                          <Input
+                            type="number"
+                            value={item.receivedQuantity || item.shippedQuantity || 0}
+                            onChange={(e) => handleQuantityUpdate(item.id, 'receivedQuantity', parseInt(e.target.value) || 0)}
+                            onBlur={saveQuantityChanges}
+                            className="w-20"
+                            min={0}
+                            max={item.shippedQuantity || 0}
+                          />
+                        ) : (
+                          item.receivedQuantity || '-'
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-xs">
+                          {item.serialNumbers?.length ? (
+                            <div className="space-y-1">
+                              {item.serialNumbers.slice(0, 2).map((sn, index) => (
+                                <div key={index} className="font-mono bg-gray-100 px-1 rounded">
+                                  {sn}
+                                </div>
+                              ))}
+                              {item.serialNumbers.length > 2 && (
+                                <div className="text-gray-500">
+                                  +{item.serialNumbers.length - 2} more
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            '-'
+                          )}
+                        </div>
+                      </TableCell>
+                    </>
                   )}
                   <TableCell>${item.unitCost.toFixed(2)}</TableCell>
                   <TableCell>${item.totalCost.toFixed(2)}</TableCell>
@@ -594,6 +698,13 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
           </div>
         </CardContent>
       </Card>
+
+      {/* Serial Number Dialog */}
+      <SerialNumberDialog
+        item={currentItem}
+        open={serialNumberDialogOpen}
+        onOpenChange={setSerialNumberDialogOpen}
+      />
     </div>
   );
 };

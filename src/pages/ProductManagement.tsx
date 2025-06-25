@@ -1,32 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import TransferOrderList from './TransferOrderList';
+import { Product, Category, ProductUOM } from '@/types/product';
 
-interface ProductUOM {
-  id: string;
-  name: string;
-  ratio: number;
-  isDefault: boolean;
-}
-
-interface Product {
-  id: string;
-  name: string;
-  sku: string;
-  description: string;
-  category: string;
-  uoms: ProductUOM[];
-  price: number;
-  cost: number;
-  status: 'active' | 'inactive';
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface Category {
-  id: string;
-  name: string;
-  description: string;
-}
+// Re-export types for backward compatibility
+export type { Product, Category, ProductUOM };
 
 interface ProductListProps {
   products: Product[];
