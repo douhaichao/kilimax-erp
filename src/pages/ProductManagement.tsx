@@ -11,9 +11,6 @@ import BatchOperations from '@/components/product/BatchOperations';
 import { Product, Category, UOM, ProductUOM } from '@/types/product';
 import { Package, Plus, Search, Filter, BarChart3 } from 'lucide-react';
 
-// Re-export types for backward compatibility
-export type { Product, Category, ProductUOM, UOM };
-
 const ProductManagement = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -85,6 +82,7 @@ const ProductManagement = () => {
         sku: 'IPH-15-PRO-001',
         description: 'Latest iPhone model with advanced features',
         category: 'Electronics',
+        categoryId: '1',
         uoms: [
           { 
             id: '1', 
@@ -97,6 +95,8 @@ const ProductManagement = () => {
             barcode: '123456789012'
           }
         ],
+        primaryUOM: systemUOMs[0],
+        baseUomId: 'piece',
         price: 999,
         cost: 750,
         status: 'active',
@@ -104,6 +104,7 @@ const ProductManagement = () => {
         stock: 25,
         safetyStock: 10,
         variants: [],
+        images: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       },
@@ -113,6 +114,7 @@ const ProductManagement = () => {
         sku: 'SAM-S24-001',
         description: 'Premium Android smartphone',
         category: 'Electronics',
+        categoryId: '1',
         uoms: [
           { 
             id: '2', 
@@ -125,6 +127,8 @@ const ProductManagement = () => {
             barcode: '123456789013'
           }
         ],
+        primaryUOM: systemUOMs[0],
+        baseUomId: 'piece',
         price: 899,
         cost: 650,
         status: 'active',
@@ -132,6 +136,7 @@ const ProductManagement = () => {
         stock: 15,
         safetyStock: 5,
         variants: [],
+        images: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       },
@@ -141,6 +146,7 @@ const ProductManagement = () => {
         sku: 'MBP-16-001',
         description: 'Professional laptop for power users',
         category: 'Computers',
+        categoryId: '2',
         uoms: [
           { 
             id: '3', 
@@ -153,6 +159,8 @@ const ProductManagement = () => {
             barcode: '123456789014'
           }
         ],
+        primaryUOM: systemUOMs[0],
+        baseUomId: 'piece',
         price: 2499,
         cost: 1800,
         status: 'active',
@@ -160,6 +168,7 @@ const ProductManagement = () => {
         stock: 8,
         safetyStock: 3,
         variants: [],
+        images: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       }
@@ -217,9 +226,12 @@ const ProductManagement = () => {
 
   const handleProductCreate = (product: Product) => {
     console.log('Creating product:', product);
-    const newProduct = {
+    const newProduct: Product = {
       ...product,
       id: `${Date.now()}`,
+      categoryId: product.category,
+      primaryUOM: systemUOMs.find(u => u.id === product.baseUomId) || systemUOMs[0],
+      images: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -235,8 +247,8 @@ const ProductManagement = () => {
   const getProductStats = () => {
     const totalProducts = products.length;
     const activeProducts = products.filter(p => p.status === 'active').length;
-    const lowStockProducts = products.filter(p => p.stock <= p.safetyStock).length;
-    const totalValue = products.reduce((sum, p) => sum + (p.price * p.stock), 0);
+    const lowStockProducts = products.filter(p => p.stock && p.safetyStock && p.stock <= p.safetyStock).length;
+    const totalValue = products.reduce((sum, p) => sum + (p.price * (p.stock || 0)), 0);
 
     return { totalProducts, activeProducts, lowStockProducts, totalValue };
   };
@@ -264,7 +276,8 @@ const ProductManagement = () => {
       <div className="container mx-auto p-6">
         <QuickCreateForm
           categories={categories}
-          onCancel={() => setCurrentView('list')}
+          systemUOMs={systemUOMs}
+          onClose={() => setCurrentView('list')}
           onSave={handleProductCreate}
         />
       </div>
