@@ -4,7 +4,6 @@ import LoginForm from '@/components/LoginForm';
 import ForgotPasswordForm from '@/components/ForgotPasswordForm';
 import Dashboard from '@/components/Dashboard';
 import Profile from '@/pages/Profile';
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Shield, 
@@ -12,11 +11,8 @@ import {
   BarChart3, 
   Users, 
   Globe, 
-  CheckCircle, 
-  TrendingUp,
   Package,
-  CreditCard,
-  Settings
+  TrendingUp
 } from 'lucide-react';
 
 const Index = () => {
@@ -161,33 +157,6 @@ const Index = () => {
                   onForgotPassword={handleForgotPassword}
                   onLogin={handleLogin}
                 />
-                
-                {/* Additional Features Preview */}
-                <Card className="mt-4 bg-white/80 backdrop-blur-sm border-gray-200">
-                  <CardContent className="p-3">
-                    <div className="text-center mb-2">
-                      <h4 className="text-sm font-semibold text-gray-900 mb-2">Core Modules</h4>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      <div className="flex items-center space-x-2 text-xs text-gray-600">
-                        <Package className="w-3 h-3 text-blue-600" />
-                        <span>Inventory</span>
-                      </div>
-                      <div className="flex items-center space-x-2 text-xs text-gray-600">
-                        <CreditCard className="w-3 h-3 text-green-600" />
-                        <span>Sales</span>
-                      </div>
-                      <div className="flex items-center space-x-2 text-xs text-gray-600">
-                        <BarChart3 className="w-3 h-3 text-purple-600" />
-                        <span>Analytics</span>
-                      </div>
-                      <div className="flex items-center space-x-2 text-xs text-gray-600">
-                        <Settings className="w-3 h-3 text-orange-600" />
-                        <span>Settings</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
               </div>
             )}
             

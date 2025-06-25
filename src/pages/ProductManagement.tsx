@@ -1,474 +1,333 @@
-
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Package, Plus, Upload, Download, Layers } from 'lucide-react';
+import { 
+  Search, 
+  Plus, 
+  Filter, 
+  MoreHorizontal, 
+  Package,
+  TrendingUp,
+  AlertTriangle,
+  Eye,
+  Edit,
+  Trash2,
+  Download,
+  Upload
+} from 'lucide-react';
 import ProductList from '@/components/product/ProductList';
 import ProductDetail from '@/components/product/ProductDetail';
 import QuickCreateForm from '@/components/product/QuickCreateForm';
-import BatchOperations from '@/components/product/BatchOperations';
 import CategoryManagement from '@/components/product/CategoryManagement';
+import BatchOperations from '@/components/product/BatchOperations';
+
+// Updated Product interface to match ProductList expectations
+export interface Product {
+  id: string;
+  name: string;
+  sku: string;
+  category: string;
+  price: number;
+  cost: number;
+  stock: number;
+  status: 'active' | 'inactive' | 'archived';
+  primaryUOM: string;
+  categoryId: string;
+  description: string;
+  images: string[];
+  variants: ProductVariant[];
+  uoms: {
+    id: string;
+    name: string;
+    ratio: number;
+    isDefault: boolean;
+  }[];
+  supplier: string;
+  tags: string[];
+}
+
+export interface ProductVariant {
+  id: string;
+  name: string;
+  sku: string;
+  price: number;
+  stock: number;
+  attributes: Record<string, string>;
+}
+
+export interface ProductUOM {
+  id: string;
+  uomId: string;
+  ratio: number;
+  isDefault: boolean;
+}
 
 export interface UOM {
   id: string;
   name: string;
   symbol: string;
   type: 'length' | 'weight' | 'volume' | 'piece';
-  conversionFactor: number; // 转换为基础单位的因子
-  isActive: boolean;
-}
-
-export interface ProductUOM {
-  id: string;
-  uomId: string;
-  uom: UOM;
-  barcode?: string;
-  price: number;
-  isDefault: boolean;
-}
-
-export interface Product {
-  id: string;
-  sku: string;
-  name: string;
-  category: string;
-  categoryId: string;
-  stock: number;
-  safetyStock: number;
-  status: 'active' | 'inactive' | 'archived';
-  price: number;
-  supplier: string;
-  description: string;
-  images: string[];
-  variants: ProductVariant[];
-  uoms: ProductUOM[]; // 多单位支持
-  baseUomId: string; // 基础单位ID
-  primaryUOM: string; // Add this to match ProductList interface
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface ProductVariant {
-  id: string;
-  size?: string;
-  color?: string;
-  sku: string;
-  stock: number;
-  price: number;
-  uoms?: ProductUOM[]; // 规格也可以有独立的单位
 }
 
 export interface Category {
   id: string;
   name: string;
+  description: string;
   parentId?: string;
-  children?: Category[];
-  productCount: number;
+  level: number;
+  path: string;
 }
 
 const ProductManagement = () => {
-  const [activeTab, setActiveTab] = useState('list');
+  const [products, setProducts] = useState<Product[]>([]);
+  const [uoms, setUoms] = useState<UOM[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
-  const [showQuickCreate, setShowQuickCreate] = useState(false);
-  const [showBatchOperations, setShowBatchOperations] = useState(false);
-
-  // 系统预定义的计量单位
-  const systemUOMs: UOM[] = [
-    { id: 'kg', name: 'Kilogram', symbol: 'kg', type: 'weight', conversionFactor: 1, isActive: true },
-    { id: 'g', name: 'Gram', symbol: 'g', type: 'weight', conversionFactor: 0.001, isActive: true },
-    { id: 'lb', name: 'Pound', symbol: 'lb', type: 'weight', conversionFactor: 0.453592, isActive: true },
-    { id: 'pcs', name: 'Pieces', symbol: 'pcs', type: 'piece', conversionFactor: 1, isActive: true },
-    { id: 'box', name: 'Box', symbol: 'box', type: 'piece', conversionFactor: 12, isActive: true },
-    { id: 'pack', name: 'Pack', symbol: 'pack', type: 'piece', conversionFactor: 6, isActive: true },
-    { id: 'l', name: 'Liter', symbol: 'L', type: 'volume', conversionFactor: 1, isActive: true },
-    { id: 'ml', name: 'Milliliter', symbol: 'ml', type: 'volume', conversionFactor: 0.001, isActive: true }
-  ];
-
-  // Sample product data with UOM support
-  const products: Product[] = [
-    {
-      id: '1',
-      sku: 'KLMX-001',
-      name: 'Organic Coffee Beans - Premium Blend',
-      category: 'Beverages',
-      categoryId: 'cat-1',
-      stock: 45,
-      safetyStock: 50,
-      status: 'active',
-      price: 24.99,
-      supplier: 'Kili Coffee Co.',
-      description: 'Premium organic coffee beans sourced from Mount Kilimanjaro',
-      images: [],
-      baseUomId: 'kg',
-      primaryUOM: 'kg', // Add this field
-      uoms: [
-        {
-          id: 'uom1-1',
-          uomId: 'kg',
-          uom: systemUOMs.find(u => u.id === 'kg')!,
-          price: 24.99,
-          barcode: '1234567890123',
-          isDefault: true
-        },
-        {
-          id: 'uom1-2',
-          uomId: 'g',
-          uom: systemUOMs.find(u => u.id === 'g')!,
-          price: 0.025,
-          barcode: '1234567890124',
-          isDefault: false
-        },
-        {
-          id: 'uom1-3',
-          uomId: 'pack',
-          uom: systemUOMs.find(u => u.id === 'pack')!,
-          price: 149.99,
-          barcode: '1234567890125',
-          isDefault: false
-        }
-      ],
-      variants: [
-        { 
-          id: 'v1', 
-          size: '250g', 
-          sku: 'KLMX-001-250', 
-          stock: 25, 
-          price: 24.99,
-          uoms: [
-            {
-              id: 'uom1-1-v1',
-              uomId: 'g',
-              uom: systemUOMs.find(u => u.id === 'g')!,
-              price: 0.1,
-              isDefault: true
-            }
-          ]
-        },
-        { 
-          id: 'v2', 
-          size: '500g', 
-          sku: 'KLMX-001-500', 
-          stock: 20, 
-          price: 45.99,
-          uoms: [
-            {
-              id: 'uom1-2-v1',
-              uomId: 'g',
-              uom: systemUOMs.find(u => u.id === 'g')!,
-              price: 0.092,
-              isDefault: true
-            }
-          ]
-        }
-      ],
-      createdAt: '2024-01-15',
-      updatedAt: '2024-01-20'
-    },
-    {
-      id: '2',
-      sku: 'KLMX-002',
-      name: 'Traditional Maasai Jewelry Set',
-      category: 'Handicrafts',
-      categoryId: 'cat-2',
-      stock: 12,
-      safetyStock: 15,
-      status: 'active',
-      price: 89.99,
-      supplier: 'Maasai Artisans Ltd',
-      description: 'Handcrafted traditional jewelry made by Maasai artisans',
-      images: [],
-      baseUomId: 'pcs',
-      primaryUOM: 'pcs', // Add this field
-      uoms: [
-        {
-          id: 'uom2-1',
-          uomId: 'pcs',
-          uom: systemUOMs.find(u => u.id === 'pcs')!,
-          price: 89.99,
-          barcode: '2234567890123',
-          isDefault: true
-        },
-        {
-          id: 'uom2-2',
-          uomId: 'box',
-          uom: systemUOMs.find(u => u.id === 'box')!,
-          price: 1079.88,
-          barcode: '2234567890124',
-          isDefault: false
-        }
-      ],
-      variants: [
-        { 
-          id: 'v3', 
-          color: 'Red', 
-          sku: 'KLMX-002-RED', 
-          stock: 8, 
-          price: 89.99
-        },
-        { 
-          id: 'v4', 
-          color: 'Blue', 
-          sku: 'KLMX-002-BLU', 
-          stock: 4, 
-          price: 89.99
-        }
-      ],
-      createdAt: '2024-01-16',
-      updatedAt: '2024-01-18'
-    },
-    {
-      id: '3',
-      sku: 'KLMX-003',
-      name: 'Safari Adventure Backpack',
-      category: 'Outdoor Gear',
-      categoryId: 'cat-3',
-      stock: 8,
-      safetyStock: 10,
-      status: 'active',
-      price: 129.99,
-      supplier: 'Adventure Gear Africa',
-      description: 'Durable backpack designed for African safari adventures',
-      images: [],
-      baseUomId: 'pcs',
-      primaryUOM: 'pcs', // Add this field
-      uoms: [
-        {
-          id: 'uom3-1',
-          uomId: 'pcs',
-          uom: systemUOMs.find(u => u.id === 'pcs')!,
-          price: 129.99,
-          barcode: '3234567890123',
-          isDefault: true
-        }
-      ],
-      variants: [
-        { 
-          id: 'v5', 
-          size: '30L', 
-          color: 'Khaki', 
-          sku: 'KLMX-003-30K', 
-          stock: 5, 
-          price: 129.99
-        },
-        { 
-          id: 'v6', 
-          size: '45L', 
-          color: 'Olive', 
-          sku: 'KLMX-003-45O', 
-          stock: 3, 
-          price: 159.99
-        }
-      ],
-      createdAt: '2024-01-17',
-      updatedAt: '2024-01-19'
-    }
-  ];
-
-  const categories: Category[] = [
-    {
-      id: 'cat-1',
-      name: 'Beverages',
-      productCount: 15,
-      children: [
-        { id: 'cat-1-1', name: 'Coffee', parentId: 'cat-1', productCount: 8 },
-        { id: 'cat-1-2', name: 'Tea', parentId: 'cat-1', productCount: 7 }
-      ]
-    },
-    {
-      id: 'cat-2',
-      name: 'Handicrafts',
-      productCount: 23,
-      children: [
-        { id: 'cat-2-1', name: 'Jewelry', parentId: 'cat-2', productCount: 12 },
-        { id: 'cat-2-2', name: 'Pottery', parentId: 'cat-2', productCount: 11 }
-      ]
-    },
-    {
-      id: 'cat-3',
-      name: 'Outdoor Gear',
-      productCount: 18,
-      children: [
-        { id: 'cat-3-1', name: 'Backpacks', parentId: 'cat-3', productCount: 8 },
-        { id: 'cat-3-2', name: 'Camping', parentId: 'cat-3', productCount: 10 }
-      ]
-    }
-  ];
+  const [currentView, setCurrentView] = useState<'list' | 'detail' | 'create'>('list');
+  const [activeTab, setActiveTab] = useState('products');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterOptions, setFilterOptions] = useState({});
 
   const handleProductSelect = (product: Product) => {
     setSelectedProduct(product);
-    setActiveTab('detail');
+    setCurrentView('detail');
   };
 
-  const handleBatchSelect = (productIds: string[]) => {
-    setSelectedProducts(productIds);
-    if (productIds.length > 0) {
-      setShowBatchOperations(true);
-    }
+  const handleProductUpdate = (updatedProduct: Product) => {
+    setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p));
+    setSelectedProduct(updatedProduct);
   };
+
+  const handleProductDelete = (productId: string) => {
+    setProducts(products.filter(p => p.id !== productId));
+    setSelectedProduct(null);
+    setCurrentView('list');
+  };
+
+  const handleBatchUpdate = (selectedIds: string[], updates: Partial<Product>) => {
+    setProducts(products.map(product => 
+      selectedIds.includes(product.id) 
+        ? { ...product, ...updates }
+        : product
+    ));
+  };
+
+  const mockProducts: Product[] = [
+    {
+      id: '1',
+      name: 'Wireless Bluetooth Headphones',
+      sku: 'WBH-001',
+      category: 'Electronics',
+      categoryId: 'cat-electronics',
+      description: 'High-quality wireless headphones with noise cancellation',
+      price: 299.99,
+      cost: 150.00,
+      stock: 45,
+      status: 'active',
+      primaryUOM: 'piece',
+      images: ['/placeholder.svg'],
+      variants: [],
+      uoms: [
+        { id: 'uom-1', name: 'Piece', ratio: 1, isDefault: true },
+        { id: 'uom-2', name: 'Pack of 6', ratio: 6, isDefault: false }
+      ],
+      supplier: 'TechCorp Inc.',
+      tags: ['electronics', 'audio', 'wireless']
+    },
+    {
+      id: '2',
+      name: 'Ergonomic Office Chair',
+      sku: 'EOC-002',
+      category: 'Furniture',
+      categoryId: 'cat-furniture',
+      description: 'Adjustable ergonomic chair for office use',
+      price: 349.00,
+      cost: 180.00,
+      stock: 30,
+      status: 'active',
+      primaryUOM: 'piece',
+      images: ['/placeholder.svg'],
+      variants: [],
+      uoms: [
+        { id: 'uom-3', name: 'Piece', ratio: 1, isDefault: true }
+      ],
+      supplier: 'Office Solutions Ltd.',
+      tags: ['furniture', 'office', 'ergonomic']
+    },
+    {
+      id: '3',
+      name: 'Stainless Steel Water Bottle',
+      sku: 'SSWB-003',
+      category: 'Home & Kitchen',
+      categoryId: 'cat-home-kitchen',
+      description: 'Reusable water bottle made of stainless steel',
+      price: 25.50,
+      cost: 12.75,
+      stock: 120,
+      status: 'active',
+      primaryUOM: 'piece',
+      images: ['/placeholder.svg'],
+      variants: [],
+      uoms: [
+        { id: 'uom-4', name: 'Piece', ratio: 1, isDefault: true }
+      ],
+      supplier: 'EcoLife Products',
+      tags: ['home', 'kitchen', 'eco-friendly']
+    }
+  ];
+
+  const mockUOMs: UOM[] = [
+    { id: 'piece', name: 'Piece', symbol: 'pc', type: 'piece' },
+    { id: 'kg', name: 'Kilogram', symbol: 'kg', type: 'weight' },
+    { id: 'liter', name: 'Liter', symbol: 'L', type: 'volume' },
+    { id: 'meter', name: 'Meter', symbol: 'm', type: 'length' }
+  ];
+
+  const mockCategories: Category[] = [
+    { id: 'cat-electronics', name: 'Electronics', description: 'Electronic devices and accessories', level: 1, path: 'Electronics' },
+    { id: 'cat-clothing', name: 'Clothing', description: 'Apparel and fashion items', level: 1, path: 'Clothing' },
+    { id: 'cat-books', name: 'Books', description: 'Books and publications', level: 1, path: 'Books' }
+  ];
+
+  useEffect(() => {
+    setProducts(mockProducts);
+    setUoms(mockUOMs);
+    setCategories(mockCategories);
+  }, []);
 
   return (
-    <div className="space-y-6 bg-gradient-to-br from-blue-50 to-indigo-50 min-h-screen p-6">
-      {/* Header */}
-      <div className="flex justify-between items-center bg-white rounded-xl shadow-sm border border-blue-200 p-6">
-        <div className="flex items-center space-x-4">
-          <div className="p-3 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl shadow-lg">
-            <Package className="h-8 w-8 text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-blue-800">Product Management</h1>
-            <p className="text-blue-600 mt-1">Manage your product catalog with Kilimax - Multi UOM Support</p>
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-white shadow">
+        <div className="container mx-auto py-4 px-4 sm:px-6 lg:px-8">
+          <div className="md:flex md:items-center md:justify-between">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+                Product Management
+              </h2>
+            </div>
+            <div className="mt-4 flex md:mt-0 md:ml-4">
+              <Button onClick={() => setCurrentView('create')}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Product
+              </Button>
+            </div>
           </div>
         </div>
-        <div className="flex space-x-3">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="border-blue-300 text-blue-700 hover:bg-blue-50"
-            onClick={() => setActiveTab('categories')}
-          >
-            <Layers className="h-4 w-4 mr-2" />
-            Categories
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="border-blue-300 text-blue-700 hover:bg-blue-50"
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Import
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="border-blue-300 text-blue-700 hover:bg-blue-50"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          <Button 
-            className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-lg"
-            onClick={() => setShowQuickCreate(true)}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            New Product
-          </Button>
+      </header>
+      
+      <main className="container mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+          <Card>
+            <CardContent className="flex items-center space-x-4 p-3">
+              <div className="rounded-full bg-blue-100 p-2">
+                <Package className="h-5 w-5 text-blue-600" />
+              </div>
+              <div>
+                <CardTitle className="text-lg font-semibold">Total Products</CardTitle>
+                <span className="text-2xl font-bold">{products.length}</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="flex items-center space-x-4 p-3">
+              <div className="rounded-full bg-green-100 p-2">
+                <TrendingUp className="h-5 w-5 text-green-600" />
+              </div>
+              <div>
+                <CardTitle className="text-lg font-semibold">In Stock</CardTitle>
+                <span className="text-2xl font-bold">{products.reduce((acc, product) => acc + product.stock, 0)}</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="flex items-center space-x-4 p-3">
+              <div className="rounded-full bg-red-100 p-2">
+                <AlertTriangle className="h-5 w-5 text-red-600" />
+              </div>
+              <div>
+                <CardTitle className="text-lg font-semibold">Low Stock</CardTitle>
+                <span className="text-2xl font-bold">{products.filter(product => product.stock < 10).length}</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="flex items-center space-x-4 p-3">
+              <div className="rounded-full bg-gray-100 p-2">
+                <Eye className="h-5 w-5 text-gray-600" />
+              </div>
+              <div>
+                <CardTitle className="text-lg font-semibold">Active Products</CardTitle>
+                <span className="text-2xl font-bold">{products.filter(product => product.status === 'active').length}</span>
+              </div>
+            </CardContent>
+          </Card>
         </div>
-      </div>
+        
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="categories">Categories</TabsTrigger>
+            <TabsTrigger value="batch">Batch Operations</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          </TabsList>
 
-      {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-blue-200 shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">{products.length}</div>
-              <div className="text-sm text-gray-600 font-medium">Total Products</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-blue-200 shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">
-                {products.filter(p => p.status === 'active').length}
-              </div>
-              <div className="text-sm text-gray-600 font-medium">Active Products</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-blue-200 shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-amber-600">
-                {products.filter(p => p.stock <= p.safetyStock).length}
-              </div>
-              <div className="text-sm text-gray-600 font-medium">Low Stock Alerts</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-blue-200 shadow-sm hover:shadow-md transition-shadow">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-indigo-600">{systemUOMs.filter(u => u.isActive).length}</div>
-              <div className="text-sm text-gray-600 font-medium">Active UOMs</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content */}
-      <Card className="border-blue-200 shadow-sm">
-        <CardContent className="p-0">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <div className="bg-gradient-to-r from-blue-100 to-indigo-100 border-b border-blue-200 px-6 pt-6">
-              <TabsList className="bg-white border border-blue-200">
-                <TabsTrigger value="list" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                  Product List
-                </TabsTrigger>
-                <TabsTrigger value="detail" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                  Product Detail
-                </TabsTrigger>
-                <TabsTrigger value="categories" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                  Categories
-                </TabsTrigger>
-              </TabsList>
-            </div>
-
-            <TabsContent value="list" className="p-6">
-              <ProductList 
-                products={products} 
-                categories={categories}
-                systemUOMs={systemUOMs}
+          <TabsContent value="products" className="space-y-6">
+            {currentView === 'list' && (
+              <ProductList
+                products={products}
+                uoms={uoms}
                 onProductSelect={handleProductSelect}
-                onBatchSelect={handleBatchSelect}
+                onProductUpdate={handleProductUpdate}
+                onProductDelete={handleProductDelete}
               />
-            </TabsContent>
+            )}
 
-            <TabsContent value="detail" className="p-6">
-              {selectedProduct ? (
-                <ProductDetail 
-                  product={selectedProduct}
-                  systemUOMs={systemUOMs}
-                  onBack={() => setActiveTab('list')}
-                />
-              ) : (
-                <div className="text-center py-12">
-                  <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500">Select a product to view details</p>
-                </div>
-              )}
-            </TabsContent>
+            {currentView === 'detail' && selectedProduct && (
+              <ProductDetail
+                product={selectedProduct}
+                uoms={uoms}
+                categories={categories}
+                onUpdate={handleProductUpdate}
+                onDelete={handleProductDelete}
+                onBack={() => setCurrentView('list')}
+              />
+            )}
 
-            <TabsContent value="categories" className="p-6">
-              <CategoryManagement categories={categories} />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+            {currentView === 'create' && (
+              <QuickCreateForm
+                categories={categories}
+                uoms={uoms}
+                onProductCreate={(product) => {
+                  setProducts([...products, product]);
+                  setCurrentView('list');
+                }}
+                onCancel={() => setCurrentView('list')}
+              />
+            )}
+          </TabsContent>
 
-      {/* Quick Create Modal */}
-      {showQuickCreate && (
-        <QuickCreateForm 
-          onClose={() => setShowQuickCreate(false)}
-          categories={categories}
-          systemUOMs={systemUOMs}
-        />
-      )}
+          <TabsContent value="categories">
+            <CategoryManagement categories={categories} />
+          </TabsContent>
 
-      {/* Batch Operations Panel */}
-      {showBatchOperations && selectedProducts.length > 0 && (
-        <BatchOperations 
-          selectedProducts={selectedProducts}
-          products={products}
-          systemUOMs={systemUOMs}
-          onClose={() => {
-            setShowBatchOperations(false);
-            setSelectedProducts([]);
-          }}
-        />
-      )}
+          <TabsContent value="batch">
+            <BatchOperations products={products} onBatchUpdate={handleBatchUpdate} />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Product Analytics</h3>
+              <p>Detailed analytics and reports coming soon.</p>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </main>
     </div>
   );
 };
