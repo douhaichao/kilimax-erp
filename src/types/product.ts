@@ -5,7 +5,7 @@ export interface ProductUOM {
   ratio: number;
   isDefault: boolean;
   uomId?: string;
-  uom?: string;
+  uom?: UOM;
   price?: number;
   barcode?: string;
 }
@@ -34,6 +34,7 @@ export interface Category {
   description: string;
   productCount?: number;
   children?: Category[];
+  parentId?: string;
 }
 
 export interface UOM {
@@ -41,4 +42,8 @@ export interface UOM {
   name: string;
   ratio: number;
   isDefault: boolean;
+  symbol?: string;
+  isActive?: boolean;
+  type?: string;
+  conversionFactor?: number;
 }

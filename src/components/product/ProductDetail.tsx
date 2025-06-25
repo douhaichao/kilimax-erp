@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Upload, Edit, Save, X, Plus, Trash2, Scale } from 'lucide-react';
-import { Product, UOM, ProductUOM, Category } from '@/pages/ProductManagement';
+import { Product, UOM, ProductUOM, Category } from '@/types/product';
 
 interface ProductDetailProps {
   product: Product;
@@ -25,11 +24,11 @@ const ProductDetail = ({ product, categories, onUpdate, onDelete, onBack }: Prod
   const [editedProduct, setEditedProduct] = useState(product);
 
   const systemUOMs: UOM[] = [
-    { id: 'piece', name: 'Piece', symbol: 'pc', type: 'piece', isActive: true, conversionFactor: 1 },
-    { id: 'kg', name: 'Kilogram', symbol: 'kg', type: 'weight', isActive: true, conversionFactor: 1 },
-    { id: 'liter', name: 'Liter', symbol: 'L', type: 'volume', isActive: true, conversionFactor: 1 },
-    { id: 'meter', name: 'Meter', symbol: 'm', type: 'length', isActive: true, conversionFactor: 1 },
-    { id: 'pack', name: 'Pack', symbol: 'pack', type: 'piece', isActive: true, conversionFactor: 6 }
+    { id: 'piece', name: 'Piece', ratio: 1, isDefault: true, symbol: 'pc', type: 'piece', isActive: true, conversionFactor: 1 },
+    { id: 'kg', name: 'Kilogram', ratio: 1, isDefault: false, symbol: 'kg', type: 'weight', isActive: true, conversionFactor: 1 },
+    { id: 'liter', name: 'Liter', ratio: 1, isDefault: false, symbol: 'L', type: 'volume', isActive: true, conversionFactor: 1 },
+    { id: 'meter', name: 'Meter', ratio: 1, isDefault: false, symbol: 'm', type: 'length', isActive: true, conversionFactor: 1 },
+    { id: 'pack', name: 'Pack', ratio: 6, isDefault: false, symbol: 'pack', type: 'piece', isActive: true, conversionFactor: 6 }
   ];
 
   const handleSave = () => {
@@ -68,6 +67,7 @@ const ProductDetail = ({ product, categories, onUpdate, onDelete, onBack }: Prod
   const addUOM = () => {
     const newUOM: ProductUOM = {
       id: `uom-${Date.now()}`,
+      name: systemUOMs[0].name,
       uomId: systemUOMs[0].id,
       uom: systemUOMs[0],
       ratio: 1,
@@ -88,7 +88,7 @@ const ProductDetail = ({ product, categories, onUpdate, onDelete, onBack }: Prod
         setEditedProduct({
           ...editedProduct,
           uoms: editedProduct.uoms.map((uom, i) => 
-            i === index ? { ...uom, uomId: value, uom: selectedUOM } : uom
+            i === index ? { ...uom, uomId: value, uom: selectedUOM, name: selectedUOM.name } : uom
           )
         });
       }
@@ -254,12 +254,12 @@ const ProductDetail = ({ product, categories, onUpdate, onDelete, onBack }: Prod
                     {isEditing ? (
                       <Input
                         id="supplier"
-                        value={editedProduct.supplier}
+                        value={editedProduct.supplier || ''}
                         onChange={(e) => setEditedProduct({...editedProduct, supplier: e.target.value})}
                         className="mt-2 border-blue-200 focus:border-blue-400"
                       />
                     ) : (
-                      <p className="mt-2 p-3 bg-gray-50 rounded-md">{product.supplier}</p>
+                      <p className="mt-2 p-3 bg-gray-50 rounded-md">{product.supplier || 'N/A'}</p>
                     )}
                   </div>
 
@@ -446,7 +446,7 @@ const ProductDetail = ({ product, categories, onUpdate, onDelete, onBack }: Prod
                   <CardContent>
                     <div className="text-3xl font-bold text-blue-600 mb-2">{product.stock}</div>
                     <p className="text-sm text-gray-600">
-                      Units available in {product.uoms.find(u => u.isDefault)?.uom.symbol || 'base unit'}
+                      Units available in {product.uoms.find(u => u.isDefault)?.uom?.symbol || 'base unit'}
                     </p>
                   </CardContent>
                 </Card>
@@ -466,7 +466,7 @@ const ProductDetail = ({ product, categories, onUpdate, onDelete, onBack }: Prod
                     <CardTitle className="text-lg text-blue-800">Stock Status</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    {product.stock <= product.safetyStock ? (
+                    {(product.stock || 0) <= (product.safetyStock || 0) ? (
                       <Badge className="bg-amber-500 text-white">Low Stock</Badge>
                     ) : (
                       <Badge className="bg-green-500 text-white">In Stock</Badge>
@@ -482,7 +482,7 @@ const ProductDetail = ({ product, categories, onUpdate, onDelete, onBack }: Prod
                     <Input
                       id="stock"
                       type="number"
-                      value={editedProduct.stock}
+                      value={editedProduct.stock || 0}
                       onChange={(e) => setEditedProduct({...editedProduct, stock: parseInt(e.target.value)})}
                       className="mt-2 border-blue-200 focus:border-blue-400"
                     />
@@ -492,7 +492,7 @@ const ProductDetail = ({ product, categories, onUpdate, onDelete, onBack }: Prod
                     <Input
                       id="safetyStock"
                       type="number"
-                      value={editedProduct.safetyStock}
+                      value={editedProduct.safetyStock || 0}
                       onChange={(e) => setEditedProduct({...editedProduct, safetyStock: parseInt(e.target.value)})}
                       className="mt-2 border-blue-200 focus:border-blue-400"
                     />
@@ -546,47 +546,47 @@ const ProductDetail = ({ product, categories, onUpdate, onDelete, onBack }: Prod
                 </div>
 
                 <div className="space-y-4">
-                  {product.variants.map((variant, index) => (
-                    <Card key={variant.id} className="border-blue-200">
-                      <CardContent className="p-4">
-                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
-                          <div>
-                            <Label className="text-sm text-blue-700">SKU</Label>
-                            <p className="font-mono text-sm">{variant.sku}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm text-blue-700">Size</Label>
-                            <p className="text-sm">{variant.size || 'N/A'}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm text-blue-700">Color</Label>
-                            <p className="text-sm">{variant.color || 'N/A'}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm text-blue-700">Stock</Label>
-                            <p className="text-sm font-medium">{variant.stock}</p>
-                          </div>
-                          <div>
-                            <Label className="text-sm text-blue-700">Price</Label>
-                            <p className="text-sm font-medium text-green-600">{formatCurrency(variant.price)}</p>
-                          </div>
-                        </div>
-                        {variant.uoms && variant.uoms.length > 0 && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <Label className="text-sm text-blue-700 mb-2 block">Variant UOMs</Label>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                              {variant.uoms.map((variantUom) => (
-                                <div key={variantUom.id} className="text-xs bg-gray-50 p-2 rounded">
-                                  <p className="font-medium">{variantUom.uom.symbol}</p>
-                                  <p className="text-green-600">{formatCurrency(variantUom.price)}</p>
-                                </div>
-                              ))}
+                  {product.variants && product.variants.length > 0 ? (
+                    product.variants.map((variant, index) => (
+                      <Card key={variant.id} className="border-blue-200">
+                        <CardContent className="p-4">
+                          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
+                            <div>
+                              <Label className="text-sm text-blue-700">SKU</Label>
+                              <p className="font-mono text-sm">{variant.sku}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm text-blue-700">Size</Label>
+                              <p className="text-sm">{variant.size || 'N/A'}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm text-blue-700">Color</Label>
+                              <p className="text-sm">{variant.color || 'N/A'}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm text-blue-700">Stock</Label>
+                              <p className="text-sm font-medium">{variant.stock}</p>
+                            </div>
+                            <div>
+                              <Label className="text-sm text-blue-700">Price</Label>
+                              <p className="text-sm font-medium text-green-600">{formatCurrency(variant.price)}</p>
                             </div>
                           </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <Card className="border-blue-200 border-dashed">
+                      <CardContent className="p-8 text-center">
+                        <p className="text-gray-500 mb-4">No variants defined</p>
+                        {isEditing && (
+                          <Button variant="outline" className="border-blue-300 text-blue-700">
+                            Add First Variant
+                          </Button>
                         )}
                       </CardContent>
                     </Card>
-                  ))}
+                  )}
                 </div>
               </div>
             </TabsContent>

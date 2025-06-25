@@ -8,41 +8,52 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { X, Camera, Save, ArrowRight, ArrowLeft, CheckCircle, Scale, Plus, Trash2 } from 'lucide-react';
-import { Category, UOM, ProductUOM } from '@/pages/ProductManagement';
+import { Category, UOM, ProductUOM } from '@/types/product';
 
 interface QuickCreateFormProps {
   onClose: () => void;
   categories: Category[];
-  systemUOMs: UOM[];
+  systemUOMs?: UOM[];
 }
 
-interface FormData {
-  name: string;
-  sku: string;
-  category: string;
-  supplier: string;
-  description: string;
-  price: string;
-  stock: string;
-  safetyStock: string;
-  baseUomId: string;
-  uoms: Array<{
-    uomId: string;
-    price: string;
-    barcode: string;
-    isDefault: boolean;
-  }>;
-  variants: Array<{
-    size?: string;
-    color?: string;
-    sku: string;
-    stock: string;
-    price: string;
-  }>;
-}
-
-const QuickCreateForm = ({ onClose, categories, systemUOMs }: QuickCreateFormProps) => {
+const QuickCreateForm = ({ onClose, categories, systemUOMs = [] }: QuickCreateFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
+  
+  const defaultSystemUOMs: UOM[] = [
+    { id: 'pcs', name: 'Piece', ratio: 1, isDefault: true, symbol: 'pc', type: 'piece', isActive: true, conversionFactor: 1 },
+    { id: 'kg', name: 'Kilogram', ratio: 1, isDefault: false, symbol: 'kg', type: 'weight', isActive: true, conversionFactor: 1 },
+    { id: 'liter', name: 'Liter', ratio: 1, isDefault: false, symbol: 'L', type: 'volume', isActive: true, conversionFactor: 1 },
+    { id: 'meter', name: 'Meter', ratio: 1, isDefault: false, symbol: 'm', type: 'length', isActive: true, conversionFactor: 1 },
+    { id: 'pack', name: 'Pack', ratio: 6, isDefault: false, symbol: 'pack', type: 'piece', isActive: true, conversionFactor: 6 }
+  ];
+
+  const uoms = systemUOMs.length > 0 ? systemUOMs : defaultSystemUOMs;
+
+  interface FormData {
+    name: string;
+    sku: string;
+    category: string;
+    supplier: string;
+    description: string;
+    price: string;
+    stock: string;
+    safetyStock: string;
+    baseUomId: string;
+    uoms: Array<{
+      uomId: string;
+      price: string;
+      barcode: string;
+      isDefault: boolean;
+    }>;
+    variants: Array<{
+      size?: string;
+      color?: string;
+      sku: string;
+      stock: string;
+      price: string;
+    }>;
+  }
+
   const [formData, setFormData] = useState<FormData>({
     name: '',
     sku: '',
@@ -79,7 +90,7 @@ const QuickCreateForm = ({ onClose, categories, systemUOMs }: QuickCreateFormPro
   };
 
   const addUOM = () => {
-    const availableUOMs = systemUOMs.filter(uom => 
+    const availableUOMs = uoms.filter(uom => 
       !formData.uoms.some(existingUom => existingUom.uomId === uom.id)
     );
     
@@ -316,7 +327,7 @@ const QuickCreateForm = ({ onClose, categories, systemUOMs }: QuickCreateFormPro
 
               <div className="space-y-4">
                 {formData.uoms.map((uom, index) => {
-                  const selectedUOM = systemUOMs.find(u => u.id === uom.uomId);
+                  const selectedUOM = uoms.find(u => u.id === uom.uomId);
                   return (
                     <Card key={index} className={`border-blue-200 ${uom.isDefault ? 'ring-2 ring-blue-400' : ''}`}>
                       <CardContent className="p-4">
@@ -349,7 +360,7 @@ const QuickCreateForm = ({ onClose, categories, systemUOMs }: QuickCreateFormPro
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                {systemUOMs.filter(u => u.isActive).map(systemUom => (
+                                {uoms.filter(u => u.isActive).map(systemUom => (
                                   <SelectItem key={systemUom.id} value={systemUom.id}>
                                     {systemUom.name} ({systemUom.symbol})
                                   </SelectItem>
@@ -498,7 +509,7 @@ const QuickCreateForm = ({ onClose, categories, systemUOMs }: QuickCreateFormPro
                     className="mt-2 border-blue-200 focus:border-blue-400"
                   />
                   <p className="text-xs text-gray-500 mt-1">
-                    Stock in {systemUOMs.find(u => u.id === formData.baseUomId)?.symbol || 'base unit'}
+                    Stock in {uoms.find(u => u.id === formData.baseUomId)?.symbol || 'base unit'}
                   </p>
                 </div>
 
@@ -524,7 +535,7 @@ const QuickCreateForm = ({ onClose, categories, systemUOMs }: QuickCreateFormPro
                 <CardContent>
                   <div className="space-y-2">
                     {formData.uoms.map((uom, index) => {
-                      const selectedUOM = systemUOMs.find(u => u.id === uom.uomId);
+                      const selectedUOM = uoms.find(u => u.id === uom.uomId);
                       return (
                         <div key={index} className="flex justify-between items-center">
                           <span className="text-blue-700">
