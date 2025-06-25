@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +18,8 @@ import {
   Edit,
   Trash2,
   Send,
-  Truck
+  Truck,
+  UserCheck
 } from 'lucide-react';
 import {
   Table,
@@ -51,7 +53,7 @@ const TransferOrderList = () => {
       fromLocationName: 'Main Warehouse',
       toLocationId: 'loc-2',
       toLocationName: 'Store A',
-      status: 'pending',
+      status: 'submitted',
       items: [
         {
           id: '1',
@@ -66,6 +68,8 @@ const TransferOrderList = () => {
       ],
       requestedBy: 'John Doe',
       requestedDate: '2024-01-15',
+      submittedBy: 'John Doe',
+      submittedDate: '2024-01-15',
       totalQuantity: 10,
       estimatedValue: 1500,
       createdAt: '2024-01-15T10:00:00Z',
@@ -94,6 +98,8 @@ const TransferOrderList = () => {
       ],
       requestedBy: 'Jane Smith',
       requestedDate: '2024-01-14',
+      submittedBy: 'Jane Smith',
+      submittedDate: '2024-01-14',
       approvedBy: 'Manager',
       approvedDate: '2024-01-14',
       shippedDate: '2024-01-15',
@@ -126,6 +132,8 @@ const TransferOrderList = () => {
       ],
       requestedBy: 'Mike Johnson',
       requestedDate: '2024-01-10',
+      submittedBy: 'Mike Johnson',
+      submittedDate: '2024-01-10',
       approvedBy: 'Manager',
       approvedDate: '2024-01-10',
       shippedDate: '2024-01-11',
@@ -144,6 +152,8 @@ const TransferOrderList = () => {
   const getStatusBadge = (status: TransferOrderStatus) => {
     const statusConfig = {
       draft: { label: 'Draft', className: 'bg-gray-100 text-gray-800' },
+      submitted: { label: 'Submitted', className: 'bg-blue-100 text-blue-800' },
+      approved: { label: 'Approved', className: 'bg-purple-100 text-purple-800' },
       pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800' },
       in_transit: { label: 'In Transit', className: 'bg-blue-100 text-blue-800' },
       completed: { label: 'Completed', className: 'bg-green-100 text-green-800' },
@@ -183,7 +193,11 @@ const TransferOrderList = () => {
 
     // Add appropriate dates based on status change
     switch (newStatus) {
-      case 'pending':
+      case 'submitted':
+        updatedOrder.submittedDate = new Date().toISOString();
+        updatedOrder.submittedBy = 'Current User';
+        break;
+      case 'approved':
         updatedOrder.approvedDate = new Date().toISOString();
         updatedOrder.approvedBy = 'Current User';
         break;
@@ -212,23 +226,32 @@ const TransferOrderList = () => {
     switch (order.status) {
       case 'draft':
         actions.push(
-          <DropdownMenuItem key="submit" onClick={() => handleQuickStatusChange(order, 'pending')}>
+          <DropdownMenuItem key="submit" onClick={() => handleQuickStatusChange(order, 'submitted')}>
             <Send className="mr-2 h-4 w-4" />
             Submit for Approval
           </DropdownMenuItem>
         );
         break;
-      case 'pending':
+      case 'submitted':
         actions.push(
-          <DropdownMenuItem key="ship" onClick={() => handleQuickStatusChange(order, 'in_transit')}>
-            <Truck className="mr-2 h-4 w-4" />
-            Mark as Shipped
+          <DropdownMenuItem key="approve" onClick={() => handleQuickStatusChange(order, 'approved')}>
+            <UserCheck className="mr-2 h-4 w-4" />
+            Approve
           </DropdownMenuItem>
         );
         actions.push(
           <DropdownMenuItem key="cancel" onClick={() => handleQuickStatusChange(order, 'cancelled')}>
             <XCircle className="mr-2 h-4 w-4" />
             Cancel
+          </DropdownMenuItem>
+        );
+        break;
+      case 'approved':
+      case 'pending':
+        actions.push(
+          <DropdownMenuItem key="ship" onClick={() => handleQuickStatusChange(order, 'in_transit')}>
+            <Truck className="mr-2 h-4 w-4" />
+            Mark as Shipped
           </DropdownMenuItem>
         );
         break;
@@ -295,7 +318,7 @@ const TransferOrderList = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         <Card>
           <CardContent className="flex items-center space-x-4 p-4">
             <div className="rounded-full bg-blue-100 p-2">
@@ -310,13 +333,27 @@ const TransferOrderList = () => {
 
         <Card>
           <CardContent className="flex items-center space-x-4 p-4">
-            <div className="rounded-full bg-yellow-100 p-2">
-              <Clock className="h-5 w-5 text-yellow-600" />
+            <div className="rounded-full bg-blue-100 p-2">
+              <Send className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <CardTitle className="text-sm font-medium text-gray-600">Pending</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">Submitted</CardTitle>
               <span className="text-2xl font-bold">
-                {transferOrders.filter(order => order.status === 'pending').length}
+                {transferOrders.filter(order => order.status === 'submitted').length}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="flex items-center space-x-4 p-4">
+            <div className="rounded-full bg-purple-100 p-2">
+              <UserCheck className="h-5 w-5 text-purple-600" />
+            </div>
+            <div>
+              <CardTitle className="text-sm font-medium text-gray-600">Approved</CardTitle>
+              <span className="text-2xl font-bold">
+                {transferOrders.filter(order => order.status === 'approved').length}
               </span>
             </div>
           </CardContent>

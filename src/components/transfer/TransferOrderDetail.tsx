@@ -1,9 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -18,7 +20,8 @@ import {
   Truck,
   XCircle,
   Send,
-  Eye
+  Eye,
+  UserCheck
 } from 'lucide-react';
 import {
   Table,
@@ -39,9 +42,14 @@ interface TransferOrderDetailProps {
 }
 
 const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: TransferOrderDetailProps) => {
+  const [editableItems, setEditableItems] = useState(order.items);
+  const [isEditingQuantities, setIsEditingQuantities] = useState(false);
+
   const getStatusBadge = (status: TransferOrderStatus) => {
     const statusConfig = {
       draft: { label: 'Draft', className: 'bg-gray-100 text-gray-800' },
+      submitted: { label: 'Submitted', className: 'bg-blue-100 text-blue-800' },
+      approved: { label: 'Approved', className: 'bg-purple-100 text-purple-800' },
       pending: { label: 'Pending', className: 'bg-yellow-100 text-yellow-800' },
       in_transit: { label: 'In Transit', className: 'bg-blue-100 text-blue-800' },
       completed: { label: 'Completed', className: 'bg-green-100 text-green-800' },
@@ -59,34 +67,52 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
     const updatedOrder = {
       ...order,
       status: newStatus,
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      items: editableItems
     };
 
     // Add appropriate dates based on status change
     switch (newStatus) {
-      case 'pending':
+      case 'submitted':
+        updatedOrder.submittedDate = new Date().toISOString();
+        updatedOrder.submittedBy = 'Current User';
+        break;
+      case 'approved':
         updatedOrder.approvedDate = new Date().toISOString();
-        updatedOrder.approvedBy = 'Current User'; // In real app, get from auth
+        updatedOrder.approvedBy = 'Current User';
+        break;
+      case 'pending':
+        // This status is now set after approval
         break;
       case 'in_transit':
         updatedOrder.shippedDate = new Date().toISOString();
-        // Update shipped quantities to match requested
-        updatedOrder.items = order.items.map(item => ({
-          ...item,
-          shippedQuantity: item.requestedQuantity
-        }));
         break;
       case 'completed':
         updatedOrder.receivedDate = new Date().toISOString();
-        // Update received quantities to match shipped
-        updatedOrder.items = order.items.map(item => ({
-          ...item,
-          receivedQuantity: item.shippedQuantity || item.requestedQuantity
-        }));
         break;
     }
 
     onUpdate(updatedOrder);
+  };
+
+  const handleQuantityUpdate = (itemId: string, field: 'shippedQuantity' | 'receivedQuantity', value: number) => {
+    setEditableItems(items => 
+      items.map(item => 
+        item.id === itemId 
+          ? { ...item, [field]: value }
+          : item
+      )
+    );
+  };
+
+  const saveQuantityChanges = () => {
+    const updatedOrder = {
+      ...order,
+      items: editableItems,
+      updatedAt: new Date().toISOString()
+    };
+    onUpdate(updatedOrder);
+    setIsEditingQuantities(false);
   };
 
   const getAvailableActions = () => {
@@ -95,23 +121,39 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
     switch (order.status) {
       case 'draft':
         actions.push(
-          <Button key="submit" onClick={() => handleStatusChange('pending')}>
+          <Button key="submit" onClick={() => handleStatusChange('submitted')}>
             <Send className="mr-2 h-4 w-4" />
             Submit for Approval
           </Button>
         );
         break;
-      case 'pending':
+      case 'submitted':
         actions.push(
-          <Button key="approve" onClick={() => handleStatusChange('in_transit')}>
-            <Truck className="mr-2 h-4 w-4" />
-            Mark as Shipped
+          <Button key="approve" onClick={() => handleStatusChange('approved')}>
+            <UserCheck className="mr-2 h-4 w-4" />
+            Approve
           </Button>
         );
         actions.push(
           <Button key="cancel" variant="outline" onClick={() => handleStatusChange('cancelled')}>
             <XCircle className="mr-2 h-4 w-4" />
             Cancel
+          </Button>
+        );
+        break;
+      case 'approved':
+        actions.push(
+          <Button key="ship" onClick={() => handleStatusChange('in_transit')}>
+            <Truck className="mr-2 h-4 w-4" />
+            Mark as Shipped
+          </Button>
+        );
+        break;
+      case 'pending':
+        actions.push(
+          <Button key="ship" onClick={() => handleStatusChange('in_transit')}>
+            <Truck className="mr-2 h-4 w-4" />
+            Mark as Shipped
           </Button>
         );
         break;
@@ -128,8 +170,9 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
     return actions;
   };
 
-  const canEdit = order.status === 'draft' || order.status === 'pending';
+  const canEdit = order.status === 'draft' || order.status === 'submitted';
   const canDelete = order.status === 'draft';
+  const canEditQuantities = order.status === 'approved' || order.status === 'pending' || order.status === 'in_transit';
 
   return (
     <div className="space-y-6">
@@ -147,6 +190,28 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         <div className="flex space-x-2">
           {/* Status Action Buttons */}
           {getAvailableActions()}
+          
+          {canEditQuantities && !isEditingQuantities && (
+            <Button variant="outline" onClick={() => setIsEditingQuantities(true)}>
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Quantities
+            </Button>
+          )}
+
+          {isEditingQuantities && (
+            <>
+              <Button onClick={saveQuantityChanges}>
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Save Changes
+              </Button>
+              <Button variant="outline" onClick={() => {
+                setEditableItems(order.items);
+                setIsEditingQuantities(false);
+              }}>
+                Cancel
+              </Button>
+            </>
+          )}
           
           {canEdit && (
             <Button variant="outline" onClick={onEdit}>
@@ -173,9 +238,9 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
-            {['draft', 'pending', 'in_transit', 'completed'].map((status, index) => {
+            {['draft', 'submitted', 'approved', 'in_transit', 'completed'].map((status, index) => {
               const isActive = order.status === status;
-              const isCompleted = ['draft', 'pending', 'in_transit', 'completed'].indexOf(order.status) > index;
+              const isCompleted = ['draft', 'submitted', 'approved', 'in_transit', 'completed'].indexOf(order.status) > index;
               const isCancelled = order.status === 'cancelled';
               
               return (
@@ -197,7 +262,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                       {status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')}
                     </p>
                   </div>
-                  {index < 3 && (
+                  {index < 4 && (
                     <div className={`mx-4 h-0.5 w-12 ${isCompleted ? 'bg-green-500' : 'bg-gray-300'}`} />
                   )}
                 </div>
@@ -292,6 +357,17 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                 </div>
               </div>
 
+              {order.submittedDate && (
+                <div className="flex items-start space-x-3">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                  <div>
+                    <p className="text-sm font-medium">Submitted</p>
+                    <p className="text-xs text-gray-500">{new Date(order.submittedDate).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-500">by {order.submittedBy}</p>
+                  </div>
+                </div>
+              )}
+
               {order.approvedDate && (
                 <div className="flex items-start space-x-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
@@ -341,20 +417,46 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                 <TableHead>UOM</TableHead>
                 <TableHead>Requested</TableHead>
                 <TableHead>Shipped</TableHead>
-                <TableHead>Received</TableHead>
+                {order.status !== 'approved' && order.status !== 'pending' && (
+                  <TableHead>Received</TableHead>
+                )}
                 <TableHead>Unit Cost</TableHead>
                 <TableHead>Total Cost</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {order.items.map((item) => (
+              {editableItems.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.productName}</TableCell>
                   <TableCell className="font-mono text-sm">{item.productSku}</TableCell>
                   <TableCell>{item.uom}</TableCell>
                   <TableCell>{item.requestedQuantity}</TableCell>
-                  <TableCell>{item.shippedQuantity || '-'}</TableCell>
-                  <TableCell>{item.receivedQuantity || '-'}</TableCell>
+                  <TableCell>
+                    {isEditingQuantities && canEditQuantities ? (
+                      <Input
+                        type="number"
+                        value={item.shippedQuantity || ''}
+                        onChange={(e) => handleQuantityUpdate(item.id, 'shippedQuantity', parseInt(e.target.value) || 0)}
+                        className="w-20"
+                      />
+                    ) : (
+                      item.shippedQuantity || '-'
+                    )}
+                  </TableCell>
+                  {order.status !== 'approved' && order.status !== 'pending' && (
+                    <TableCell>
+                      {isEditingQuantities && canEditQuantities ? (
+                        <Input
+                          type="number"
+                          value={item.receivedQuantity || ''}
+                          onChange={(e) => handleQuantityUpdate(item.id, 'receivedQuantity', parseInt(e.target.value) || 0)}
+                          className="w-20"
+                        />
+                      ) : (
+                        item.receivedQuantity || '-'
+                      )}
+                    </TableCell>
+                  )}
                   <TableCell>${item.unitCost.toFixed(2)}</TableCell>
                   <TableCell>${item.totalCost.toFixed(2)}</TableCell>
                 </TableRow>

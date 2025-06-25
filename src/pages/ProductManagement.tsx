@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,7 +66,7 @@ export interface ProductUOM {
   uomId: string;
   ratio: number;
   isDefault: boolean;
-  uom?: UOM;
+  uom: UOM;
   price?: number;
   barcode?: string;
 }
@@ -145,8 +146,22 @@ const ProductManagement = () => {
       images: ['/placeholder.svg'],
       variants: [],
       uoms: [
-        { id: 'uom-1', uomId: 'piece', ratio: 1, isDefault: true, price: 299.99 },
-        { id: 'uom-2', uomId: 'pack', ratio: 6, isDefault: false, price: 1799.94 }
+        { 
+          id: 'uom-1', 
+          uomId: 'piece', 
+          ratio: 1, 
+          isDefault: true, 
+          price: 299.99,
+          uom: { id: 'piece', name: 'Piece', symbol: 'pc', type: 'piece', isActive: true, conversionFactor: 1 }
+        },
+        { 
+          id: 'uom-2', 
+          uomId: 'pack', 
+          ratio: 6, 
+          isDefault: false, 
+          price: 1799.94,
+          uom: { id: 'pack', name: 'Pack', symbol: 'pack', type: 'piece', isActive: true, conversionFactor: 6 }
+        }
       ],
       supplier: 'TechCorp Inc.',
       tags: ['electronics', 'audio', 'wireless'],
@@ -170,7 +185,14 @@ const ProductManagement = () => {
       images: ['/placeholder.svg'],
       variants: [],
       uoms: [
-        { id: 'uom-3', uomId: 'piece', ratio: 1, isDefault: true, price: 349.00 }
+        { 
+          id: 'uom-3', 
+          uomId: 'piece', 
+          ratio: 1, 
+          isDefault: true, 
+          price: 349.00,
+          uom: { id: 'piece', name: 'Piece', symbol: 'pc', type: 'piece', isActive: true, conversionFactor: 1 }
+        }
       ],
       supplier: 'Office Solutions Ltd.',
       tags: ['furniture', 'office', 'ergonomic'],
@@ -194,7 +216,14 @@ const ProductManagement = () => {
       images: ['/placeholder.svg'],
       variants: [],
       uoms: [
-        { id: 'uom-4', uomId: 'piece', ratio: 1, isDefault: true, price: 25.50 }
+        { 
+          id: 'uom-4', 
+          uomId: 'piece', 
+          ratio: 1, 
+          isDefault: true, 
+          price: 25.50,
+          uom: { id: 'piece', name: 'Piece', symbol: 'pc', type: 'piece', isActive: true, conversionFactor: 1 }
+        }
       ],
       supplier: 'EcoLife Products',
       tags: ['home', 'kitchen', 'eco-friendly'],
@@ -244,16 +273,7 @@ const ProductManagement = () => {
   ];
 
   useEffect(() => {
-    // Add UOM references to product UOMs
-    const productsWithUOMs = mockProducts.map(product => ({
-      ...product,
-      uoms: product.uoms.map(productUom => ({
-        ...productUom,
-        uom: mockUOMs.find(uom => uom.id === productUom.uomId)
-      }))
-    }));
-    
-    setProducts(productsWithUOMs);
+    setProducts(mockProducts);
     setUoms(mockUOMs);
     setCategories(mockCategories);
   }, []);
@@ -350,6 +370,7 @@ const ProductManagement = () => {
             {currentView === 'detail' && selectedProduct && (
               <ProductDetail
                 product={selectedProduct}
+                categories={categories}
                 onUpdate={handleProductUpdate}
                 onDelete={handleProductDelete}
                 onBack={() => setCurrentView('list')}
