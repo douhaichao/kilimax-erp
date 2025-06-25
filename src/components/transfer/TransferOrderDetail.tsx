@@ -354,6 +354,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
   const canDelete = order.status === 'draft';
   const isApproved = order.status === 'approved';
   const isInTransit = order.status === 'in_transit';
+  const isCompleted = order.status === 'completed';
 
   return (
     <div className="space-y-6">
@@ -595,7 +596,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                   <TableHead>Serial Numbers</TableHead>
                 )}
                 {/* For In Transit and Completed status, show Received and Serial Numbers */}
-                {(isInTransit || order.status === 'completed') && (
+                {(isInTransit || isCompleted) && (
                   <>
                     <TableHead>Received</TableHead>
                     <TableHead>Serial Numbers</TableHead>
@@ -613,7 +614,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                   <TableCell>{item.uom}</TableCell>
                   <TableCell>{item.requestedQuantity}</TableCell>
                   <TableCell>
-                    {/* Editable shipped quantity for approved status */}
+                    {/* Editable shipped quantity for approved status, read-only for in_transit and completed */}
                     {isApproved ? (
                       <Input
                         type="number"
@@ -625,7 +626,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                         max={item.requestedQuantity}
                       />
                     ) : (
-                      item.shippedQuantity || '-'
+                      <span className="text-sm">{item.shippedQuantity || item.requestedQuantity}</span>
                     )}
                   </TableCell>
                   {/* For Approved status, add Serial Number column after Shipped */}
@@ -643,10 +644,10 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                     </TableCell>
                   )}
                   {/* For In Transit and Completed status, show Received and Serial Numbers */}
-                  {(isInTransit || order.status === 'completed') && (
+                  {(isInTransit || isCompleted) && (
                     <>
                       <TableCell>
-                        {/* Editable received quantity for in_transit status */}
+                        {/* Editable received quantity for in_transit status, read-only for completed */}
                         {isInTransit ? (
                           <Input
                             type="number"
@@ -658,7 +659,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                             max={item.shippedQuantity || 0}
                           />
                         ) : (
-                          item.receivedQuantity || '-'
+                          <span className="text-sm">{item.receivedQuantity || item.shippedQuantity || '-'}</span>
                         )}
                       </TableCell>
                       <TableCell>

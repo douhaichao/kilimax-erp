@@ -4,6 +4,10 @@ export interface ProductUOM {
   name: string;
   ratio: number;
   isDefault: boolean;
+  uomId?: string;
+  uom?: string;
+  price?: number;
+  barcode?: string;
 }
 
 export interface Product {
@@ -16,6 +20,10 @@ export interface Product {
   price: number;
   cost: number;
   status: 'active' | 'inactive';
+  supplier?: string;
+  stock?: number;
+  safetyStock?: number;
+  variants?: any[];
   createdAt: string;
   updatedAt: string;
 }
@@ -24,6 +32,8 @@ export interface Category {
   id: string;
   name: string;
   description: string;
+  productCount?: number;
+  children?: Category[];
 }
 
 export interface UOM {
