@@ -25,10 +25,14 @@ import {
   Receipt,
   UserCheck,
   Warehouse,
-  Mountain
+  Mountain,
+  ArrowRightLeft,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarGroup, SidebarGroupLabel, SidebarGroupContent, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import SalesOrderList from '@/pages/SalesOrderList';
+import TransferOrderList from '@/pages/TransferOrderList';
 
 interface DashboardProps {
   onLogout: () => void;
@@ -37,6 +41,7 @@ interface DashboardProps {
 
 const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
   const [currentModule, setCurrentModule] = useState<string>('dashboard');
+  const [expandedMenus, setExpandedMenus] = useState<string[]>(['inventory']);
 
   const stats = [
     { title: 'Total Revenue', value: '$124,563', change: '+12.3%', icon: DollarSign, trend: 'up' },
@@ -86,7 +91,22 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
     {
       title: "Inventory Management",
       icon: Warehouse,
-      key: "inventory"
+      key: "inventory",
+      hasSubmenu: true,
+      submenu: [
+        {
+          title: "Stock Overview",
+          key: "inventory-overview"
+        },
+        {
+          title: "Transfer Orders",
+          key: "transfer-orders"
+        },
+        {
+          title: "Stock Adjustments",
+          key: "stock-adjustments"
+        }
+      ]
     },
     {
       title: "Customer Management",
@@ -110,6 +130,14 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
     }
   ];
 
+  const toggleSubmenu = (key: string) => {
+    setExpandedMenus(prev => 
+      prev.includes(key) 
+        ? prev.filter(item => item !== key)
+        : [...prev, key]
+    );
+  };
+
   const AppSidebar = () => (
     <Sidebar>
       <SidebarHeader className="border-b border-green-200">
@@ -129,22 +157,49 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
           <SidebarGroupContent>
             <SidebarMenu>
               {sidebarMenuItems.map((item) => (
-                <SidebarMenuItem key={item.key}>
-                  <SidebarMenuButton 
-                    isActive={currentModule === item.key}
-                    onClick={() => {
-                      if (item.url) {
-                        window.location.href = item.url;
-                      } else {
-                        setCurrentModule(item.key);
-                      }
-                    }}
-                    className={currentModule === item.key ? 'bg-green-100 text-green-800 hover:bg-green-150' : 'hover:bg-green-50 hover:text-green-700'}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+                <div key={item.key}>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton 
+                      isActive={currentModule === item.key}
+                      onClick={() => {
+                        if (item.url) {
+                          window.location.href = item.url;
+                        } else if (item.hasSubmenu) {
+                          toggleSubmenu(item.key);
+                        } else {
+                          setCurrentModule(item.key);
+                        }
+                      }}
+                      className={currentModule === item.key ? 'bg-green-100 text-green-800 hover:bg-green-150' : 'hover:bg-green-50 hover:text-green-700'}
+                    >
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                      {item.hasSubmenu && (
+                        expandedMenus.includes(item.key) ? 
+                          <ChevronDown className="h-3 w-3 ml-auto" /> : 
+                          <ChevronRight className="h-3 w-3 ml-auto" />
+                      )}
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  
+                  {/* Submenu */}
+                  {item.hasSubmenu && expandedMenus.includes(item.key) && (
+                    <div className="ml-6 mt-1 space-y-1">
+                      {item.submenu?.map((subItem) => (
+                        <SidebarMenuItem key={subItem.key}>
+                          <SidebarMenuButton
+                            isActive={currentModule === subItem.key}
+                            onClick={() => setCurrentModule(subItem.key)}
+                            className={`text-sm ${currentModule === subItem.key ? 'bg-green-100 text-green-800' : 'text-green-600 hover:bg-green-50 hover:text-green-700'}`}
+                          >
+                            {subItem.key === 'transfer-orders' && <ArrowRightLeft className="h-3 w-3" />}
+                            <span>{subItem.title}</span>
+                          </SidebarMenuButton>
+                        </SidebarMenuItem>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -152,6 +207,73 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
       </SidebarContent>
     </Sidebar>
   );
+
+  const renderModuleContent = () => {
+    switch (currentModule) {
+      case 'sales-orders':
+        return <SalesOrderList />;
+      case 'transfer-orders':
+        return <TransferOrderList />;
+      case 'inventory-overview':
+        return (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Stock Overview</h2>
+            <p className="text-gray-600">Stock overview feature is under development...</p>
+          </div>
+        );
+      case 'stock-adjustments':
+        return (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Stock Adjustments</h2>
+            <p className="text-gray-600">Stock adjustment feature is under development...</p>
+          </div>
+        );
+      case 'purchase-orders':
+        return (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Purchase Orders</h2>
+            <p className="text-gray-600">Purchase order management feature is under development...</p>
+          </div>
+        );
+      case 'inventory':
+        return (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Inventory Management</h2>
+            <p className="text-gray-600">Inventory management feature is under development...</p>
+          </div>
+        );
+      case 'customers':
+        return (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Customer Management</h2>
+            <p className="text-gray-600">Customer management feature is under development...</p>
+          </div>
+        );
+      case 'suppliers':
+        return (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Supplier Management</h2>
+            <p className="text-gray-600">Supplier management feature is under development...</p>
+          </div>
+        );
+      case 'finance':
+        return (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Financial Management</h2>
+            <p className="text-gray-600">Financial management feature is under development...</p>
+          </div>
+        );
+      case 'reports':
+        return (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Report Analysis</h2>
+            <p className="text-gray-600">Report analysis feature is under development...</p>
+          </div>
+        );
+      default:
+        return renderDashboardContent();
+    }
+  };
 
   const renderDashboardContent = () => (
     <>
@@ -282,57 +404,6 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
     </>
   );
 
-  const renderModuleContent = () => {
-    switch (currentModule) {
-      case 'sales-orders':
-        return <SalesOrderList />;
-      case 'purchase-orders':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Purchase Orders</h2>
-            <p className="text-gray-600">Purchase order management feature is under development...</p>
-          </div>
-        );
-      case 'inventory':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Inventory Management</h2>
-            <p className="text-gray-600">Inventory management feature is under development...</p>
-          </div>
-        );
-      case 'customers':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Customer Management</h2>
-            <p className="text-gray-600">Customer management feature is under development...</p>
-          </div>
-        );
-      case 'suppliers':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Supplier Management</h2>
-            <p className="text-gray-600">Supplier management feature is under development...</p>
-          </div>
-        );
-      case 'finance':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Financial Management</h2>
-            <p className="text-gray-600">Financial management feature is under development...</p>
-          </div>
-        );
-      case 'reports':
-        return (
-          <div className="p-6">
-            <h2 className="text-2xl font-bold mb-4">Report Analysis</h2>
-            <p className="text-gray-600">Report analysis feature is under development...</p>
-          </div>
-        );
-      default:
-        return renderDashboardContent();
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
       <SidebarProvider>
@@ -345,7 +416,9 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
                 <div className="flex items-center space-x-4">
                   <SidebarTrigger className="text-green-600 hover:text-green-800" />
                   <div className="text-lg font-semibold text-green-800">
-                    {sidebarMenuItems.find(item => item.key === currentModule)?.title || 'Dashboard'}
+                    {sidebarMenuItems.find(item => item.key === currentModule)?.title || 
+                     sidebarMenuItems.find(item => item.submenu?.some(sub => sub.key === currentModule))?.submenu?.find(sub => sub.key === currentModule)?.title ||
+                     'Dashboard'}
                   </div>
                 </div>
                 

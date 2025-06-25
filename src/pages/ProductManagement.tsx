@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +25,7 @@ import QuickCreateForm from '@/components/product/QuickCreateForm';
 import CategoryManagement from '@/components/product/CategoryManagement';
 import BatchOperations from '@/components/product/BatchOperations';
 
-// Updated Product interface to match ProductList expectations
+// Core Product interface matching all components
 export interface Product {
   id: string;
   name: string;
@@ -39,14 +40,13 @@ export interface Product {
   description: string;
   images: string[];
   variants: ProductVariant[];
-  uoms: {
-    id: string;
-    name: string;
-    ratio: number;
-    isDefault: boolean;
-  }[];
+  uoms: ProductUOM[];
   supplier: string;
   tags: string[];
+  safetyStock: number;
+  baseUomId: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface ProductVariant {
@@ -56,6 +56,9 @@ export interface ProductVariant {
   price: number;
   stock: number;
   attributes: Record<string, string>;
+  size?: string;
+  color?: string;
+  uoms?: ProductUOM[];
 }
 
 export interface ProductUOM {
@@ -63,6 +66,9 @@ export interface ProductUOM {
   uomId: string;
   ratio: number;
   isDefault: boolean;
+  uom?: UOM;
+  price?: number;
+  barcode?: string;
 }
 
 export interface UOM {
@@ -70,6 +76,8 @@ export interface UOM {
   name: string;
   symbol: string;
   type: 'length' | 'weight' | 'volume' | 'piece';
+  isActive?: boolean;
+  conversionFactor?: number;
 }
 
 export interface Category {
@@ -79,6 +87,8 @@ export interface Category {
   parentId?: string;
   level: number;
   path: string;
+  productCount?: number;
+  children?: Category[];
 }
 
 const ProductManagement = () => {
@@ -131,11 +141,15 @@ const ProductManagement = () => {
       images: ['/placeholder.svg'],
       variants: [],
       uoms: [
-        { id: 'uom-1', name: 'Piece', ratio: 1, isDefault: true },
-        { id: 'uom-2', name: 'Pack of 6', ratio: 6, isDefault: false }
+        { id: 'uom-1', uomId: 'piece', ratio: 1, isDefault: true },
+        { id: 'uom-2', uomId: 'pack', ratio: 6, isDefault: false }
       ],
       supplier: 'TechCorp Inc.',
-      tags: ['electronics', 'audio', 'wireless']
+      tags: ['electronics', 'audio', 'wireless'],
+      safetyStock: 10,
+      baseUomId: 'piece',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     },
     {
       id: '2',
@@ -152,10 +166,14 @@ const ProductManagement = () => {
       images: ['/placeholder.svg'],
       variants: [],
       uoms: [
-        { id: 'uom-3', name: 'Piece', ratio: 1, isDefault: true }
+        { id: 'uom-3', uomId: 'piece', ratio: 1, isDefault: true }
       ],
       supplier: 'Office Solutions Ltd.',
-      tags: ['furniture', 'office', 'ergonomic']
+      tags: ['furniture', 'office', 'ergonomic'],
+      safetyStock: 5,
+      baseUomId: 'piece',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     },
     {
       id: '3',
@@ -172,24 +190,53 @@ const ProductManagement = () => {
       images: ['/placeholder.svg'],
       variants: [],
       uoms: [
-        { id: 'uom-4', name: 'Piece', ratio: 1, isDefault: true }
+        { id: 'uom-4', uomId: 'piece', ratio: 1, isDefault: true }
       ],
       supplier: 'EcoLife Products',
-      tags: ['home', 'kitchen', 'eco-friendly']
+      tags: ['home', 'kitchen', 'eco-friendly'],
+      safetyStock: 20,
+      baseUomId: 'piece',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
     }
   ];
 
   const mockUOMs: UOM[] = [
-    { id: 'piece', name: 'Piece', symbol: 'pc', type: 'piece' },
-    { id: 'kg', name: 'Kilogram', symbol: 'kg', type: 'weight' },
-    { id: 'liter', name: 'Liter', symbol: 'L', type: 'volume' },
-    { id: 'meter', name: 'Meter', symbol: 'm', type: 'length' }
+    { id: 'piece', name: 'Piece', symbol: 'pc', type: 'piece', isActive: true },
+    { id: 'kg', name: 'Kilogram', symbol: 'kg', type: 'weight', isActive: true },
+    { id: 'liter', name: 'Liter', symbol: 'L', type: 'volume', isActive: true },
+    { id: 'meter', name: 'Meter', symbol: 'm', type: 'length', isActive: true },
+    { id: 'pack', name: 'Pack', symbol: 'pack', type: 'piece', isActive: true, conversionFactor: 6 }
   ];
 
   const mockCategories: Category[] = [
-    { id: 'cat-electronics', name: 'Electronics', description: 'Electronic devices and accessories', level: 1, path: 'Electronics' },
-    { id: 'cat-clothing', name: 'Clothing', description: 'Apparel and fashion items', level: 1, path: 'Clothing' },
-    { id: 'cat-books', name: 'Books', description: 'Books and publications', level: 1, path: 'Books' }
+    { 
+      id: 'cat-electronics', 
+      name: 'Electronics', 
+      description: 'Electronic devices and accessories', 
+      level: 1, 
+      path: 'Electronics',
+      productCount: 1,
+      children: []
+    },
+    { 
+      id: 'cat-furniture', 
+      name: 'Furniture', 
+      description: 'Office and home furniture', 
+      level: 1, 
+      path: 'Furniture',
+      productCount: 1,
+      children: []
+    },
+    { 
+      id: 'cat-home-kitchen', 
+      name: 'Home & Kitchen', 
+      description: 'Kitchen and home accessories', 
+      level: 1, 
+      path: 'Home & Kitchen',
+      productCount: 1,
+      children: []
+    }
   ];
 
   useEffect(() => {
@@ -281,7 +328,6 @@ const ProductManagement = () => {
             {currentView === 'list' && (
               <ProductList
                 products={products}
-                uoms={uoms}
                 onProductSelect={handleProductSelect}
                 onProductUpdate={handleProductUpdate}
                 onProductDelete={handleProductDelete}
@@ -291,7 +337,6 @@ const ProductManagement = () => {
             {currentView === 'detail' && selectedProduct && (
               <ProductDetail
                 product={selectedProduct}
-                uoms={uoms}
                 categories={categories}
                 onUpdate={handleProductUpdate}
                 onDelete={handleProductDelete}
@@ -302,7 +347,6 @@ const ProductManagement = () => {
             {currentView === 'create' && (
               <QuickCreateForm
                 categories={categories}
-                uoms={uoms}
                 onProductCreate={(product) => {
                   setProducts([...products, product]);
                   setCurrentView('list');
