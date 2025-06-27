@@ -295,33 +295,33 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
                     <Zap className="h-6 w-6 text-orange-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-orange-800 text-lg">正式订阅 Kilimax ERP 系统</h3>
+                    <h3 className="font-semibold text-orange-800 text-lg">Official Subscription to Kilimax ERP System</h3>
                     <p className="text-orange-600 mt-1">
-                      解锁完整的企业资源规划功能，享受专业技术支持和定制服务
+                      Unlock complete enterprise resource planning features, enjoy professional technical support and customization services
                     </p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge className="bg-orange-100 text-orange-800 border-orange-300">
-                        一年订阅
+                        Annual Subscription
                       </Badge>
                       <Badge className="bg-green-100 text-green-800 border-green-300">
-                        全功能解锁
+                        Full Features Unlocked
                       </Badge>
                       <Badge className="bg-blue-100 text-blue-800 border-blue-300">
-                        7x24支持
+                        24/7 Support
                       </Badge>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-orange-600">¥29,999</p>
-                    <p className="text-sm text-orange-500">年费</p>
+                    <p className="text-2xl font-bold text-orange-600">$4,299</p>
+                    <p className="text-sm text-orange-500">Annual Fee</p>
                   </div>
                   <Button 
                     onClick={handleOpenSubscriptionAgreement}
                     className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2"
                   >
-                    查看协议并订阅
+                    View Agreement & Subscribe
                   </Button>
                 </div>
               </div>
@@ -340,9 +340,9 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
                   <FileText className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-green-800">订阅协议已确认</h3>
+                  <h3 className="font-medium text-green-800">Subscription Agreement Confirmed</h3>
                   <p className="text-green-600 text-sm">
-                    感谢您的订阅！请按照收款信息完成转账，我们将在收到款项后激活您的正式账户。
+                    Thank you for your subscription! Please complete the transfer according to the payment information. We will activate your official account after receiving the payment.
                   </p>
                 </div>
                 <Button 
@@ -351,7 +351,7 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
                   onClick={handleOpenSubscriptionAgreement}
                   className="border-green-300 text-green-700 hover:bg-green-50"
                 >
-                  查看收款信息
+                  View Payment Info
                 </Button>
               </div>
             </CardContent>
