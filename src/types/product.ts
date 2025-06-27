@@ -9,7 +9,7 @@ export interface Product {
   cost: number;
   stock: number;
   sku: string;
-  status: 'active' | 'inactive' | 'discontinued';
+  status: 'active' | 'inactive' | 'archived';
   supplier?: string;
   primaryUOM: UOM;
   images: string[];
