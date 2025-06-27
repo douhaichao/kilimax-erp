@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { X, Camera, Save, ArrowRight, ArrowLeft, CheckCircle, Scale, Plus, Trash2 } from 'lucide-react';
-import { Category, UOM, ProductUOM, Product } from '@/types/product';
+import { Category, UOM, ProductUOM, Product, ProductVariant } from '@/types/product';
 
 interface QuickCreateFormProps {
   onClose: () => void;
@@ -206,7 +206,14 @@ const QuickCreateForm = ({ onClose, onSave, categories, systemUOMs = [] }: Quick
         supplier: formData.supplier,
         stock: parseInt(formData.stock) || 0,
         safetyStock: parseInt(formData.safetyStock) || 0,
-        variants: formData.variants,
+        variants: formData.variants.map(variant => ({
+          id: `${Date.now()}-${variant.sku}`,
+          size: variant.size,
+          color: variant.color,
+          sku: variant.sku,
+          stock: parseInt(variant.stock) || 0,
+          price: parseFloat(variant.price) || 0
+        })),
         primaryUOM: uoms.find(u => u.id === formData.baseUomId) || uoms[0],
         baseUomId: formData.baseUomId,
         images: [],

@@ -180,7 +180,11 @@ const ProductManagement = () => {
         description: 'Electronic devices and accessories',
         productCount: 2,
         children: [],
-        parentId: undefined
+        parentId: undefined,
+        level: 1,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       },
       { 
         id: '2', 
@@ -188,7 +192,11 @@ const ProductManagement = () => {
         description: 'Laptops, desktops, and computer accessories',
         productCount: 1,
         children: [],
-        parentId: undefined
+        parentId: undefined,
+        level: 1,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       },
       { 
         id: '3', 
@@ -196,7 +204,11 @@ const ProductManagement = () => {
         description: 'Phone cases, chargers, and other accessories',
         productCount: 0,
         children: [],
-        parentId: undefined
+        parentId: undefined,
+        level: 1,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }
     ];
 

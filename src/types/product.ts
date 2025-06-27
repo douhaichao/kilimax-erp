@@ -14,8 +14,31 @@ export interface Product {
   primaryUOM: UOM;
   images: string[];
   baseUomId: string;
+  safetyStock: number;
+  uoms: ProductUOM[];
+  variants?: ProductVariant[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ProductUOM {
+  id: string;
+  name: string;
+  uomId: string;
+  uom?: UOM;
+  ratio: number;
+  price: number;
+  isDefault: boolean;
+  barcode?: string;
+}
+
+export interface ProductVariant {
+  id?: string;
+  size?: string;
+  color?: string;
+  sku: string;
+  stock: number;
+  price: number;
 }
 
 export interface UOM {
@@ -24,7 +47,10 @@ export interface UOM {
   symbol: string;
   type: 'length' | 'piece' | 'weight' | 'volume';
   conversionFactor: number;
-  baseUnit: boolean;
+  baseUnit?: boolean;
+  ratio: number;
+  isDefault: boolean;
+  isActive: boolean;
 }
 
 export interface Category {
@@ -34,6 +60,8 @@ export interface Category {
   parentId?: string;
   level: number;
   isActive: boolean;
+  productCount: number;
+  children: Category[];
   createdAt: string;
   updatedAt: string;
 }
