@@ -44,8 +44,7 @@ interface DashboardProps {
 const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
   const [currentModule, setCurrentModule] = useState<string>('dashboard');
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['inventory']);
-  const [showTrialDialog, setShowTrialDialog] = useState(false);
-  const [hasAgreedToTrial, setHasAgreedToTrial] = useState(false);
+  const [hasSubscribed, setHasSubscribed] = useState(false);
 
   const stats = [
     { title: 'Total Revenue', value: '$124,563', change: '+12.3%', icon: DollarSign, trend: 'up' },
@@ -212,6 +211,10 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
     </Sidebar>
   );
 
+  const handleOpenSubscriptionAgreement = () => {
+    window.open('/subscription-agreement', '_blank');
+  };
+
   const renderModuleContent = () => {
     switch (currentModule) {
       case 'sales-orders':
@@ -279,16 +282,10 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
     }
   };
 
-  const handleTrialAgreement = () => {
-    setHasAgreedToTrial(true);
-    // 这里可以添加更多逻辑，比如更新用户状态、发送通知等
-    console.log('用户已同意试用协议');
-  };
-
   const renderDashboardContent = () => (
     <>
-      {/* Trial Agreement Banner */}
-      {!hasAgreedToTrial && (
+      {/* Subscription Banner */}
+      {!hasSubscribed && (
         <div className="mb-6">
           <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50">
             <CardContent className="p-6">
@@ -298,33 +295,33 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
                     <Zap className="h-6 w-6 text-orange-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-orange-800 text-lg">开启 Kilimax ERP 试用之旅</h3>
+                    <h3 className="font-semibold text-orange-800 text-lg">正式订阅 Kilimax ERP 系统</h3>
                     <p className="text-orange-600 mt-1">
-                      体验完整的企业资源规划系统，30天试用期，功能全开放
+                      解锁完整的企业资源规划功能，享受专业技术支持和定制服务
                     </p>
                     <div className="flex items-center space-x-4 mt-2">
                       <Badge className="bg-orange-100 text-orange-800 border-orange-300">
-                        30天试用
+                        一年订阅
                       </Badge>
                       <Badge className="bg-green-100 text-green-800 border-green-300">
-                        全功能开放
+                        全功能解锁
                       </Badge>
                       <Badge className="bg-blue-100 text-blue-800 border-blue-300">
-                        专业支持
+                        7x24支持
                       </Badge>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-orange-600">¥9,999</p>
-                    <p className="text-sm text-orange-500">试用费用</p>
+                    <p className="text-2xl font-bold text-orange-600">¥29,999</p>
+                    <p className="text-sm text-orange-500">年费</p>
                   </div>
                   <Button 
-                    onClick={() => setShowTrialDialog(true)}
+                    onClick={handleOpenSubscriptionAgreement}
                     className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2"
                   >
-                    查看协议并开始试用
+                    查看协议并订阅
                   </Button>
                 </div>
               </div>
@@ -333,8 +330,8 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
         </div>
       )}
 
-      {/* Success Banner for Agreed Users */}
-      {hasAgreedToTrial && (
+      {/* Success Banner for Subscribed Users */}
+      {hasSubscribed && (
         <div className="mb-6">
           <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
             <CardContent className="p-4">
@@ -343,15 +340,15 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
                   <FileText className="h-5 w-5 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="font-medium text-green-800">试用协议已确认</h3>
+                  <h3 className="font-medium text-green-800">订阅协议已确认</h3>
                   <p className="text-green-600 text-sm">
-                    感谢您的信任！请按照收款信息完成转账，我们将在收到款项后激活您的试用账户。
+                    感谢您的订阅！请按照收款信息完成转账，我们将在收到款项后激活您的正式账户。
                   </p>
                 </div>
                 <Button 
                   variant="outline" 
                   size="sm"
-                  onClick={() => setShowTrialDialog(true)}
+                  onClick={handleOpenSubscriptionAgreement}
                   className="border-green-300 text-green-700 hover:bg-green-50"
                 >
                   查看收款信息
@@ -563,13 +560,6 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
           </SidebarInset>
         </div>
       </SidebarProvider>
-
-      {/* Trial Agreement Dialog */}
-      <TrialAgreementDialog 
-        isOpen={showTrialDialog}
-        onClose={() => setShowTrialDialog(false)}
-        onAgreementAccepted={handleTrialAgreement}
-      />
     </div>
   );
 };
