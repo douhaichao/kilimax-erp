@@ -8,62 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter, Plus, Download, Upload, Eye, AlertTriangle } from 'lucide-react';
-
-interface ProductUOM {
-  id: string;
-  uomId: string;
-  uom: UOM;
-  barcode?: string;
-  price: number;
-  isDefault: boolean;
-}
-
-interface Product {
-  id: string;
-  sku: string;
-  name: string;
-  category: string;
-  categoryId: string;
-  stock: number;
-  status: 'active' | 'inactive' | 'archived';
-  price: number;
-  supplier: string;
-  safetyStock: number;
-  primaryUOM: string;
-  uoms: ProductUOM[];
-  description: string;
-  images: string[];
-  variants: ProductVariant[];
-  baseUomId: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface ProductVariant {
-  id: string;
-  size?: string;
-  color?: string;
-  sku: string;
-  stock: number;
-  price: number;
-  uoms?: ProductUOM[];
-}
-
-interface Category {
-  id: string;
-  name: string;
-  parentId?: string;
-  children?: Category[];
-}
-
-interface UOM {
-  id: string;
-  name: string;
-  symbol: string;
-  type: 'length' | 'weight' | 'volume' | 'piece';
-  conversionFactor: number;
-  isActive: boolean;
-}
+import { Product, UOM, Category, ProductUOM } from '@/types/product';
 
 interface ProductListProps {
   products: Product[];
@@ -251,7 +196,7 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
                   </TableCell>
                   <TableCell>{getStatusBadge(product.status)}</TableCell>
                   <TableCell>¥{product.price.toFixed(2)}</TableCell>
-                  <TableCell>{product.primaryUOM}</TableCell>
+                  <TableCell>{product.primaryUOM.name}</TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <Button variant="ghost" size="sm">
                       <Eye className="h-4 w-4" />

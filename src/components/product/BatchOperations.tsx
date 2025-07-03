@@ -9,32 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { X, Package, DollarSign, Archive, Tag, Loader2 } from 'lucide-react';
-
-interface Product {
-  id: string;
-  sku: string;
-  name: string;
-  category: string;
-  stock: number;
-  status: 'active' | 'inactive' | 'archived';
-  price: number;
-  supplier: string;
-  safetyStock: number;
-  primaryUOM: string;
-  uoms: Array<{
-    id: string;
-    name: string;
-    ratio: number;
-    isDefault: boolean;
-  }>;
-}
-
-interface UOM {
-  id: string;
-  name: string;
-  symbol: string;
-  type: 'length' | 'weight' | 'volume' | 'piece';
-}
+import { Product, UOM } from '@/types/product';
 
 interface BatchOperationsProps {
   selectedProducts: string[];
