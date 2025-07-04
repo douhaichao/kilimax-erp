@@ -1,22 +1,82 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Plus, Settings, BarChart3, Mountain } from 'lucide-react';
+import { Search, Settings, BarChart3, Mountain } from 'lucide-react';
 import { mockCurrencies, mockExchangeRates } from '@/data/mockCurrencyData';
 import { Currency, ExchangeRate } from '@/types/currency';
 import CurrencyConverter from '@/components/currency/CurrencyConverter';
 import ExchangeRatePanel from '@/components/currency/ExchangeRatePanel';
 import CurrencyStats from '@/components/currency/CurrencyStats';
+import AddCurrencyModal from '@/components/currency/AddCurrencyModal';
+import CurrencyList from '@/components/currency/CurrencyList';
+import { useToast } from "@/hooks/use-toast";
 
 const CurrencyManagement = () => {
-  const [currencies] = useState<Currency[]>(mockCurrencies);
+  const [currencies, setCurrencies] = useState<Currency[]>(mockCurrencies);
   const [exchangeRates, setExchangeRates] = useState<ExchangeRate[]>(mockExchangeRates);
   const [searchTerm, setSearchTerm] = useState('');
+  const { toast } = useToast();
 
   const baseCurrency = currencies.find(c => c.isBaseCurrency) || currencies[0];
+
+  const handleAddCurrency = (newCurrencyData: Omit<Currency, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newCurrency: Currency = {
+      ...newCurrencyData,
+      id: (currencies.length + 1).toString(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    // If this is set as base currency, unset all others
+    if (newCurrency.isBaseCurrency) {
+      setCurrencies(prev => prev.map(c => ({ ...c, isBaseCurrency: false })));
+    }
+
+    setCurrencies(prev => [...prev, newCurrency]);
+    console.log('Added new currency:', newCurrency);
+  };
+
+  const handleToggleActive = (currencyId: string, isActive: boolean) => {
+    setCurrencies(prev => prev.map(c => 
+      c.id === currencyId ? { ...c, isActive, updatedAt: new Date().toISOString() } : c
+    ));
+    toast({
+      title: isActive ? "Currency Activated" : "Currency Deactivated",
+      description: `Currency has been ${isActive ? 'activated' : 'deactivated'} successfully`
+    });
+  };
+
+  const handleSetBaseCurrency = (currencyId: string) => {
+    setCurrencies(prev => prev.map(c => ({
+      ...c,
+      isBaseCurrency: c.id === currencyId,
+      updatedAt: new Date().toISOString()
+    })));
+    toast({
+      title: "Base Currency Updated",
+      description: "Base currency has been changed successfully"
+    });
+  };
+
+  const handleDeleteCurrency = (currencyId: string) => {
+    const currency = currencies.find(c => c.id === currencyId);
+    if (currency?.isBaseCurrency) {
+      toast({
+        title: "Cannot Delete Base Currency",
+        description: "You cannot delete the base currency. Please set another currency as base first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setCurrencies(prev => prev.filter(c => c.id !== currencyId));
+    toast({
+      title: "Currency Deleted",
+      description: "Currency has been deleted successfully"
+    });
+  };
 
   const handleRateUpdate = (rateId: string, newRate: number) => {
     setExchangeRates(prev => prev.map(rate => 
@@ -29,7 +89,10 @@ const CurrencyManagement = () => {
 
   const handleRefreshRates = () => {
     console.log('Refreshing exchange rates from external sources...');
-    // In a real application, this would fetch from APIs
+    toast({
+      title: "Refreshing Rates",
+      description: "Exchange rates are being updated from external sources..."
+    });
   };
 
   return (
@@ -50,10 +113,7 @@ const CurrencyManagement = () => {
             <Settings className="h-4 w-4 mr-2" />
             Settings
           </Button>
-          <Button className="bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white shadow-lg">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Currency
-          </Button>
+          <AddCurrencyModal onAddCurrency={handleAddCurrency} />
         </div>
       </div>
 
@@ -67,10 +127,11 @@ const CurrencyManagement = () => {
 
       {/* Main Content */}
       <Tabs defaultValue="converter" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="converter">Currency Converter</TabsTrigger>
+          <TabsTrigger value="currencies">Currencies</TabsTrigger>
           <TabsTrigger value="rates">Exchange Rates</TabsTrigger>
-          <TabsTrigger value="settings">Currency Settings</TabsTrigger>
+          <TabsTrigger value="settings">Settings</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
         </TabsList>
 
@@ -112,6 +173,15 @@ const CurrencyManagement = () => {
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="currencies" className="space-y-6">
+          <CurrencyList
+            currencies={currencies}
+            onToggleActive={handleToggleActive}
+            onSetBaseCurrency={handleSetBaseCurrency}
+            onDeleteCurrency={handleDeleteCurrency}
+          />
         </TabsContent>
 
         <TabsContent value="rates" className="space-y-6">
