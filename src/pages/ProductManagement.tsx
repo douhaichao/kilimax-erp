@@ -292,8 +292,8 @@ const ProductManagement = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">产品管理</h1>
-          <p className="text-gray-600 mt-2">管理您的产品库存、价格和基本信息</p>
+          <h1 className="text-3xl font-bold text-gray-900">Product Management</h1>
+          <p className="text-gray-600 mt-2">Manage your product inventory, pricing and basic information</p>
         </div>
         <div className="flex gap-3">
           <Button 
@@ -302,14 +302,14 @@ const ProductManagement = () => {
             className="border-blue-300 text-blue-700 hover:bg-blue-50"
           >
             <Plus className="h-4 w-4 mr-2" />
-            快速创建
+            Quick Create
           </Button>
           <Button 
             onClick={() => setCurrentView('create')}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
-            新增产品
+            Add Product
           </Button>
         </div>
       </div>
@@ -318,46 +318,46 @@ const ProductManagement = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card className="border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-800">总产品数</CardTitle>
+            <CardTitle className="text-sm font-medium text-blue-800">Total Products</CardTitle>
             <Package className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-blue-900">{stats.totalProducts}</div>
             <p className="text-xs text-blue-600">
-              {stats.activeProducts} 个启用中
+              {stats.activeProducts} Active
             </p>
           </CardContent>
         </Card>
 
         <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-green-800">启用产品</CardTitle>
+            <CardTitle className="text-sm font-medium text-green-800">Active Products</CardTitle>
             <Badge className="bg-green-600 text-white text-xs">{stats.activeProducts}</Badge>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-green-900">{stats.activeProducts}</div>
             <p className="text-xs text-green-600">
-              {((stats.activeProducts / stats.totalProducts) * 100).toFixed(1)}% 启用率
+              {((stats.activeProducts / stats.totalProducts) * 100).toFixed(1)}% Active Rate
             </p>
           </CardContent>
         </Card>
 
         <Card className="border-yellow-200 bg-gradient-to-r from-yellow-50 to-amber-50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-yellow-800">低库存警告</CardTitle>
+            <CardTitle className="text-sm font-medium text-yellow-800">Low Stock Alert</CardTitle>
             <Badge className="bg-yellow-600 text-white text-xs">{stats.lowStockProducts}</Badge>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-yellow-900">{stats.lowStockProducts}</div>
             <p className="text-xs text-yellow-600">
-              需要补货的产品
+              Products need restocking
             </p>
           </CardContent>
         </Card>
 
         <Card className="border-purple-200 bg-gradient-to-r from-purple-50 to-violet-50">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-800">库存总值</CardTitle>
+            <CardTitle className="text-sm font-medium text-purple-800">Total Stock Value</CardTitle>
             <BarChart3 className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
@@ -365,7 +365,7 @@ const ProductManagement = () => {
               ¥{stats.totalValue.toLocaleString()}
             </div>
             <p className="text-xs text-purple-600">
-              按销售价格计算
+              Calculated by selling price
             </p>
           </CardContent>
         </Card>

@@ -70,21 +70,21 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
       <CardHeader>
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle>商品列表</CardTitle>
-            <CardDescription>管理您的商品库存和信息</CardDescription>
+            <CardTitle>Product List</CardTitle>
+            <CardDescription>Manage your product inventory and information</CardDescription>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" size="sm">
               <Upload className="h-4 w-4 mr-2" />
-              批量导入
+              Batch Import
             </Button>
             <Button variant="outline" size="sm">
               <Download className="h-4 w-4 mr-2" />
-              导出
+              Export
             </Button>
             <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
-              新增商品
+              Add Product
             </Button>
           </div>
         </div>
@@ -95,7 +95,7 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
             <div className="relative flex-1">
               <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="搜索商品名称或SKU..."
+                placeholder="Search product name or SKU..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -106,20 +106,20 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
               onClick={() => setShowFilters(!showFilters)}
             >
               <Filter className="h-4 w-4 mr-2" />
-              筛选
+              Filter
             </Button>
           </div>
 
           {showFilters && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
               <div>
-                <label className="text-sm font-medium mb-2 block">分类</label>
+                <label className="text-sm font-medium mb-2 block">Category</label>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger>
-                    <SelectValue placeholder="选择分类" />
+                    <SelectValue placeholder="Select Category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">全部分类</SelectItem>
+                    <SelectItem value="">All Categories</SelectItem>
                     {categories.map(category => (
                       <SelectItem key={category.id} value={category.name}>
                         {category.name}
@@ -129,13 +129,13 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
                 </Select>
               </div>
               <div>
-                <label className="text-sm font-medium mb-2 block">供应商</label>
+                <label className="text-sm font-medium mb-2 block">Supplier</label>
                 <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
                   <SelectTrigger>
-                    <SelectValue placeholder="选择供应商" />
+                    <SelectValue placeholder="Select Supplier" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">全部供应商</SelectItem>
+                    <SelectItem value="">All Suppliers</SelectItem>
                     {Array.from(new Set(products.map(p => p.supplier))).map(supplier => (
                       <SelectItem key={supplier} value={supplier}>
                         {supplier}
@@ -157,13 +157,13 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
                   />
                 </TableHead>
                 <TableHead>SKU</TableHead>
-                <TableHead>商品名称</TableHead>
-                <TableHead>分类</TableHead>
-                <TableHead>库存</TableHead>
-                <TableHead>状态</TableHead>
-                <TableHead>价格</TableHead>
-                <TableHead>主单位</TableHead>
-                <TableHead>操作</TableHead>
+                <TableHead>Product Name</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Stock</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Primary UOM</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
