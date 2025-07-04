@@ -33,7 +33,8 @@ import {
   UserX,
   QrCode,
   Plus,
-  Minus
+  Minus,
+  AlertTriangle
 } from 'lucide-react';
 import {
   Table,
@@ -646,22 +647,27 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                   {/* For In Transit and Completed status, show Received and Serial Numbers */}
                   {(isInTransit || isCompleted) && (
                     <>
-                      <TableCell>
-                        {/* Editable received quantity for in_transit status, read-only for completed */}
-                        {isInTransit ? (
-                          <Input
-                            type="number"
-                            value={item.receivedQuantity || item.shippedQuantity || 0}
-                            onChange={(e) => handleQuantityUpdate(item.id, 'receivedQuantity', parseInt(e.target.value) || 0)}
-                            onBlur={saveQuantityChanges}
-                            className="w-20"
-                            min={0}
-                            max={item.shippedQuantity || 0}
-                          />
-                        ) : (
-                          <span className="text-sm">{item.receivedQuantity || item.shippedQuantity || '-'}</span>
-                        )}
-                      </TableCell>
+                   <TableCell>
+                         {/* Editable received quantity for in_transit status, read-only for completed */}
+                         {isInTransit ? (
+                           <Input
+                             type="number"
+                             value={item.receivedQuantity || item.shippedQuantity || 0}
+                             onChange={(e) => handleQuantityUpdate(item.id, 'receivedQuantity', parseInt(e.target.value) || 0)}
+                             onBlur={saveQuantityChanges}
+                             className="w-20"
+                             min={0}
+                             max={item.shippedQuantity || 0}
+                           />
+                         ) : (
+                           <div className="flex items-center space-x-2">
+                             <span className="text-sm">{item.receivedQuantity || item.shippedQuantity || '-'}</span>
+                              {isCompleted && item.receivedQuantity !== (item.shippedQuantity || item.requestedQuantity) && (
+                                <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                              )}
+                           </div>
+                         )}
+                       </TableCell>
                       <TableCell>
                         <div className="text-xs">
                           {item.serialNumbers?.length ? (

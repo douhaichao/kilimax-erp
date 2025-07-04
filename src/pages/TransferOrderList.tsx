@@ -19,7 +19,8 @@ import {
   Send,
   Truck,
   UserCheck,
-  UserX
+  UserX,
+  AlertTriangle
 } from 'lucide-react';
 import {
   Table,
@@ -270,6 +271,15 @@ const TransferOrderList = () => {
     return actions;
   };
 
+  const hasReceivingDiscrepancy = (order: TransferOrder) => {
+    if (order.status !== 'completed') return false;
+    return order.items.some(item => {
+      const shippedQty = item.shippedQuantity || item.requestedQuantity;
+      const receivedQty = item.receivedQuantity || 0;
+      return receivedQty !== shippedQty;
+    });
+  };
+
   const filteredOrders = transferOrders.filter(order =>
     order.transferNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
     order.fromLocationName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -436,7 +446,17 @@ const TransferOrderList = () => {
                       <span className="text-sm">{order.toLocationName}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{getStatusBadge(order.status)}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      {getStatusBadge(order.status)}
+                      {hasReceivingDiscrepancy(order) && (
+                        <div className="flex items-center space-x-1">
+                          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                          <span className="text-xs text-yellow-600 font-medium">Discrepancy</span>
+                        </div>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>{order.totalQuantity} items</TableCell>
                   <TableCell>${order.estimatedValue.toFixed(2)}</TableCell>
                   <TableCell>{new Date(order.requestedDate).toLocaleDateString()}</TableCell>
