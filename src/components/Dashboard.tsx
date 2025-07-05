@@ -284,205 +284,301 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
 
   const renderDashboardContent = () => (
     <>
-      {/* Subscription Banner */}
-      {!hasSubscribed && (
-        <div className="mb-6">
-          <Card className="border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-orange-100 rounded-full">
-                    <Zap className="h-6 w-6 text-orange-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-orange-800 text-lg">Official Subscription to Kilimax ERP System</h3>
-                    <p className="text-orange-600 mt-1">
-                      Unlock complete enterprise resource planning features, enjoy professional technical support and customization services
-                    </p>
-                    <div className="flex items-center space-x-4 mt-2">
-                      <Badge className="bg-orange-100 text-orange-800 border-orange-300">
-                        Annual Subscription
-                      </Badge>
-                      <Badge className="bg-green-100 text-green-800 border-green-300">
-                        Full Features Unlocked
-                      </Badge>
-                      <Badge className="bg-blue-100 text-blue-800 border-blue-300">
-                        24/7 Support
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
+      {/* Greeting */}
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-1">Karibu Boss! 👋</h1>
+        <p className="text-gray-600">Let's make some money today</p>
+      </div>
+
+      {/* Daily Sales Overview */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+        <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white border-0">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-green-100 text-sm">Today's Sales</p>
+                <p className="text-2xl font-bold">KES 8,250</p>
+                <p className="text-green-200 text-sm flex items-center">
+                  <TrendingUp className="h-3 w-3 mr-1" />
+                  +24% from yesterday
+                </p>
+              </div>
+              <DollarSign className="h-8 w-8 text-green-200" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm">Orders Today</p>
+                <p className="text-2xl font-bold text-gray-900">12</p>
+                <p className="text-green-600 text-sm">+3 pending</p>
+              </div>
+              <ShoppingCart className="h-8 w-8 text-blue-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm">Profit Today</p>
+                <p className="text-2xl font-bold text-gray-900">KES 2,475</p>
+                <p className="text-gray-500 text-sm">30% margin</p>
+              </div>
+              <TrendingUp className="h-8 w-8 text-green-500" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-white shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-gray-600 text-sm">Customers</p>
+                <p className="text-2xl font-bold text-gray-900">89</p>
+                <p className="text-blue-600 text-sm">5 new today</p>
+              </div>
+              <Users className="h-8 w-8 text-purple-500" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {/* Hot Products & Stock Alerts */}
+        <div className="lg:col-span-1">
+          <Card className="bg-white shadow-sm h-full">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center">
+                🔥 Hot Products
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
                 <div className="flex items-center space-x-3">
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-orange-600">$4,299</p>
-                    <p className="text-sm text-orange-500">Annual Fee</p>
+                  <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                  <div>
+                    <p className="font-semibold text-sm">Samsung Galaxy A14</p>
+                    <p className="text-xs text-gray-600">15 sold today</p>
                   </div>
-                  <Button 
-                    onClick={handleOpenSubscriptionAgreement}
-                    className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2"
-                  >
-                    View Agreement & Subscribe
-                  </Button>
                 </div>
+                <Badge className="bg-green-100 text-green-800">Hot</Badge>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg border border-red-200">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                  <div>
+                    <p className="font-semibold text-sm">iPhone 13</p>
+                    <p className="text-xs text-red-600">🔴 Only 2 left!</p>
+                  </div>
+                </div>
+                <Button size="sm" className="bg-red-500 hover:bg-red-600 text-white rounded-full px-3 py-1 text-xs">
+                  Reorder
+                </Button>
+              </div>
+
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                  <div>
+                    <p className="font-semibold text-sm">Tecno Spark 10</p>
+                    <p className="text-xs text-gray-600">8 sold today</p>
+                  </div>
+                </div>
+                <Badge variant="secondary">Good</Badge>
               </div>
             </CardContent>
           </Card>
         </div>
-      )}
 
-      {/* Success Banner for Subscribed Users */}
-      {hasSubscribed && (
-        <div className="mb-6">
-          <Card className="border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <div className="p-2 bg-green-100 rounded-full">
-                  <FileText className="h-5 w-5 text-green-600" />
+        {/* Customer Engagement */}
+        <div className="lg:col-span-1">
+          <Card className="bg-white shadow-sm h-full">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center">
+                💬 Customer Follow-ups
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="font-semibold text-sm">Moses Kiprotich</p>
+                    <p className="text-xs text-red-600">Owes KES 1,500</p>
+                  </div>
+                  <Badge className="bg-yellow-100 text-yellow-800">Overdue</Badge>
                 </div>
-                <div>
-                  <h3 className="font-medium text-green-800">Subscription Agreement Confirmed</h3>
-                  <p className="text-green-600 text-sm">
-                    Thank you for your subscription! Please complete the transfer according to the payment information. We will activate your official account after receiving the payment.
-                  </p>
+                <Button size="sm" className="bg-green-500 hover:bg-green-600 text-white rounded-full w-full">
+                  💬 Send WhatsApp Reminder
+                </Button>
+              </div>
+
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <div className="flex justify-between items-center mb-2">
+                  <div>
+                    <p className="font-semibold text-sm">Pending Orders</p>
+                    <p className="text-xs text-gray-600">3 orders waiting</p>
+                  </div>
+                  <Badge className="bg-blue-100 text-blue-800">3</Badge>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={handleOpenSubscriptionAgreement}
-                  className="border-green-300 text-green-700 hover:bg-green-50"
-                >
-                  View Payment Info
+                <Button size="sm" variant="outline" className="w-full rounded-full">
+                  View Orders
+                </Button>
+              </div>
+
+              <div className="p-3 bg-purple-50 rounded-lg">
+                <div className="flex justify-between items-center mb-2">
+                  <div>
+                    <p className="font-semibold text-sm">Unpaid Invoices</p>
+                    <p className="text-xs text-gray-600">KES 4,200 total</p>
+                  </div>
+                  <Badge className="bg-purple-100 text-purple-800">5</Badge>
+                </div>
+                <Button size="sm" variant="outline" className="w-full rounded-full">
+                  Send Reminders
                 </Button>
               </div>
             </CardContent>
           </Card>
         </div>
-      )}
 
-      {/* Welcome Section */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome back, Admin</h2>
-        <p className="text-gray-600">Here's what's happening with your business today.</p>
-      </div>
-
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        {stats.map((stat, index) => (
-          <Card key={index} className="bg-white shadow-sm hover:shadow-md transition-shadow border-green-100">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">{stat.title}</p>
-                  <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-                  <p className={`text-sm ${stat.trend === 'up' ? 'text-green-600' : 'text-red-600'} flex items-center mt-1`}>
-                    <TrendingUp className={`h-3 w-3 mr-1 ${stat.trend === 'down' ? 'rotate-180' : ''}`} />
-                    {stat.change}
-                  </p>
+        {/* Sales Agent Performance */}
+        <div className="lg:col-span-1">
+          <Card className="bg-white shadow-sm h-full">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center">
+                🏆 Sales Champions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-sm">1</div>
+                  <div>
+                    <p className="font-semibold text-sm">Grace Wanjiku</p>
+                    <p className="text-xs text-gray-600">KES 15,400 • ⭐⭐⭐⭐⭐</p>
+                  </div>
                 </div>
-                <div className="p-3 bg-green-100 rounded-full">
-                  <stat.icon className="h-6 w-6 text-green-600" />
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">8 orders</p>
+                  <p className="text-xs text-green-600">95% rate</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
 
-      {/* Main Dashboard Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* ERP Modules */}
-        <div className="lg:col-span-2">
-          <Card className="bg-white shadow-sm border-green-100">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-900">ERP Modules</CardTitle>
-              <CardDescription>Access your business management tools</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {modules.map((module, index) => (
-                  <div
-                    key={index}
-                    className="p-4 border border-green-200 rounded-lg hover:border-green-300 hover:shadow-sm transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-start space-x-3">
-                      <div className={`p-2 ${module.color} rounded-lg group-hover:scale-110 transition-transform`}>
-                        <module.icon className="h-5 w-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-medium text-gray-900 group-hover:text-green-600 transition-colors">
-                          {module.name}
-                        </h3>
-                        <p className="text-sm text-gray-500 mt-1">{module.description}</p>
-                      </div>
-                    </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center text-white font-bold text-sm">2</div>
+                  <div>
+                    <p className="font-semibold text-sm">John Mwangi</p>
+                    <p className="text-xs text-gray-600">KES 12,200 • ⭐⭐⭐⭐</p>
                   </div>
-                ))}
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">6 orders</p>
+                  <p className="text-xs text-green-600">88% rate</p>
+                </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Recent Activities */}
-        <div>
-          <Card className="bg-white shadow-sm border-green-100">
-            <CardHeader>
-              <CardTitle className="text-lg font-semibold text-gray-900">Recent Activities</CardTitle>
-              <CardDescription>Latest system updates and notifications</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentActivities.map((activity, index) => (
-                  <div key={index} className="flex items-start space-x-3 p-3 hover:bg-green-50 rounded-lg transition-colors">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2 flex-shrink-0"></div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900">{activity.action}</p>
-                      <p className="text-sm text-gray-500 truncate">{activity.detail}</p>
-                      <p className="text-xs text-gray-400 mt-1">{activity.time}</p>
-                    </div>
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-orange-400 rounded-full flex items-center justify-center text-white font-bold text-sm">3</div>
+                  <div>
+                    <p className="font-semibold text-sm">Mary Akinyi</p>
+                    <p className="text-xs text-gray-600">KES 9,800 • ⭐⭐⭐⭐</p>
                   </div>
-                ))}
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-gray-500">5 orders</p>
+                  <p className="text-xs text-green-600">82% rate</p>
+                </div>
               </div>
-              <Button variant="outline" className="w-full mt-4 border-green-300 text-green-700 hover:bg-green-50">
-                View All Activities
-              </Button>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="mt-8">
-        <Card className="bg-white shadow-sm border-green-100">
-          <CardHeader>
-            <CardTitle className="text-lg font-semibold text-gray-900">Quick Actions</CardTitle>
-            <CardDescription>Frequently used operations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-3">
-              <Button className="bg-green-600 hover:bg-green-700 text-white">
-                <ShoppingCart className="h-4 w-4 mr-2" />
-                New Order
-              </Button>
-              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50">
-                <Users className="h-4 w-4 mr-2" />
-                Add Customer
-              </Button>
-              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50">
-                <FileText className="h-4 w-4 mr-2" />
-                Generate Report
-              </Button>
-              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50">
-                <Package className="h-4 w-4 mr-2" />
-                Update Inventory
-              </Button>
-              <Button variant="outline" className="border-green-300 text-green-700 hover:bg-green-50">
-                <Calendar className="h-4 w-4 mr-2" />
-                Schedule Meeting
+      {/* AI Action Suggestions */}
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 mb-6">
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center">
+            🤖 Smart Suggestions
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 bg-white rounded-lg shadow-sm">
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                  <TrendingUp className="h-4 w-4 text-green-600" />
+                </div>
+                <p className="font-semibold text-sm">Boost Sales</p>
+              </div>
+              <p className="text-xs text-gray-600 mb-3">Send 20% off promo to customers who bought Samsung phones</p>
+              <Button size="sm" className="bg-green-500 hover:bg-green-600 text-white rounded-full w-full">
+                Send Promotion
               </Button>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+
+            <div className="p-4 bg-white rounded-lg shadow-sm">
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                  <Users className="h-4 w-4 text-blue-600" />
+                </div>
+                <p className="font-semibold text-sm">Re-engage</p>
+              </div>
+              <p className="text-xs text-gray-600 mb-3">12 customers haven't bought in 30 days. Time to reach out!</p>
+              <Button size="sm" className="bg-blue-500 hover:bg-blue-600 text-white rounded-full w-full">
+                Follow Up
+              </Button>
+            </div>
+
+            <div className="p-4 bg-white rounded-lg shadow-sm">
+              <div className="flex items-center space-x-2 mb-2">
+                <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                  <Package className="h-4 w-4 text-orange-600" />
+                </div>
+                <p className="font-semibold text-sm">Restock Alert</p>
+              </div>
+              <p className="text-xs text-gray-600 mb-3">iPhone 13 selling fast! Reorder now to avoid stockout</p>
+              <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white rounded-full w-full">
+                Reorder Now
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quick Actions */}
+      <Card className="bg-white shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-lg">Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <Button className="bg-green-500 hover:bg-green-600 text-white rounded-xl h-16 flex flex-col items-center justify-center space-y-1">
+              <Package className="h-5 w-5" />
+              <span className="text-xs">Upload Products</span>
+            </Button>
+            <Button className="bg-blue-500 hover:bg-blue-600 text-white rounded-xl h-16 flex flex-col items-center justify-center space-y-1">
+              <Bell className="h-5 w-5" />
+              <span className="text-xs">Send Promotion</span>
+            </Button>
+            <Button className="bg-purple-500 hover:bg-purple-600 text-white rounded-xl h-16 flex flex-col items-center justify-center space-y-1">
+              <ShoppingCart className="h-5 w-5" />
+              <span className="text-xs">View Orders</span>
+            </Button>
+            <Button className="bg-orange-500 hover:bg-orange-600 text-white rounded-xl h-16 flex flex-col items-center justify-center space-y-1">
+              <TrendingUp className="h-5 w-5" />
+              <span className="text-xs">Reorder Top Product</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </>
   );
 
