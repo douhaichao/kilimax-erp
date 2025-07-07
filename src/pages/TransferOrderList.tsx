@@ -4,7 +4,10 @@ import { Input } from "@/components/ui/input";
 import { 
   Search, 
   Plus, 
-  Filter
+  Filter,
+  Upload,
+  Download,
+  Printer
 } from 'lucide-react';
 import { TransferOrder, TransferOrderStatus } from '@/types/transferOrder';
 import TransferOrderDetail from '@/components/transfer/TransferOrderDetail';
@@ -120,16 +123,29 @@ const TransferOrderList = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Action Buttons */}
       <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">Transfer Orders</h2>
-          <p className="text-gray-600">Manage inventory transfers between locations</p>
+        <div className="flex gap-2">
+          {/* Batch operations would go here */}
         </div>
-        <Button onClick={() => setCurrentView('create')}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Transfer Order
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Upload className="mr-2 h-4 w-4" />
+            Import
+          </Button>
+          <Button variant="outline">
+            <Download className="mr-2 h-4 w-4" />
+            Export
+          </Button>
+          <Button variant="outline">
+            <Printer className="mr-2 h-4 w-4" />
+            Print
+          </Button>
+          <Button onClick={() => setCurrentView('create')}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Transfer Order
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}
