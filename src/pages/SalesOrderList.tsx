@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Filter, Plus, Download, Eye, Edit, Trash2, Mountain } from 'lucide-react';
+import { Search, Filter, Plus, Eye, Edit, Trash2 } from 'lucide-react';
+import SalesOrderForm from '@/components/sales/SalesOrderForm';
 
 interface SalesOrder {
   id: string;
@@ -30,11 +31,13 @@ interface StatusConfigMap {
 }
 
 const SalesOrderList = () => {
+  const [salesOrders, setSalesOrders] = useState<SalesOrder[]>([]);
+  const [currentView, setCurrentView] = useState<'list' | 'detail' | 'create' | 'edit'>('list');
+  const [selectedOrder, setSelectedOrder] = useState<SalesOrder | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
 
   // Sample sales order data with African companies
-  const salesOrders: SalesOrder[] = [
+  const mockSalesOrders: SalesOrder[] = [
     {
       id: '1',
       orderNumber: 'SO-2024-001',
@@ -97,6 +100,27 @@ const SalesOrderList = () => {
     }
   ];
 
+  useEffect(() => {
+    setSalesOrders(mockSalesOrders);
+  }, []);
+
+  const handleOrderSelect = (order: SalesOrder) => {
+    setSelectedOrder(order);
+    setCurrentView('detail');
+  };
+
+  const handleOrderUpdate = (updatedOrder: SalesOrder) => {
+    setSalesOrders(orders => 
+      orders.map(order => order.id === updatedOrder.id ? updatedOrder : order)
+    );
+    setSelectedOrder(updatedOrder);
+  };
+
+  const handleOrderDelete = (orderId: string) => {
+    setSalesOrders(orders => orders.filter(order => order.id !== orderId));
+    setCurrentView('list');
+  };
+
   const getStatusBadge = (status: string, type: 'approval' | 'shipping' | 'invoice' | 'payment') => {
     const statusConfig: Record<string, StatusConfigMap> = {
       approval: {
@@ -138,6 +162,29 @@ const SalesOrderList = () => {
     order.salesperson.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  if (currentView === 'detail' && selectedOrder) {
+    return (
+      <div>Sales Order Detail View - To be implemented</div>
+    );
+  }
+
+  if (currentView === 'create' || currentView === 'edit') {
+    return (
+      <SalesOrderForm
+        order={currentView === 'edit' ? selectedOrder : undefined}
+        onSave={(order) => {
+          if (currentView === 'edit' && selectedOrder) {
+            handleOrderUpdate(order);
+          } else {
+            setSalesOrders([...salesOrders, order]);
+          }
+          setCurrentView('list');
+        }}
+        onCancel={() => setCurrentView('list')}
+      />
+    );
+  }
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -148,123 +195,109 @@ const SalesOrderList = () => {
   };
 
   return (
-    <div className="space-y-6 bg-gradient-to-br from-green-50 to-emerald-50 min-h-screen p-6">
-      {/* Header with Kilimax branding */}
-      <div className="flex justify-between items-center bg-white rounded-xl shadow-sm border border-green-200 p-6">
-        <div className="flex items-center space-x-4">
-          <div className="p-3 bg-gradient-to-br from-green-600 to-emerald-700 rounded-xl shadow-lg">
-            <Mountain className="h-8 w-8 text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-green-800">Sales Orders</h1>
-            <p className="text-green-600 mt-1">Manage and track business opportunities with Kilimax</p>
-          </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Sales Orders</h2>
+          <p className="text-gray-600">Manage and track sales orders</p>
         </div>
-        <div className="flex space-x-3">
-          <Button variant="outline" size="sm" className="border-green-300 text-green-700 hover:bg-green-50">
-            <Download className="h-4 w-4 mr-2" />
-            Export Data
-          </Button>
-          <Button className="bg-gradient-to-r from-green-600 to-emerald-700 hover:from-green-700 hover:to-emerald-800 text-white shadow-lg">
-            <Plus className="h-4 w-4 mr-2" />
-            New Order
-          </Button>
-        </div>
+        <Button onClick={() => setCurrentView('create')}>
+          <Plus className="mr-2 h-4 w-4" />
+          New Sales Order
+        </Button>
       </div>
 
-      {/* Search and filter with green styling */}
-      <Card className="border-green-200 shadow-sm">
-        <CardContent className="p-6">
-          <div className="flex space-x-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-3 h-5 w-5 text-green-500" />
-              <Input
-                placeholder="Search orders, customers, or sales representatives..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 h-12 border-green-200 focus:border-green-400 focus:ring-green-400"
-              />
-            </div>
-            <Button variant="outline" className="h-12 border-green-300 text-green-700 hover:bg-green-50">
-              <Filter className="h-4 w-4 mr-2" />
-              Filter Orders
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Statistics with green theme */}
+      {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <Card className="border-green-200 shadow-sm hover:shadow-md transition-shadow">
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-600">{salesOrders.length}</div>
-              <div className="text-sm text-stone-600 font-medium">Total Orders</div>
+              <div className="text-3xl font-bold text-primary">{salesOrders.length}</div>
+              <div className="text-sm text-muted-foreground font-medium">Total Orders</div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-green-200 shadow-sm hover:shadow-md transition-shadow">
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-emerald-600">
+              <div className="text-3xl font-bold text-primary">
                 {salesOrders.filter(o => o.approvalStatus === 'approved').length}
               </div>
-              <div className="text-sm text-stone-600 font-medium">Approved Orders</div>
+              <div className="text-sm text-muted-foreground font-medium">Approved Orders</div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-green-200 shadow-sm hover:shadow-md transition-shadow">
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-teal-600">
+              <div className="text-3xl font-bold text-primary">
                 {salesOrders.filter(o => o.shippingStatus === 'shipped' || o.shippingStatus === 'delivered').length}
               </div>
-              <div className="text-sm text-stone-600 font-medium">Shipped Orders</div>
+              <div className="text-sm text-muted-foreground font-medium">Shipped Orders</div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-green-200 shadow-sm hover:shadow-md transition-shadow">
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="p-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-green-700">
+              <div className="text-3xl font-bold text-primary">
                 {formatCurrency(salesOrders.reduce((sum, order) => sum + order.amount, 0))}
               </div>
-              <div className="text-sm text-stone-600 font-medium">Total Revenue</div>
+              <div className="text-sm text-muted-foreground font-medium">Total Revenue</div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Orders table with green styling */}
-      <Card className="border-green-200 shadow-sm">
-        <CardHeader className="bg-gradient-to-r from-green-100 to-emerald-100 border-b border-green-200">
-          <CardTitle className="text-green-800 text-xl">Active Sales Orders</CardTitle>
+      {/* Search and Filter */}
+      <div className="flex space-x-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+          <Input
+            placeholder="Search sales orders..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Button variant="outline">
+          <Filter className="mr-2 h-4 w-4" />
+          Filter
+        </Button>
+      </div>
+
+
+      {/* Sales Orders Table */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Sales Orders</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-green-200">
-                  <TableHead className="font-semibold text-green-700">Order #</TableHead>
-                  <TableHead className="font-semibold text-green-700">Customer</TableHead>
-                  <TableHead className="font-semibold text-green-700">Amount</TableHead>
-                  <TableHead className="font-semibold text-green-700">Sales Rep</TableHead>
-                  <TableHead className="font-semibold text-green-700">Status</TableHead>
-                  <TableHead className="font-semibold text-green-700">Date</TableHead>
-                  <TableHead className="text-right font-semibold text-green-700">Actions</TableHead>
+                <TableRow>
+                  <TableHead>Order #</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Sales Rep</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredOrders.map((order, index) => (
-                  <TableRow key={order.id} className={`border-green-100 hover:bg-green-25 ${index % 2 === 0 ? 'bg-white' : 'bg-green-25'}`}>
-                    <TableCell className="font-medium text-green-700">
+                {filteredOrders.map((order) => (
+                  <TableRow key={order.id} className="hover:bg-muted/50">
+                    <TableCell className="font-medium">
                       {order.orderNumber}
                     </TableCell>
-                    <TableCell className="font-medium text-stone-800">{order.customer}</TableCell>
-                    <TableCell className="font-bold text-green-700">
+                    <TableCell className="font-medium">{order.customer}</TableCell>
+                    <TableCell className="font-bold">
                       {formatCurrency(order.amount)}
                     </TableCell>
-                    <TableCell className="text-stone-700">{order.salesperson}</TableCell>
+                    <TableCell>{order.salesperson}</TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-2">
                         <div className="flex gap-1">
@@ -277,16 +310,19 @@ const SalesOrderList = () => {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-stone-600">{order.orderDate}</TableCell>
+                    <TableCell className="text-muted-foreground">{order.orderDate}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2">
-                        <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-800 hover:bg-green-50">
+                        <Button variant="ghost" size="sm" onClick={() => handleOrderSelect(order)}>
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-800 hover:bg-blue-50">
+                        <Button variant="ghost" size="sm" onClick={() => {
+                          setSelectedOrder(order);
+                          setCurrentView('edit');
+                        }}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-800 hover:bg-red-50">
+                        <Button variant="ghost" size="sm" onClick={() => handleOrderDelete(order.id)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
