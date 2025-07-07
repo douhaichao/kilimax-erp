@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Filter, Plus, Eye, Edit, Trash2 } from 'lucide-react';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Search, Filter, Plus, Eye, Edit, Trash2, Download, Upload, Printer, CheckCircle, XCircle } from 'lucide-react';
 import SalesOrderForm from '@/components/sales/SalesOrderForm';
+import SalesOrderDetail from '@/components/sales/SalesOrderDetail';
 
 interface SalesOrder {
   id: string;
@@ -35,6 +37,7 @@ const SalesOrderList = () => {
   const [currentView, setCurrentView] = useState<'list' | 'detail' | 'create' | 'edit'>('list');
   const [selectedOrder, setSelectedOrder] = useState<SalesOrder | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
 
   // Sample sales order data with African companies
   const mockSalesOrders: SalesOrder[] = [
@@ -121,6 +124,94 @@ const SalesOrderList = () => {
     setCurrentView('list');
   };
 
+  const handleBatchDelete = () => {
+    setSalesOrders(orders => orders.filter(order => !selectedOrders.includes(order.id)));
+    setSelectedOrders([]);
+  };
+
+  const handleBatchApproval = (status: 'approved' | 'rejected') => {
+    setSalesOrders(orders => 
+      orders.map(order => 
+        selectedOrders.includes(order.id) 
+          ? { ...order, approvalStatus: status as 'pending' | 'approved' | 'rejected' }
+          : order
+      )
+    );
+    setSelectedOrders([]);
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedOrders(filteredOrders.map(order => order.id));
+    } else {
+      setSelectedOrders([]);
+    }
+  };
+
+  const handleSelectOrder = (orderId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedOrders(prev => [...prev, orderId]);
+    } else {
+      setSelectedOrders(prev => prev.filter(id => id !== orderId));
+    }
+  };
+
+  const exportToCSV = () => {
+    const headers = ['Order Number', 'Customer', 'Amount', 'Sales Rep', 'Approval Status', 'Shipping Status', 'Order Date'];
+    const csvContent = [
+      headers.join(','),
+      ...salesOrders.map(order => [
+        order.orderNumber,
+        order.customer,
+        order.amount,
+        order.salesperson,
+        order.approvalStatus,
+        order.shippingStatus,
+        order.orderDate
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'sales-orders.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const csv = e.target?.result as string;
+      const lines = csv.split('\n');
+      const headers = lines[0].split(',');
+      
+      const importedOrders = lines.slice(1).filter(line => line.trim()).map((line, index) => {
+        const values = line.split(',');
+        return {
+          id: `imported-${Date.now()}-${index}`,
+          orderNumber: values[0] || `SO-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+          customer: values[1] || 'Unknown Customer',
+          amount: parseFloat(values[2]) || 0,
+          salesperson: values[3] || 'Unknown Rep',
+          approvalStatus: (values[4] as 'pending' | 'approved' | 'rejected') || 'pending',
+          shippingStatus: (values[5] as 'not_shipped' | 'preparing' | 'shipped' | 'delivered') || 'not_shipped',
+          invoiceStatus: 'not_invoiced' as const,
+          paymentStatus: 'unpaid' as const,
+          orderDate: values[6] || new Date().toISOString().split('T')[0]
+        };
+      });
+
+      setSalesOrders(prev => [...prev, ...importedOrders]);
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  };
+
   const getStatusBadge = (status: string, type: 'approval' | 'shipping' | 'invoice' | 'payment') => {
     const statusConfig: Record<string, StatusConfigMap> = {
       approval: {
@@ -164,7 +255,13 @@ const SalesOrderList = () => {
 
   if (currentView === 'detail' && selectedOrder) {
     return (
-      <div>Sales Order Detail View - To be implemented</div>
+      <SalesOrderDetail
+        order={selectedOrder}
+        onUpdate={handleOrderUpdate}
+        onDelete={handleOrderDelete}
+        onBack={() => setCurrentView('list')}
+        onEdit={() => setCurrentView('edit')}
+      />
     );
   }
 
@@ -202,10 +299,27 @@ const SalesOrderList = () => {
           <h2 className="text-2xl font-bold text-gray-900">Sales Orders</h2>
           <p className="text-gray-600">Manage and track sales orders</p>
         </div>
-        <Button onClick={() => setCurrentView('create')}>
-          <Plus className="mr-2 h-4 w-4" />
-          New Sales Order
-        </Button>
+        <div className="flex space-x-2">
+          <input
+            type="file"
+            accept=".csv"
+            onChange={handleImportCSV}
+            className="hidden"
+            id="csv-import"
+          />
+          <Button variant="outline" onClick={() => document.getElementById('csv-import')?.click()}>
+            <Upload className="mr-2 h-4 w-4" />
+            Import CSV
+          </Button>
+          <Button variant="outline" onClick={exportToCSV}>
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+          <Button onClick={() => setCurrentView('create')}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Sales Order
+          </Button>
+        </div>
       </div>
 
       {/* Statistics */}
@@ -250,6 +364,37 @@ const SalesOrderList = () => {
         </Card>
       </div>
 
+      {/* Batch Operations */}
+      {selectedOrders.length > 0 && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">
+                {selectedOrders.length} order(s) selected
+              </span>
+              <div className="flex space-x-2">
+                <Button variant="outline" size="sm" onClick={() => handleBatchApproval('approved')}>
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Approve Selected
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleBatchApproval('rejected')}>
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Reject Selected
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => window.print()}>
+                  <Printer className="mr-2 h-4 w-4" />
+                  Print Selected
+                </Button>
+                <Button variant="destructive" size="sm" onClick={handleBatchDelete}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Selected
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Search and Filter */}
       <div className="flex space-x-4">
         <div className="relative flex-1">
@@ -278,6 +423,12 @@ const SalesOrderList = () => {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead className="w-12">
+                    <Checkbox
+                      checked={selectedOrders.length === filteredOrders.length && filteredOrders.length > 0}
+                      onCheckedChange={handleSelectAll}
+                    />
+                  </TableHead>
                   <TableHead>Order #</TableHead>
                   <TableHead>Customer</TableHead>
                   <TableHead>Amount</TableHead>
@@ -290,6 +441,12 @@ const SalesOrderList = () => {
               <TableBody>
                 {filteredOrders.map((order) => (
                   <TableRow key={order.id} className="hover:bg-muted/50">
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedOrders.includes(order.id)}
+                        onCheckedChange={(checked) => handleSelectOrder(order.id, !!checked)}
+                      />
+                    </TableCell>
                     <TableCell className="font-medium">
                       {order.orderNumber}
                     </TableCell>
