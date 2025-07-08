@@ -9,7 +9,13 @@ import {
   Plus, 
   Trash2, 
   Save,
-  User
+  User,
+  Upload,
+  Paperclip,
+  File,
+  FileText,
+  Image as ImageIcon,
+  X
 } from 'lucide-react';
 import {
   Table,
@@ -19,6 +25,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+interface SalesOrderAttachment {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+  uploadedAt: string;
+}
 
 interface SalesOrder {
   id: string;
@@ -31,6 +46,7 @@ interface SalesOrder {
   invoiceStatus: 'not_invoiced' | 'invoiced' | 'paid';
   paymentStatus: 'unpaid' | 'partial' | 'paid';
   orderDate: string;
+  attachments?: SalesOrderAttachment[];
 }
 
 interface SalesOrderItem {
@@ -55,7 +71,8 @@ const SalesOrderForm = ({ order, onSave, onCancel }: SalesOrderFormProps) => {
     customer: order?.customer || '',
     salesperson: order?.salesperson || 'Current User',
     notes: '',
-    items: [] as SalesOrderItem[]
+    items: [] as SalesOrderItem[],
+    attachments: order?.attachments || [] as SalesOrderAttachment[]
   });
 
   const mockCustomers = [
@@ -121,6 +138,49 @@ const SalesOrderForm = ({ order, onSave, onCancel }: SalesOrderFormProps) => {
     }));
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const newAttachments: SalesOrderAttachment[] = Array.from(files).map(file => ({
+      id: `att-${Date.now()}-${Math.random()}`,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      url: URL.createObjectURL(file), // In a real app, this would be uploaded to a server
+      uploadedAt: new Date().toISOString().split('T')[0]
+    }));
+
+    setFormData(prev => ({
+      ...prev,
+      attachments: [...prev.attachments, ...newAttachments]
+    }));
+
+    // Reset the input
+    event.target.value = '';
+  };
+
+  const removeAttachment = (attachmentId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      attachments: prev.attachments.filter(att => att.id !== attachmentId)
+    }));
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getFileIcon = (type: string) => {
+    if (type.startsWith('image/')) return <ImageIcon className="h-4 w-4" />;
+    if (type.includes('pdf')) return <FileText className="h-4 w-4" />;
+    return <File className="h-4 w-4" />;
+  };
+
   const handleSave = () => {
     const totalAmount = formData.items.reduce((sum, item) => sum + item.totalPrice, 0);
     
@@ -134,7 +194,8 @@ const SalesOrderForm = ({ order, onSave, onCancel }: SalesOrderFormProps) => {
       shippingStatus: order?.shippingStatus || 'not_shipped',
       invoiceStatus: order?.invoiceStatus || 'not_invoiced',
       paymentStatus: order?.paymentStatus || 'unpaid',
-      orderDate: order?.orderDate || new Date().toISOString().split('T')[0]
+      orderDate: order?.orderDate || new Date().toISOString().split('T')[0],
+      attachments: formData.attachments
     };
 
     onSave(salesOrder);
@@ -220,6 +281,62 @@ const SalesOrderForm = ({ order, onSave, onCancel }: SalesOrderFormProps) => {
                 placeholder="Additional notes for this order..."
                 rows={3}
               />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700">Attachments</label>
+              <div className="mt-2 space-y-3">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    id="file-upload"
+                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.gif"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Files
+                  </Button>
+                  <span className="text-xs text-muted-foreground">
+                    PDF, DOC, images accepted
+                  </span>
+                </div>
+
+                {formData.attachments.length > 0 && (
+                  <div className="space-y-2">
+                    {formData.attachments.map((attachment) => (
+                      <div
+                        key={attachment.id}
+                        className="flex items-center justify-between p-2 border rounded-lg bg-muted/20"
+                      >
+                        <div className="flex items-center space-x-2">
+                          {getFileIcon(attachment.type)}
+                          <div>
+                            <p className="text-sm font-medium">{attachment.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatFileSize(attachment.size)}
+                            </p>
+                          </div>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeAttachment(attachment.id)}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>

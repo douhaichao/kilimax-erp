@@ -8,6 +8,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Filter, Plus, Eye, Edit, Trash2, Download, Upload, Printer, CheckCircle, XCircle } from 'lucide-react';
 import SalesOrderForm from '@/components/sales/SalesOrderForm';
 import SalesOrderDetail from '@/components/sales/SalesOrderDetail';
+interface SalesOrderAttachment {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+  uploadedAt: string;
+}
+
 interface SalesOrder {
   id: string;
   orderNumber: string;
@@ -19,6 +28,7 @@ interface SalesOrder {
   invoiceStatus: 'not_invoiced' | 'invoiced' | 'paid';
   paymentStatus: 'unpaid' | 'partial' | 'paid';
   orderDate: string;
+  attachments?: SalesOrderAttachment[];
 }
 interface StatusConfig {
   label: string;
@@ -46,7 +56,11 @@ const SalesOrderList = () => {
     shippingStatus: 'shipped',
     invoiceStatus: 'invoiced',
     paymentStatus: 'paid',
-    orderDate: '2024-01-15'
+    orderDate: '2024-01-15',
+    attachments: [
+      { id: 'att-1', name: 'order-confirmation.pdf', size: 245760, type: 'application/pdf', url: '#', uploadedAt: '2024-01-15' },
+      { id: 'att-2', name: 'customer-requirements.docx', size: 102400, type: 'application/msword', url: '#', uploadedAt: '2024-01-15' }
+    ]
   }, {
     id: '2',
     orderNumber: 'SO-2024-002',
@@ -57,7 +71,10 @@ const SalesOrderList = () => {
     shippingStatus: 'not_shipped',
     invoiceStatus: 'not_invoiced',
     paymentStatus: 'unpaid',
-    orderDate: '2024-01-16'
+    orderDate: '2024-01-16',
+    attachments: [
+      { id: 'att-3', name: 'product-specs.pdf', size: 512000, type: 'application/pdf', url: '#', uploadedAt: '2024-01-16' }
+    ]
   }, {
     id: '3',
     orderNumber: 'SO-2024-003',
@@ -68,7 +85,8 @@ const SalesOrderList = () => {
     shippingStatus: 'preparing',
     invoiceStatus: 'invoiced',
     paymentStatus: 'partial',
-    orderDate: '2024-01-17'
+    orderDate: '2024-01-17',
+    attachments: []
   }, {
     id: '4',
     orderNumber: 'SO-2024-004',
@@ -79,7 +97,10 @@ const SalesOrderList = () => {
     shippingStatus: 'not_shipped',
     invoiceStatus: 'not_invoiced',
     paymentStatus: 'unpaid',
-    orderDate: '2024-01-18'
+    orderDate: '2024-01-18',
+    attachments: [
+      { id: 'att-4', name: 'rejection-notice.pdf', size: 87040, type: 'application/pdf', url: '#', uploadedAt: '2024-01-18' }
+    ]
   }, {
     id: '5',
     orderNumber: 'SO-2024-005',
@@ -90,7 +111,12 @@ const SalesOrderList = () => {
     shippingStatus: 'delivered',
     invoiceStatus: 'paid',
     paymentStatus: 'paid',
-    orderDate: '2024-01-19'
+    orderDate: '2024-01-19',
+    attachments: [
+      { id: 'att-5', name: 'delivery-receipt.pdf', size: 156672, type: 'application/pdf', url: '#', uploadedAt: '2024-01-19' },
+      { id: 'att-6', name: 'invoice.pdf', size: 203776, type: 'application/pdf', url: '#', uploadedAt: '2024-01-19' },
+      { id: 'att-7', name: 'payment-confirmation.png', size: 89088, type: 'image/png', url: '#', uploadedAt: '2024-01-19' }
+    ]
   }];
   useEffect(() => {
     setSalesOrders(mockSalesOrders);

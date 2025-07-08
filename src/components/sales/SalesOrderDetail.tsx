@@ -15,7 +15,11 @@ import {
   User,
   Calendar,
   DollarSign,
-  Package
+  Package,
+  Paperclip,
+  File,
+  FileText,
+  Image as ImageIcon
 } from 'lucide-react';
 import {
   Table,
@@ -25,6 +29,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
+interface SalesOrderAttachment {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+  uploadedAt: string;
+}
 
 interface SalesOrder {
   id: string;
@@ -37,6 +50,7 @@ interface SalesOrder {
   invoiceStatus: 'not_invoiced' | 'invoiced' | 'paid';
   paymentStatus: 'unpaid' | 'partial' | 'paid';
   orderDate: string;
+  attachments?: SalesOrderAttachment[];
 }
 
 interface SalesOrderDetailProps {
@@ -107,6 +121,25 @@ const SalesOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: SalesOr
       currency: 'USD',
       minimumFractionDigits: 2,
     }).format(amount);
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getFileIcon = (type: string) => {
+    if (type.startsWith('image/')) return <ImageIcon className="h-4 w-4" />;
+    if (type.includes('pdf')) return <FileText className="h-4 w-4" />;
+    return <File className="h-4 w-4" />;
+  };
+
+  const handleDownload = (attachment: SalesOrderAttachment) => {
+    // In a real app, this would download the actual file
+    console.log('Downloading:', attachment.name);
   };
 
   return (
@@ -270,6 +303,50 @@ const SalesOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: SalesOr
           </Table>
         </CardContent>
       </Card>
+
+      {/* Attachments */}
+      {order.attachments && order.attachments.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <Paperclip className="h-5 w-5" />
+              <span>Attachments ({order.attachments.length})</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {order.attachments.map((attachment) => (
+                <div
+                  key={attachment.id}
+                  className="flex items-center p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                >
+                  <div className="flex items-center space-x-3 flex-1">
+                    <div className="flex-shrink-0 text-muted-foreground">
+                      {getFileIcon(attachment.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {attachment.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatFileSize(attachment.size)} • {attachment.uploadedAt}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDownload(attachment)}
+                    className="flex-shrink-0"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
