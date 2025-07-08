@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, Plus, Eye, Edit, Trash2, Download, Send, Calendar, AlertTriangle } from 'lucide-react';
+import { Search, Filter, Plus, Eye, Edit, Trash2, Download, Upload, Calendar, AlertTriangle, CheckCircle, XCircle, Printer } from 'lucide-react';
 import { Quotation } from '@/types/quotation';
 import { mockQuotations } from '@/data/mockQuotations';
 import QuotationForm from '@/components/quotation/QuotationForm';
@@ -100,11 +101,68 @@ const QuotationList = () => {
     setSelectedQuotations([]);
   };
 
+  const exportToCSV = () => {
+    const headers = ['Quotation Number', 'Customer', 'Amount', 'Sales Rep', 'Status', 'Valid Until', 'Date'];
+    const csvContent = [
+      headers.join(','),
+      ...quotations.map(quotation => [
+        quotation.quotationNumber,
+        quotation.customer,
+        quotation.amount,
+        quotation.salesperson,
+        quotation.status,
+        quotation.validUntil,
+        quotation.quotationDate
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'quotations.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const csv = e.target?.result as string;
+      const lines = csv.split('\n');
+      const headers = lines[0].split(',');
+      const importedQuotations = lines.slice(1).filter(line => line.trim()).map((line, index) => {
+        const values = line.split(',');
+        return {
+          id: `imported-${Date.now()}-${index}`,
+          quotationNumber: values[0] || `QUO-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+          customer: values[1] || 'Unknown Customer',
+          amount: parseFloat(values[2]) || 0,
+          salesperson: values[3] || 'Unknown Rep',
+          status: (values[4] as 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired') || 'draft',
+          validUntil: values[5] || '',
+          quotationDate: values[6] || new Date().toISOString().split('T')[0],
+          items: [],
+          notes: '',
+          attachments: []
+        };
+      });
+
+      setQuotations(prev => [...prev, ...importedQuotations]);
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
-      minimumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount);
   };
 
@@ -150,221 +208,235 @@ const QuotationList = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Quotation Management</h2>
-          <p className="text-muted-foreground">Manage your sales quotations and track their status</p>
+          <h2 className="text-2xl font-bold text-gray-900">Quotations</h2>
+          <p className="text-gray-600">Manage and track quotations</p>
         </div>
-        <Button onClick={handleCreateQuotation}>
-          <Plus className="mr-2 h-4 w-4" />
-          Create Quotation
-        </Button>
+        <div className="flex space-x-2">
+          <input
+            type="file"
+            accept=".csv"
+            onChange={handleImportCSV}
+            className="hidden"
+            id="csv-import"
+          />
+          <Button
+            variant="outline"
+            onClick={() => document.getElementById('csv-import')?.click()}
+          >
+            <Upload className="mr-2 h-4 w-4" />
+            Import CSV
+          </Button>
+          <Button variant="outline" onClick={exportToCSV}>
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+          <Button onClick={handleCreateQuotation}>
+            <Plus className="mr-2 h-4 w-4" />
+            New Quotation
+          </Button>
+        </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Quotations</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Draft</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.draft}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Sent</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.sent}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Accepted</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.accepted}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Expired</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.expired}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(stats.totalValue)}</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Search and Filter Section */}
-      <Card>
-        <CardContent className={`pt-6 ${selectedQuotations.length > 0 ? 'hidden' : ''}`}>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search quotations..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+      {/* Statistics */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">{stats.total}</div>
+              <div className="text-sm text-muted-foreground font-medium">Total Quotations</div>
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full md:w-48">
-                <Filter className="mr-2 h-4 w-4" />
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
-                <SelectItem value="sent">Sent</SelectItem>
-                <SelectItem value="accepted">Accepted</SelectItem>
-                <SelectItem value="rejected">Rejected</SelectItem>
-                <SelectItem value="expired">Expired</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </CardContent>
+          </CardContent>
+        </Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">{stats.sent}</div>
+              <div className="text-sm text-muted-foreground font-medium">Sent Quotations</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">{stats.accepted}</div>
+              <div className="text-sm text-muted-foreground font-medium">Accepted</div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="shadow-sm hover:shadow-md transition-shadow">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-primary">
+                {formatCurrency(stats.totalValue)}
+              </div>
+              <div className="text-sm text-muted-foreground font-medium">Total Value</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Batch Operations Overlay */}
-        {selectedQuotations.length > 0 && (
-          <CardContent className="pt-6">
+      {/* Search and Filter / Batch Operations */}
+      {selectedQuotations.length > 0 ? (
+        <Card>
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-4">
+                <Checkbox
+                  checked={selectedQuotations.length === filteredQuotations.length && filteredQuotations.length > 0}
+                  onCheckedChange={handleSelectAll}
+                />
                 <span className="text-sm font-medium">
                   {selectedQuotations.length} quotation(s) selected
                 </span>
-                <Select onValueChange={handleBulkStatusUpdate}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Update status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="draft">Mark as Draft</SelectItem>
-                    <SelectItem value="sent">Mark as Sent</SelectItem>
-                    <SelectItem value="accepted">Mark as Accepted</SelectItem>
-                    <SelectItem value="rejected">Mark as Rejected</SelectItem>
-                    <SelectItem value="expired">Mark as Expired</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button variant="destructive" onClick={handleBulkDelete}>
+              </div>
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBulkStatusUpdate('sent')}
+                >
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Mark as Sent
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBulkStatusUpdate('accepted')}
+                >
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Mark as Accepted
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.print()}
+                >
+                  <Printer className="mr-2 h-4 w-4" />
+                  Print Selected
+                </Button>
+                <Button variant="destructive" size="sm" onClick={handleBulkDelete}>
                   <Trash2 className="mr-2 h-4 w-4" />
                   Delete Selected
                 </Button>
               </div>
-              <Button 
-                variant="outline" 
-                onClick={() => setSelectedQuotations([])}
-              >
-                Clear Selection
-              </Button>
             </div>
           </CardContent>
-        )}
-      </Card>
+        </Card>
+      ) : (
+        <div className="flex space-x-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search quotations..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-48">
+              <Filter className="mr-2 h-4 w-4" />
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+              <SelectItem value="sent">Sent</SelectItem>
+              <SelectItem value="accepted">Accepted</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+              <SelectItem value="expired">Expired</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
 
       {/* Quotations Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>Quotations</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12">
-                  <Checkbox
-                    checked={selectedQuotations.length === filteredQuotations.length && filteredQuotations.length > 0}
-                    onCheckedChange={handleSelectAll}
-                  />
-                </TableHead>
-                <TableHead>Quotation #</TableHead>
-                <TableHead>Customer</TableHead>
-                <TableHead>Salesperson</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Valid Until</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredQuotations.map((quotation) => (
-                <TableRow key={quotation.id}>
-                  <TableCell>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">
                     <Checkbox
-                      checked={selectedQuotations.includes(quotation.id)}
-                      onCheckedChange={(checked) => handleSelectQuotation(quotation.id, checked as boolean)}
+                      checked={selectedQuotations.length === filteredQuotations.length && filteredQuotations.length > 0}
+                      onCheckedChange={handleSelectAll}
                     />
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center space-x-2">
-                      <span>{quotation.quotationNumber}</span>
-                      {isExpired(quotation.validUntil) && quotation.status !== 'accepted' && quotation.status !== 'rejected' && (
-                        <AlertTriangle className="h-4 w-4 text-orange-500" />
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>{quotation.customer}</TableCell>
-                  <TableCell>{quotation.salesperson}</TableCell>
-                  <TableCell>
-                    <QuotationStatusBadge status={quotation.status} />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-1">
-                      <Calendar className="h-3 w-3 text-muted-foreground" />
-                      <span className={isExpired(quotation.validUntil) && quotation.status !== 'accepted' && quotation.status !== 'rejected' ? 'text-orange-600' : ''}>
-                        {quotation.validUntil}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right font-medium">
-                    {formatCurrency(quotation.amount)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleViewQuotation(quotation)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditQuotation(quotation)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteQuotation(quotation.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+                  </TableHead>
+                  <TableHead>Quotation #</TableHead>
+                  <TableHead>Customer</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Sales Rep</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Valid Until</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredQuotations.map((quotation) => (
+                  <TableRow key={quotation.id} className="hover:bg-muted/50">
+                    <TableCell>
+                      <Checkbox
+                        checked={selectedQuotations.includes(quotation.id)}
+                        onCheckedChange={(checked) => handleSelectQuotation(quotation.id, checked as boolean)}
+                      />
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center space-x-2">
+                        <span>{quotation.quotationNumber}</span>
+                        {isExpired(quotation.validUntil) && quotation.status !== 'accepted' && quotation.status !== 'rejected' && (
+                          <AlertTriangle className="h-4 w-4 text-orange-500" />
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="font-medium">{quotation.customer}</TableCell>
+                    <TableCell className="font-bold">
+                      {formatCurrency(quotation.amount)}
+                    </TableCell>
+                    <TableCell>{quotation.salesperson}</TableCell>
+                    <TableCell>
+                      <QuotationStatusBadge status={quotation.status} />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center space-x-1">
+                        <Calendar className="h-3 w-3 text-muted-foreground" />
+                        <span className={isExpired(quotation.validUntil) && quotation.status !== 'accepted' && quotation.status !== 'rejected' ? 'text-orange-600' : ''}>
+                          {quotation.validUntil}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end space-x-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleViewQuotation(quotation)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditQuotation(quotation)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteQuotation(quotation.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
     </div>
