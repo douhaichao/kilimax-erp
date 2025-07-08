@@ -8,7 +8,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Search, Filter, Plus, Eye, Edit, Trash2, Download, Upload, Printer, CheckCircle, XCircle } from 'lucide-react';
 import SalesOrderForm from '@/components/sales/SalesOrderForm';
 import SalesOrderDetail from '@/components/sales/SalesOrderDetail';
-
 interface SalesOrder {
   id: string;
   orderNumber: string;
@@ -21,17 +20,14 @@ interface SalesOrder {
   paymentStatus: 'unpaid' | 'partial' | 'paid';
   orderDate: string;
 }
-
 interface StatusConfig {
   label: string;
   variant: 'default' | 'secondary' | 'destructive' | 'outline';
   className: string;
 }
-
 interface StatusConfigMap {
   [key: string]: StatusConfig;
 }
-
 const SalesOrderList = () => {
   const [salesOrders, setSalesOrders] = useState<SalesOrder[]>([]);
   const [currentView, setCurrentView] = useState<'list' | 'detail' | 'create' | 'edit'>('list');
@@ -40,106 +36,88 @@ const SalesOrderList = () => {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
 
   // Sample sales order data with African companies
-  const mockSalesOrders: SalesOrder[] = [
-    {
-      id: '1',
-      orderNumber: 'SO-2024-001',
-      customer: 'Kilimanjaro Trading Co.',
-      amount: 156000,
-      salesperson: 'Amara Okafor',
-      approvalStatus: 'approved',
-      shippingStatus: 'shipped',
-      invoiceStatus: 'invoiced',
-      paymentStatus: 'paid',
-      orderDate: '2024-01-15'
-    },
-    {
-      id: '2',
-      orderNumber: 'SO-2024-002',
-      customer: 'Lagos Tech Solutions',
-      amount: 289000,
-      salesperson: 'Kwame Asante',
-      approvalStatus: 'pending',
-      shippingStatus: 'not_shipped',
-      invoiceStatus: 'not_invoiced',
-      paymentStatus: 'unpaid',
-      orderDate: '2024-01-16'
-    },
-    {
-      id: '3',
-      orderNumber: 'SO-2024-003',
-      customer: 'Sahara Logistics Ltd',
-      amount: 423000,
-      salesperson: 'Fatima Al-Rashid',
-      approvalStatus: 'approved',
-      shippingStatus: 'preparing',
-      invoiceStatus: 'invoiced',
-      paymentStatus: 'partial',
-      orderDate: '2024-01-17'
-    },
-    {
-      id: '4',
-      orderNumber: 'SO-2024-004',
-      customer: 'Cape Verde Industries',
-      amount: 87500,
-      salesperson: 'Thabo Mthembu',
-      approvalStatus: 'rejected',
-      shippingStatus: 'not_shipped',
-      invoiceStatus: 'not_invoiced',
-      paymentStatus: 'unpaid',
-      orderDate: '2024-01-18'
-    },
-    {
-      id: '5',
-      orderNumber: 'SO-2024-005',
-      customer: 'Nile Valley Enterprises',
-      amount: 672000,
-      salesperson: 'Zara Kone',
-      approvalStatus: 'approved',
-      shippingStatus: 'delivered',
-      invoiceStatus: 'paid',
-      paymentStatus: 'paid',
-      orderDate: '2024-01-19'
-    }
-  ];
-
+  const mockSalesOrders: SalesOrder[] = [{
+    id: '1',
+    orderNumber: 'SO-2024-001',
+    customer: 'Kilimanjaro Trading Co.',
+    amount: 156000,
+    salesperson: 'Amara Okafor',
+    approvalStatus: 'approved',
+    shippingStatus: 'shipped',
+    invoiceStatus: 'invoiced',
+    paymentStatus: 'paid',
+    orderDate: '2024-01-15'
+  }, {
+    id: '2',
+    orderNumber: 'SO-2024-002',
+    customer: 'Lagos Tech Solutions',
+    amount: 289000,
+    salesperson: 'Kwame Asante',
+    approvalStatus: 'pending',
+    shippingStatus: 'not_shipped',
+    invoiceStatus: 'not_invoiced',
+    paymentStatus: 'unpaid',
+    orderDate: '2024-01-16'
+  }, {
+    id: '3',
+    orderNumber: 'SO-2024-003',
+    customer: 'Sahara Logistics Ltd',
+    amount: 423000,
+    salesperson: 'Fatima Al-Rashid',
+    approvalStatus: 'approved',
+    shippingStatus: 'preparing',
+    invoiceStatus: 'invoiced',
+    paymentStatus: 'partial',
+    orderDate: '2024-01-17'
+  }, {
+    id: '4',
+    orderNumber: 'SO-2024-004',
+    customer: 'Cape Verde Industries',
+    amount: 87500,
+    salesperson: 'Thabo Mthembu',
+    approvalStatus: 'rejected',
+    shippingStatus: 'not_shipped',
+    invoiceStatus: 'not_invoiced',
+    paymentStatus: 'unpaid',
+    orderDate: '2024-01-18'
+  }, {
+    id: '5',
+    orderNumber: 'SO-2024-005',
+    customer: 'Nile Valley Enterprises',
+    amount: 672000,
+    salesperson: 'Zara Kone',
+    approvalStatus: 'approved',
+    shippingStatus: 'delivered',
+    invoiceStatus: 'paid',
+    paymentStatus: 'paid',
+    orderDate: '2024-01-19'
+  }];
   useEffect(() => {
     setSalesOrders(mockSalesOrders);
   }, []);
-
   const handleOrderSelect = (order: SalesOrder) => {
     setSelectedOrder(order);
     setCurrentView('detail');
   };
-
   const handleOrderUpdate = (updatedOrder: SalesOrder) => {
-    setSalesOrders(orders => 
-      orders.map(order => order.id === updatedOrder.id ? updatedOrder : order)
-    );
+    setSalesOrders(orders => orders.map(order => order.id === updatedOrder.id ? updatedOrder : order));
     setSelectedOrder(updatedOrder);
   };
-
   const handleOrderDelete = (orderId: string) => {
     setSalesOrders(orders => orders.filter(order => order.id !== orderId));
     setCurrentView('list');
   };
-
   const handleBatchDelete = () => {
     setSalesOrders(orders => orders.filter(order => !selectedOrders.includes(order.id)));
     setSelectedOrders([]);
   };
-
   const handleBatchApproval = (status: 'approved' | 'rejected') => {
-    setSalesOrders(orders => 
-      orders.map(order => 
-        selectedOrders.includes(order.id) 
-          ? { ...order, approvalStatus: status as 'pending' | 'approved' | 'rejected' }
-          : order
-      )
-    );
+    setSalesOrders(orders => orders.map(order => selectedOrders.includes(order.id) ? {
+      ...order,
+      approvalStatus: status as 'pending' | 'approved' | 'rejected'
+    } : order));
     setSelectedOrders([]);
   };
-
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
       setSelectedOrders(filteredOrders.map(order => order.id));
@@ -147,7 +125,6 @@ const SalesOrderList = () => {
       setSelectedOrders([]);
     }
   };
-
   const handleSelectOrder = (orderId: string, checked: boolean) => {
     if (checked) {
       setSelectedOrders(prev => [...prev, orderId]);
@@ -155,23 +132,12 @@ const SalesOrderList = () => {
       setSelectedOrders(prev => prev.filter(id => id !== orderId));
     }
   };
-
   const exportToCSV = () => {
     const headers = ['Order Number', 'Customer', 'Amount', 'Sales Rep', 'Approval Status', 'Shipping Status', 'Order Date'];
-    const csvContent = [
-      headers.join(','),
-      ...salesOrders.map(order => [
-        order.orderNumber,
-        order.customer,
-        order.amount,
-        order.salesperson,
-        order.approvalStatus,
-        order.shippingStatus,
-        order.orderDate
-      ].join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const csvContent = [headers.join(','), ...salesOrders.map(order => [order.orderNumber, order.customer, order.amount, order.salesperson, order.approvalStatus, order.shippingStatus, order.orderDate].join(','))].join('\n');
+    const blob = new Blob([csvContent], {
+      type: 'text/csv'
+    });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -179,17 +145,14 @@ const SalesOrderList = () => {
     a.click();
     window.URL.revokeObjectURL(url);
   };
-
   const handleImportCSV = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = e => {
       const csv = e.target?.result as string;
       const lines = csv.split('\n');
       const headers = lines[0].split(',');
-      
       const importedOrders = lines.slice(1).filter(line => line.trim()).map((line, index) => {
         const values = line.split(',');
         return {
@@ -198,101 +161,123 @@ const SalesOrderList = () => {
           customer: values[1] || 'Unknown Customer',
           amount: parseFloat(values[2]) || 0,
           salesperson: values[3] || 'Unknown Rep',
-          approvalStatus: (values[4] as 'pending' | 'approved' | 'rejected') || 'pending',
-          shippingStatus: (values[5] as 'not_shipped' | 'preparing' | 'shipped' | 'delivered') || 'not_shipped',
+          approvalStatus: values[4] as 'pending' | 'approved' | 'rejected' || 'pending',
+          shippingStatus: values[5] as 'not_shipped' | 'preparing' | 'shipped' | 'delivered' || 'not_shipped',
           invoiceStatus: 'not_invoiced' as const,
           paymentStatus: 'unpaid' as const,
           orderDate: values[6] || new Date().toISOString().split('T')[0]
         };
       });
-
       setSalesOrders(prev => [...prev, ...importedOrders]);
     };
     reader.readAsText(file);
     event.target.value = '';
   };
-
   const getStatusBadge = (status: string, type: 'approval' | 'shipping' | 'invoice' | 'payment') => {
     const statusConfig: Record<string, StatusConfigMap> = {
       approval: {
-        pending: { label: 'Pending Review', variant: 'outline', className: 'text-amber-700 border-amber-400 bg-amber-50' },
-        approved: { label: 'Approved', variant: 'default', className: 'bg-green-600 text-white border-green-600' },
-        rejected: { label: 'Rejected', variant: 'destructive', className: 'bg-red-600 text-white' }
+        pending: {
+          label: 'Pending Review',
+          variant: 'outline',
+          className: 'text-amber-700 border-amber-400 bg-amber-50'
+        },
+        approved: {
+          label: 'Approved',
+          variant: 'default',
+          className: 'bg-green-600 text-white border-green-600'
+        },
+        rejected: {
+          label: 'Rejected',
+          variant: 'destructive',
+          className: 'bg-red-600 text-white'
+        }
       },
       shipping: {
-        not_shipped: { label: 'Not Shipped', variant: 'outline', className: 'text-stone-600 border-stone-400 bg-stone-50' },
-        preparing: { label: 'Preparing', variant: 'outline', className: 'text-orange-700 border-orange-400 bg-orange-50' },
-        shipped: { label: 'Shipped', variant: 'default', className: 'bg-blue-600 text-white' },
-        delivered: { label: 'Delivered', variant: 'default', className: 'bg-green-600 text-white' }
+        not_shipped: {
+          label: 'Not Shipped',
+          variant: 'outline',
+          className: 'text-stone-600 border-stone-400 bg-stone-50'
+        },
+        preparing: {
+          label: 'Preparing',
+          variant: 'outline',
+          className: 'text-orange-700 border-orange-400 bg-orange-50'
+        },
+        shipped: {
+          label: 'Shipped',
+          variant: 'default',
+          className: 'bg-blue-600 text-white'
+        },
+        delivered: {
+          label: 'Delivered',
+          variant: 'default',
+          className: 'bg-green-600 text-white'
+        }
       },
       invoice: {
-        not_invoiced: { label: 'Not Invoiced', variant: 'outline', className: 'text-stone-600 border-stone-400 bg-stone-50' },
-        invoiced: { label: 'Invoiced', variant: 'default', className: 'bg-teal-600 text-white' },
-        paid: { label: 'Paid', variant: 'default', className: 'bg-green-600 text-white' }
+        not_invoiced: {
+          label: 'Not Invoiced',
+          variant: 'outline',
+          className: 'text-stone-600 border-stone-400 bg-stone-50'
+        },
+        invoiced: {
+          label: 'Invoiced',
+          variant: 'default',
+          className: 'bg-teal-600 text-white'
+        },
+        paid: {
+          label: 'Paid',
+          variant: 'default',
+          className: 'bg-green-600 text-white'
+        }
       },
       payment: {
-        unpaid: { label: 'Unpaid', variant: 'outline', className: 'text-red-700 border-red-400 bg-red-50' },
-        partial: { label: 'Partial', variant: 'outline', className: 'text-amber-700 border-amber-400 bg-amber-50' },
-        paid: { label: 'Paid', variant: 'default', className: 'bg-green-600 text-white' }
+        unpaid: {
+          label: 'Unpaid',
+          variant: 'outline',
+          className: 'text-red-700 border-red-400 bg-red-50'
+        },
+        partial: {
+          label: 'Partial',
+          variant: 'outline',
+          className: 'text-amber-700 border-amber-400 bg-amber-50'
+        },
+        paid: {
+          label: 'Paid',
+          variant: 'default',
+          className: 'bg-green-600 text-white'
+        }
       }
     };
-
     const config = statusConfig[type]?.[status];
     if (!config) return null;
-
-    return (
-      <Badge variant={config.variant} className={`text-xs font-medium ${config.className}`}>
+    return <Badge variant={config.variant} className={`text-xs font-medium ${config.className}`}>
         {config.label}
-      </Badge>
-    );
+      </Badge>;
   };
-
-  const filteredOrders = salesOrders.filter(order =>
-    order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    order.salesperson.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+  const filteredOrders = salesOrders.filter(order => order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) || order.customer.toLowerCase().includes(searchTerm.toLowerCase()) || order.salesperson.toLowerCase().includes(searchTerm.toLowerCase()));
   if (currentView === 'detail' && selectedOrder) {
-    return (
-      <SalesOrderDetail
-        order={selectedOrder}
-        onUpdate={handleOrderUpdate}
-        onDelete={handleOrderDelete}
-        onBack={() => setCurrentView('list')}
-        onEdit={() => setCurrentView('edit')}
-      />
-    );
+    return <SalesOrderDetail order={selectedOrder} onUpdate={handleOrderUpdate} onDelete={handleOrderDelete} onBack={() => setCurrentView('list')} onEdit={() => setCurrentView('edit')} />;
   }
-
   if (currentView === 'create' || currentView === 'edit') {
-    return (
-      <SalesOrderForm
-        order={currentView === 'edit' ? selectedOrder : undefined}
-        onSave={(order) => {
-          if (currentView === 'edit' && selectedOrder) {
-            handleOrderUpdate(order);
-          } else {
-            setSalesOrders([...salesOrders, order]);
-          }
-          setCurrentView('list');
-        }}
-        onCancel={() => setCurrentView('list')}
-      />
-    );
+    return <SalesOrderForm order={currentView === 'edit' ? selectedOrder : undefined} onSave={order => {
+      if (currentView === 'edit' && selectedOrder) {
+        handleOrderUpdate(order);
+      } else {
+        setSalesOrders([...salesOrders, order]);
+      }
+      setCurrentView('list');
+    }} onCancel={() => setCurrentView('list')} />;
   }
-
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
       minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 0
     }).format(amount);
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -300,13 +285,7 @@ const SalesOrderList = () => {
           <p className="text-gray-600">Manage and track sales orders</p>
         </div>
         <div className="flex space-x-2">
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleImportCSV}
-            className="hidden"
-            id="csv-import"
-          />
+          <input type="file" accept=".csv" onChange={handleImportCSV} className="hidden" id="csv-import" />
           <Button variant="outline" onClick={() => document.getElementById('csv-import')?.click()}>
             <Upload className="mr-2 h-4 w-4" />
             Import CSV
@@ -365,8 +344,7 @@ const SalesOrderList = () => {
       </div>
 
       {/* Batch Operations */}
-      {selectedOrders.length > 0 && (
-        <Card>
+      {selectedOrders.length > 0 && <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">
@@ -392,19 +370,13 @@ const SalesOrderList = () => {
               </div>
             </div>
           </CardContent>
-        </Card>
-      )}
+        </Card>}
 
       {/* Search and Filter */}
       <div className="flex space-x-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Search sales orders..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+          <Input placeholder="Search sales orders..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
         </div>
         <Button variant="outline">
           <Filter className="mr-2 h-4 w-4" />
@@ -415,19 +387,14 @@ const SalesOrderList = () => {
 
       {/* Sales Orders Table */}
       <Card>
-        <CardHeader>
-          <CardTitle>Sales Orders</CardTitle>
-        </CardHeader>
+        
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12">
-                    <Checkbox
-                      checked={selectedOrders.length === filteredOrders.length && filteredOrders.length > 0}
-                      onCheckedChange={handleSelectAll}
-                    />
+                    <Checkbox checked={selectedOrders.length === filteredOrders.length && filteredOrders.length > 0} onCheckedChange={handleSelectAll} />
                   </TableHead>
                   <TableHead>Order #</TableHead>
                   <TableHead>Customer</TableHead>
@@ -439,13 +406,9 @@ const SalesOrderList = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredOrders.map((order) => (
-                  <TableRow key={order.id} className="hover:bg-muted/50">
+                {filteredOrders.map(order => <TableRow key={order.id} className="hover:bg-muted/50">
                     <TableCell>
-                      <Checkbox
-                        checked={selectedOrders.includes(order.id)}
-                        onCheckedChange={(checked) => handleSelectOrder(order.id, !!checked)}
-                      />
+                      <Checkbox checked={selectedOrders.includes(order.id)} onCheckedChange={checked => handleSelectOrder(order.id, !!checked)} />
                     </TableCell>
                     <TableCell className="font-medium">
                       {order.orderNumber}
@@ -474,9 +437,9 @@ const SalesOrderList = () => {
                           <Eye className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => {
-                          setSelectedOrder(order);
-                          setCurrentView('edit');
-                        }}>
+                      setSelectedOrder(order);
+                      setCurrentView('edit');
+                    }}>
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button variant="ghost" size="sm" onClick={() => handleOrderDelete(order.id)}>
@@ -484,15 +447,12 @@ const SalesOrderList = () => {
                         </Button>
                       </div>
                     </TableCell>
-                  </TableRow>
-                ))}
+                  </TableRow>)}
               </TableBody>
             </Table>
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>;
 };
-
 export default SalesOrderList;
