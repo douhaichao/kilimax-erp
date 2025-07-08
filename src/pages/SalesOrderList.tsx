@@ -343,13 +343,20 @@ const SalesOrderList = () => {
         </Card>
       </div>
 
-      {/* Batch Operations */}
-      {selectedOrders.length > 0 && <Card>
+      {/* Search and Filter / Batch Operations */}
+      {selectedOrders.length > 0 ? (
+        <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">
-                {selectedOrders.length} order(s) selected
-              </span>
+              <div className="flex items-center space-x-4">
+                <Checkbox
+                  checked={selectedOrders.length === filteredOrders.length && filteredOrders.length > 0}
+                  onCheckedChange={handleSelectAll}
+                />
+                <span className="text-sm font-medium">
+                  {selectedOrders.length} order(s) selected
+                </span>
+              </div>
               <div className="flex space-x-2">
                 <Button variant="outline" size="sm" onClick={() => handleBatchApproval('approved')}>
                   <CheckCircle className="mr-2 h-4 w-4" />
@@ -370,19 +377,19 @@ const SalesOrderList = () => {
               </div>
             </div>
           </CardContent>
-        </Card>}
-
-      {/* Search and Filter */}
-      <div className="flex space-x-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-          <Input placeholder="Search sales orders..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
+        </Card>
+      ) : (
+        <div className="flex space-x-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Input placeholder="Search sales orders..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
+          </div>
+          <Button variant="outline">
+            <Filter className="mr-2 h-4 w-4" />
+            Filter
+          </Button>
         </div>
-        <Button variant="outline">
-          <Filter className="mr-2 h-4 w-4" />
-          Filter
-        </Button>
-      </div>
+      )}
 
 
       {/* Sales Orders Table */}
