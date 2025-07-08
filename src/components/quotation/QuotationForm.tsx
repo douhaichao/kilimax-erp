@@ -7,7 +7,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Plus, Trash2, Upload, X } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Plus, 
+  Trash2, 
+  Save,
+  Upload,
+  X,
+  File,
+  FileText,
+  Image as ImageIcon
+} from 'lucide-react';
 import { Quotation, QuotationItem, QuotationAttachment } from '@/types/quotation';
 
 interface QuotationFormProps {
@@ -115,9 +125,21 @@ const QuotationForm = ({ quotation, onSave, onCancel }: QuotationFormProps) => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const getFileIcon = (type: string) => {
+    if (type.startsWith('image/')) return <ImageIcon className="h-4 w-4" />;
+    if (type.includes('pdf')) return <FileText className="h-4 w-4" />;
+    return <File className="h-4 w-4" />;
+  };
+
+  const handleSave = () => {
     const quotationToSave: Quotation = {
       id: quotation?.id || Date.now().toString(),
       quotationNumber: formData.quotationNumber || '',
@@ -137,6 +159,8 @@ const QuotationForm = ({ quotation, onSave, onCancel }: QuotationFormProps) => {
     onSave(quotationToSave);
   };
 
+  const isValid = formData.customer && items.length > 0 && formData.quotationNumber && formData.salesperson;
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -146,282 +170,246 @@ const QuotationForm = ({ quotation, onSave, onCancel }: QuotationFormProps) => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h2 className="text-2xl font-bold">
-              {quotation ? 'Edit Quotation' : 'Create New Quotation'}
+            <h2 className="text-2xl font-bold text-gray-900">
+              {quotation ? 'Edit Quotation' : 'New Quotation'}
             </h2>
-            <p className="text-muted-foreground">
-              {quotation ? 'Update quotation information' : 'Fill in the details below to create a new quotation'}
-            </p>
+            <p className="text-gray-600">Create or modify quotation details</p>
           </div>
+        </div>
+        <div className="flex space-x-2">
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={!isValid}>
+            <Save className="mr-2 h-4 w-4" />
+            Save
+          </Button>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Form */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Basic Information */}
-        <Card>
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Quotation Information</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="quotationNumber">Quotation Number</Label>
-              <Input
-                id="quotationNumber"
-                value={formData.quotationNumber}
-                onChange={(e) => setFormData(prev => ({ ...prev, quotationNumber: e.target.value }))}
-                required
-              />
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Quotation Number</label>
+                <Input
+                  value={formData.quotationNumber}
+                  onChange={(e) => setFormData(prev => ({ ...prev, quotationNumber: e.target.value }))}
+                  placeholder="QUO-2024-001"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Salesperson</label>
+                <Input
+                  value={formData.salesperson}
+                  onChange={(e) => setFormData(prev => ({ ...prev, salesperson: e.target.value }))}
+                  placeholder="Sales Representative"
+                />
+              </div>
             </div>
-            <div>
-              <Label htmlFor="quotationDate">Quotation Date</Label>
-              <Input
-                id="quotationDate"
-                type="date"
-                value={formData.quotationDate}
-                onChange={(e) => setFormData(prev => ({ ...prev, quotationDate: e.target.value }))}
-                required
-              />
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-gray-700">Quotation Date</label>
+                <Input
+                  type="date"
+                  value={formData.quotationDate}
+                  onChange={(e) => setFormData(prev => ({ ...prev, quotationDate: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-700">Valid Until</label>
+                <Input
+                  type="date"
+                  value={formData.validUntil}
+                  onChange={(e) => setFormData(prev => ({ ...prev, validUntil: e.target.value }))}
+                />
+              </div>
             </div>
+
             <div>
-              <Label htmlFor="customer">Customer</Label>
+              <label className="text-sm font-medium text-gray-700">Customer</label>
               <Input
-                id="customer"
                 value={formData.customer}
                 onChange={(e) => setFormData(prev => ({ ...prev, customer: e.target.value }))}
-                required
+                placeholder="Customer name"
               />
             </div>
-            <div>
-              <Label htmlFor="customerEmail">Customer Email</Label>
-              <Input
-                id="customerEmail"
-                type="email"
-                value={formData.customerEmail}
-                onChange={(e) => setFormData(prev => ({ ...prev, customerEmail: e.target.value }))}
-              />
-            </div>
-            <div>
-              <Label htmlFor="customerPhone">Customer Phone</Label>
-              <Input
-                id="customerPhone"
-                value={formData.customerPhone}
-                onChange={(e) => setFormData(prev => ({ ...prev, customerPhone: e.target.value }))}
-              />
-            </div>
-            <div>
-              <Label htmlFor="salesperson">Salesperson</Label>
-              <Input
-                id="salesperson"
-                value={formData.salesperson}
-                onChange={(e) => setFormData(prev => ({ ...prev, salesperson: e.target.value }))}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="validUntil">Valid Until</Label>
-              <Input
-                id="validUntil"
-                type="date"
-                value={formData.validUntil}
-                onChange={(e) => setFormData(prev => ({ ...prev, validUntil: e.target.value }))}
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <Select
-                value={formData.status}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, status: value as any }))}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="draft">Draft</SelectItem>
-                  <SelectItem value="sent">Sent</SelectItem>
-                  <SelectItem value="accepted">Accepted</SelectItem>
-                  <SelectItem value="rejected">Rejected</SelectItem>
-                  <SelectItem value="expired">Expired</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardContent>
-        </Card>
 
-        {/* Items */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Quotation Items</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Add New Item */}
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-4 p-4 border rounded-lg">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="productName">Product Name</Label>
+                <label className="text-sm font-medium text-gray-700">Customer Email</label>
                 <Input
-                  id="productName"
-                  value={newItem.productName}
-                  onChange={(e) => setNewItem(prev => ({ ...prev, productName: e.target.value }))}
-                  placeholder="Product name"
+                  type="email"
+                  value={formData.customerEmail}
+                  onChange={(e) => setFormData(prev => ({ ...prev, customerEmail: e.target.value }))}
+                  placeholder="customer@example.com"
                 />
               </div>
               <div>
-                <Label htmlFor="sku">SKU</Label>
+                <label className="text-sm font-medium text-gray-700">Customer Phone</label>
                 <Input
-                  id="sku"
-                  value={newItem.sku}
-                  onChange={(e) => setNewItem(prev => ({ ...prev, sku: e.target.value }))}
-                  placeholder="SKU"
+                  value={formData.customerPhone}
+                  onChange={(e) => setFormData(prev => ({ ...prev, customerPhone: e.target.value }))}
+                  placeholder="Phone number"
                 />
               </div>
-              <div>
-                <Label htmlFor="quantity">Quantity</Label>
-                <Input
-                  id="quantity"
-                  type="number"
-                  min="1"
-                  value={newItem.quantity}
-                  onChange={(e) => setNewItem(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
-                />
-              </div>
-              <div>
-                <Label htmlFor="unitPrice">Unit Price</Label>
-                <Input
-                  id="unitPrice"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={newItem.unitPrice}
-                  onChange={(e) => setNewItem(prev => ({ ...prev, unitPrice: parseFloat(e.target.value) || 0 }))}
-                />
-              </div>
-              <div>
-                <Label>Total</Label>
-                <div className="h-10 flex items-center px-3 text-sm bg-muted rounded-md">
-                  ${((newItem.quantity || 1) * (newItem.unitPrice || 0)).toFixed(2)}
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700">Notes</label>
+              <Textarea
+                value={formData.notes}
+                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                placeholder="Additional notes for this quotation..."
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700">Attachments</label>
+              <div className="mt-2 space-y-3">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleAttachmentUpload}
+                    className="hidden"
+                    id="file-upload"
+                    accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.gif"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Upload Files
+                  </Button>
+                  <span className="text-xs text-muted-foreground">
+                    PDF, DOC, images accepted
+                  </span>
                 </div>
-              </div>
-              <div className="flex items-end">
-                <Button type="button" onClick={addItem}>
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
 
-            {/* Items List */}
-            {items.length > 0 && (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product</TableHead>
-                    <TableHead>SKU</TableHead>
-                    <TableHead className="text-right">Quantity</TableHead>
-                    <TableHead className="text-right">Unit Price</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                    <TableHead className="w-12"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {items.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell>{item.productName}</TableCell>
-                      <TableCell className="font-mono text-sm">{item.sku}</TableCell>
-                      <TableCell className="text-right">{item.quantity}</TableCell>
-                      <TableCell className="text-right">${item.unitPrice.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">${item.totalPrice.toFixed(2)}</TableCell>
-                      <TableCell>
+                {formData.attachments && formData.attachments.length > 0 && (
+                  <div className="space-y-2">
+                    {formData.attachments.map((attachment) => (
+                      <div
+                        key={attachment.id}
+                        className="flex items-center justify-between p-2 border rounded-lg bg-muted/20"
+                      >
+                        <div className="flex items-center space-x-2">
+                          {getFileIcon(attachment.type)}
+                          <div>
+                            <p className="text-sm font-medium">{attachment.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatFileSize(attachment.size)}
+                            </p>
+                          </div>
+                        </div>
                         <Button
                           type="button"
                           variant="ghost"
                           size="sm"
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => removeAttachment(attachment.id)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <X className="h-4 w-4" />
                         </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  <TableRow>
-                    <TableCell colSpan={4} className="text-right font-semibold">Total Amount:</TableCell>
-                    <TableCell className="text-right font-bold text-lg">${calculateTotal().toFixed(2)}</TableCell>
-                    <TableCell></TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Attachments */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Attachments</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="attachments">Upload Files</Label>
-                <Input
-                  id="attachments"
-                  type="file"
-                  multiple
-                  onChange={handleAttachmentUpload}
-                  className="cursor-pointer"
-                />
-              </div>
-              
-              {formData.attachments && formData.attachments.length > 0 && (
-                <div className="space-y-2">
-                  <Label>Uploaded Files</Label>
-                  {formData.attachments.map((attachment) => (
-                    <div key={attachment.id} className="flex items-center justify-between p-2 border rounded">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm">{attachment.name}</span>
-                        <Badge variant="outline" className="text-xs">
-                          {(attachment.size / 1024).toFixed(1)} KB
-                        </Badge>
                       </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeAttachment(attachment.id)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Notes */}
+        {/* Summary */}
         <Card>
           <CardHeader>
-            <CardTitle>Notes</CardTitle>
+            <CardTitle>Summary</CardTitle>
           </CardHeader>
-          <CardContent>
-            <Textarea
-              value={formData.notes}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-              placeholder="Additional notes or terms..."
-              rows={4}
-            />
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-600">Total Items:</span>
+                <span className="font-medium">{items.length}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-600">Total Quantity:</span>
+                <span className="font-medium">
+                  {items.reduce((sum, item) => sum + item.quantity, 0)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-600">Total Amount:</span>
+                <span className="font-medium">
+                  ${calculateTotal().toFixed(2)}
+                </span>
+              </div>
+            </div>
           </CardContent>
         </Card>
+      </div>
 
-        {/* Actions */}
-        <div className="flex justify-end space-x-2">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit">
-            {quotation ? 'Update Quotation' : 'Create Quotation'}
-          </Button>
-        </div>
-      </form>
+      {/* Items */}
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>Quotation Items</CardTitle>
+            <Button onClick={addItem}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Item
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {items.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No items added yet. Click "Add Item" to get started.
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product</TableHead>
+                  <TableHead>SKU</TableHead>
+                  <TableHead>Quantity</TableHead>
+                  <TableHead>Unit Price</TableHead>
+                  <TableHead>Total Price</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell>{item.productName}</TableCell>
+                    <TableCell className="font-mono text-sm">{item.sku}</TableCell>
+                    <TableCell>{item.quantity}</TableCell>
+                    <TableCell>${item.unitPrice.toFixed(2)}</TableCell>
+                    <TableCell>${item.totalPrice.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeItem(item.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
