@@ -1,6 +1,8 @@
 import React from 'react';
 import SalesOrderList from '@/pages/SalesOrderList';
 import TransferOrderList from '@/pages/TransferOrderList';
+import PurchaseOrderList from '@/pages/PurchaseOrderList';
+import InventoryReport from '@/pages/InventoryReport';
 
 interface ModuleContentProps {
   currentModule: string;
@@ -27,19 +29,9 @@ export const ModuleContent = ({ currentModule }: ModuleContentProps) => {
         </div>
       );
     case 'purchase-orders':
-      return (
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4">Purchase Orders</h2>
-          <p className="text-gray-600">Purchase order management feature is under development...</p>
-        </div>
-      );
-    case 'inventory':
-      return (
-        <div className="p-6">
-          <h2 className="text-2xl font-bold mb-4">Inventory Management</h2>
-          <p className="text-gray-600">Inventory management feature is under development...</p>
-        </div>
-      );
+      return <PurchaseOrderList />;
+    case 'inventory-overview':
+      return <InventoryReport />;
     case 'customers':
       return (
         <div className="p-6">
