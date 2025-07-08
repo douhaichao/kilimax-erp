@@ -3,6 +3,7 @@ import SalesOrderList from '@/pages/SalesOrderList';
 import TransferOrderList from '@/pages/TransferOrderList';
 import PurchaseOrderList from '@/pages/PurchaseOrderList';
 import InventoryReport from '@/pages/InventoryReport';
+import QuotationList from '@/pages/QuotationList';
 
 interface ModuleContentProps {
   currentModule: string;
@@ -12,6 +13,8 @@ export const ModuleContent = ({ currentModule }: ModuleContentProps) => {
   switch (currentModule) {
     case 'sales-orders':
       return <SalesOrderList />;
+    case 'quotations':
+      return <QuotationList />;
     case 'transfer-orders':
       return <TransferOrderList />;
     case 'inventory-overview':
