@@ -247,8 +247,8 @@ const PurchaseOrderList = () => {
       {/* Stats Cards */}
       <PurchaseOrderStats purchaseOrders={purchaseOrders} />
 
-      {/* Batch Operations */}
-      {selectedOrders.length > 0 && (
+      {/* Search and Filter / Batch Operations */}
+      {selectedOrders.length > 0 ? (
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
@@ -298,24 +298,23 @@ const PurchaseOrderList = () => {
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {/* Search and Filter */}
-      <div className="flex space-x-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-          <Input
-            placeholder="Search purchase orders..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
+      ) : (
+        <div className="flex space-x-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
+            <Input
+              placeholder="Search purchase orders..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Button variant="outline">
+            <Filter className="mr-2 h-4 w-4" />
+            Filter
+          </Button>
         </div>
-        <Button variant="outline">
-          <Filter className="mr-2 h-4 w-4" />
-          Filter
-        </Button>
-      </div>
+      )}
 
       {/* Purchase Orders Table */}
       <PurchaseOrderTable
