@@ -63,9 +63,20 @@ const sidebarMenuItems: SidebarMenuItem[] = [
     key: "purchase-orders"
   },
   {
-    title: "Sales Orders",
+    title: "Sales",
     icon: ShoppingCart,
-    key: "sales-orders"
+    key: "sales",
+    hasSubmenu: true,
+    submenu: [
+      {
+        title: "Quotations",
+        key: "quotations"
+      },
+      {
+        title: "Sales Orders",
+        key: "sales-orders"
+      }
+    ]
   },
   {
     title: "Inventory Management",

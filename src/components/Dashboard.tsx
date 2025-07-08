@@ -12,7 +12,7 @@ interface DashboardProps {
 
 const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
   const [currentModule, setCurrentModule] = useState<string>('dashboard');
-  const [expandedMenus, setExpandedMenus] = useState<string[]>(['inventory']);
+  const [expandedMenus, setExpandedMenus] = useState<string[]>(['inventory', 'sales']);
 
   const toggleSubmenu = (key: string) => {
     setExpandedMenus(prev => 
