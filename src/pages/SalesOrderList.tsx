@@ -293,34 +293,13 @@ const SalesOrderList = () => {
 
   return (
     <div className="space-y-6">
-      {/* Action Buttons */}
+      {/* Header */}
       <div className="flex justify-between items-center">
-        <div className="flex gap-2">
-          {selectedOrders.length > 0 && (
-            <>
-              <Button 
-                variant="outline" 
-                onClick={handleBatchDelete}
-                className="text-red-600 hover:text-red-700"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete ({selectedOrders.length})
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => handleBatchApproval('approved')}
-                disabled={!selectedOrders.some(id => {
-                  const order = salesOrders.find(o => o.id === id);
-                  return order?.approvalStatus === 'pending';
-                })}
-              >
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Batch Approve
-              </Button>
-            </>
-          )}
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Sales Orders</h2>
+          <p className="text-gray-600">Manage and track sales orders</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex space-x-2">
           <input
             type="file"
             accept=".csv"
@@ -330,19 +309,15 @@ const SalesOrderList = () => {
           />
           <Button variant="outline" onClick={() => document.getElementById('csv-import')?.click()}>
             <Upload className="mr-2 h-4 w-4" />
-            Import
+            Import CSV
           </Button>
           <Button variant="outline" onClick={exportToCSV}>
             <Download className="mr-2 h-4 w-4" />
-            Export
-          </Button>
-          <Button variant="outline" onClick={() => window.print()}>
-            <Printer className="mr-2 h-4 w-4" />
-            Print
+            Export CSV
           </Button>
           <Button onClick={() => setCurrentView('create')}>
             <Plus className="mr-2 h-4 w-4" />
-            New Order
+            New Sales Order
           </Button>
         </div>
       </div>
@@ -389,6 +364,36 @@ const SalesOrderList = () => {
         </Card>
       </div>
 
+      {/* Batch Operations */}
+      {selectedOrders.length > 0 && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">
+                {selectedOrders.length} order(s) selected
+              </span>
+              <div className="flex space-x-2">
+                <Button variant="outline" size="sm" onClick={() => handleBatchApproval('approved')}>
+                  <CheckCircle className="mr-2 h-4 w-4" />
+                  Approve Selected
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => handleBatchApproval('rejected')}>
+                  <XCircle className="mr-2 h-4 w-4" />
+                  Reject Selected
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => window.print()}>
+                  <Printer className="mr-2 h-4 w-4" />
+                  Print Selected
+                </Button>
+                <Button variant="destructive" size="sm" onClick={handleBatchDelete}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Selected
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Search and Filter */}
       <div className="flex space-x-4">
@@ -410,6 +415,9 @@ const SalesOrderList = () => {
 
       {/* Sales Orders Table */}
       <Card>
+        <CardHeader>
+          <CardTitle>Sales Orders</CardTitle>
+        </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>

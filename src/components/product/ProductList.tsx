@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Search, Filter, Plus, Download, Upload, Eye, AlertTriangle, Trash2, Printer } from 'lucide-react';
+import { Search, Filter, Plus, Download, Upload, Eye, AlertTriangle } from 'lucide-react';
 import { Product, UOM, Category, ProductUOM } from '@/types/product';
 
 interface ProductListProps {
@@ -69,31 +69,20 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
-          <div className="flex gap-2">
-            {selectedProducts.length > 0 && (
-              <Button 
-                variant="outline" 
-                className="text-red-600 hover:text-red-700"
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete ({selectedProducts.length})
-              </Button>
-            )}
+          <div>
+            <CardTitle>Product List</CardTitle>
+            <CardDescription>Manage your product inventory and information</CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline">
+            <Button variant="outline" size="sm">
               <Upload className="h-4 w-4 mr-2" />
-              Import
+              Batch Import
             </Button>
-            <Button variant="outline">
+            <Button variant="outline" size="sm">
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
-            <Button variant="outline">
-              <Printer className="h-4 w-4 mr-2" />
-              Print
-            </Button>
-            <Button>
+            <Button size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Add Product
             </Button>
