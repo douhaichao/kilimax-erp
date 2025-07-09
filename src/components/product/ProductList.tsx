@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Search, Filter, Plus, Download, Upload, Eye, AlertTriangle } from 'lucide-react';
 import { Product, UOM, Category, ProductUOM } from '@/types/product';
+import ColumnCustomizer, { ColumnConfig } from './ColumnCustomizer';
 
 interface ProductListProps {
   products: Product[];
@@ -24,6 +25,23 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
   const [selectedSupplier, setSelectedSupplier] = useState('');
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+
+  // Column configuration
+  const [columns, setColumns] = useState<ColumnConfig[]>([
+    { key: 'checkbox', label: '选择', visible: true, order: 0 },
+    { key: 'sku', label: 'SKU', visible: true, order: 1 },
+    { key: 'name', label: '商品名称', visible: true, order: 2 },
+    { key: 'category', label: '分类', visible: true, order: 3 },
+    { key: 'stock', label: '库存', visible: true, order: 4 },
+    { key: 'status', label: '状态', visible: true, order: 5 },
+    { key: 'price', label: '价格', visible: true, order: 6 },
+    { key: 'primaryUOM', label: '主单位', visible: true, order: 7 },
+    { key: 'cost', label: '成本', visible: false, order: 8 },
+    { key: 'supplier', label: '供应商', visible: false, order: 9 },
+    { key: 'safetyStock', label: '安全库存', visible: false, order: 10 },
+    { key: 'createdAt', label: '创建时间', visible: false, order: 11 },
+    { key: 'actions', label: '操作', visible: true, order: 12 }
+  ]);
 
   const handleProductSelect = (productId: string) => {
     setSelectedProducts(prev => 
@@ -65,6 +83,73 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
 
   const isLowStock = (product: Product) => product.stock <= product.safetyStock;
 
+  const handleColumnsChange = (newColumns: ColumnConfig[]) => {
+    setColumns(newColumns);
+  };
+
+  const visibleColumns = columns.filter(col => col.visible).sort((a, b) => a.order - b.order);
+
+  const renderTableCell = (column: ColumnConfig, product: Product) => {
+    switch (column.key) {
+      case 'checkbox':
+        return (
+          <TableCell onClick={(e) => e.stopPropagation()}>
+            <Checkbox
+              checked={selectedProducts.includes(product.id)}
+              onCheckedChange={() => handleProductSelect(product.id)}
+            />
+          </TableCell>
+        );
+      case 'sku':
+        return <TableCell className="font-mono text-sm">{product.sku}</TableCell>;
+      case 'name':
+        return (
+          <TableCell>
+            <div className="flex items-center gap-2">
+              {product.name}
+              {isLowStock(product) && (
+                <AlertTriangle className="h-4 w-4 text-yellow-500" />
+              )}
+            </div>
+          </TableCell>
+        );
+      case 'category':
+        return <TableCell>{product.category}</TableCell>;
+      case 'stock':
+        return (
+          <TableCell>
+            <span className={isLowStock(product) ? 'text-yellow-600 font-medium' : ''}>
+              {product.stock}
+            </span>
+          </TableCell>
+        );
+      case 'status':
+        return <TableCell>{getStatusBadge(product.status)}</TableCell>;
+      case 'price':
+        return <TableCell>¥{product.price.toFixed(2)}</TableCell>;
+      case 'primaryUOM':
+        return <TableCell>{product.primaryUOM.name}</TableCell>;
+      case 'cost':
+        return <TableCell>¥{product.cost.toFixed(2)}</TableCell>;
+      case 'supplier':
+        return <TableCell>{product.supplier || '-'}</TableCell>;
+      case 'safetyStock':
+        return <TableCell>{product.safetyStock}</TableCell>;
+      case 'createdAt':
+        return <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>;
+      case 'actions':
+        return (
+          <TableCell onClick={(e) => e.stopPropagation()}>
+            <Button variant="ghost" size="sm">
+              <Eye className="h-4 w-4" />
+            </Button>
+          </TableCell>
+        );
+      default:
+        return <TableCell>-</TableCell>;
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -74,6 +159,10 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
             <CardDescription>Manage your product inventory and information</CardDescription>
           </div>
           <div className="flex gap-2">
+            <ColumnCustomizer
+              columns={columns}
+              onColumnsChange={handleColumnsChange}
+            />
             <Button variant="outline" size="sm">
               <Upload className="h-4 w-4 mr-2" />
               Batch Import
@@ -180,20 +269,21 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-12">
-                  <Checkbox
-                    checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
-                    onCheckedChange={handleSelectAll}
-                  />
-                </TableHead>
-                <TableHead>SKU</TableHead>
-                <TableHead>Product Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Stock</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Primary UOM</TableHead>
-                <TableHead>Actions</TableHead>
+                {visibleColumns.map((column) => (
+                  <TableHead 
+                    key={column.key} 
+                    className={column.key === 'checkbox' ? 'w-12' : ''}
+                  >
+                    {column.key === 'checkbox' ? (
+                      <Checkbox
+                        checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
+                        onCheckedChange={handleSelectAll}
+                      />
+                    ) : (
+                      column.label
+                    )}
+                  </TableHead>
+                ))}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -203,35 +293,9 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
                   className={`cursor-pointer hover:bg-gray-50 ${isLowStock(product) ? 'bg-yellow-50' : ''}`}
                   onClick={() => onProductSelect(product)}
                 >
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <Checkbox
-                      checked={selectedProducts.includes(product.id)}
-                      onCheckedChange={() => handleProductSelect(product.id)}
-                    />
-                  </TableCell>
-                  <TableCell className="font-mono text-sm">{product.sku}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      {product.name}
-                      {isLowStock(product) && (
-                        <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>{product.category}</TableCell>
-                  <TableCell>
-                    <span className={isLowStock(product) ? 'text-yellow-600 font-medium' : ''}>
-                      {product.stock}
-                    </span>
-                  </TableCell>
-                  <TableCell>{getStatusBadge(product.status)}</TableCell>
-                  <TableCell>¥{product.price.toFixed(2)}</TableCell>
-                  <TableCell>{product.primaryUOM.name}</TableCell>
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <Button variant="ghost" size="sm">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
+                  {visibleColumns.map((column) => 
+                    renderTableCell(column, product)
+                  )}
                 </TableRow>
               ))}
             </TableBody>
