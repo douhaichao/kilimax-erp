@@ -54,8 +54,12 @@ interface SalesOrderItem {
   productId: string;
   productName: string;
   productSku: string;
+  productImage: string;
+  productDescription: string;
+  warehouse: string;
   quantity: number;
   unitPrice: number;
+  taxRate: number;
   totalPrice: number;
 }
 
@@ -84,11 +88,64 @@ const SalesOrderForm = ({ order, onSave, onCancel }: SalesOrderFormProps) => {
   ];
 
   const mockProducts = [
-    { id: 'prod-1', name: 'Wireless Headphones', sku: 'WH-001', price: 150 },
-    { id: 'prod-2', name: 'Office Chair', sku: 'OC-002', price: 180 },
-    { id: 'prod-3', name: 'Water Bottle', sku: 'WB-003', price: 12.75 },
-    { id: 'prod-4', name: 'Desk Lamp', sku: 'DL-004', price: 45 },
-    { id: 'prod-5', name: 'Notebook', sku: 'NB-005', price: 5.50 }
+    { 
+      id: 'prod-1', 
+      name: 'Wireless Headphones', 
+      sku: 'WH-001', 
+      price: 150,
+      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=100&h=100&fit=crop',
+      description: 'Premium wireless headphones with noise cancellation',
+      warehouse: 'Main Warehouse',
+      taxRate: 10
+    },
+    { 
+      id: 'prod-2', 
+      name: 'Office Chair', 
+      sku: 'OC-002', 
+      price: 180,
+      image: 'https://images.unsplash.com/photo-1582562124811-c09040d0a901?w=100&h=100&fit=crop',
+      description: 'Ergonomic office chair with lumbar support',
+      warehouse: 'Furniture Warehouse',
+      taxRate: 8.5
+    },
+    { 
+      id: 'prod-3', 
+      name: 'Water Bottle', 
+      sku: 'WB-003', 
+      price: 12.75,
+      image: 'https://images.unsplash.com/photo-1535268647677-300dbf3d78d1?w=100&h=100&fit=crop',
+      description: 'Stainless steel insulated water bottle',
+      warehouse: 'General Warehouse',
+      taxRate: 5
+    },
+    { 
+      id: 'prod-4', 
+      name: 'Desk Lamp', 
+      sku: 'DL-004', 
+      price: 45,
+      image: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?w=100&h=100&fit=crop',
+      description: 'Adjustable LED desk lamp with USB charging',
+      warehouse: 'Electronics Warehouse',
+      taxRate: 12
+    },
+    { 
+      id: 'prod-5', 
+      name: 'Notebook', 
+      sku: 'NB-005', 
+      price: 5.50,
+      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=100&h=100&fit=crop',
+      description: 'A5 lined notebook with hardcover',
+      warehouse: 'Stationery Warehouse',
+      taxRate: 0
+    }
+  ];
+
+  const mockWarehouses = [
+    'Main Warehouse',
+    'Electronics Warehouse',
+    'Furniture Warehouse',
+    'General Warehouse',
+    'Stationery Warehouse'
   ];
 
   const addItem = () => {
@@ -97,8 +154,12 @@ const SalesOrderForm = ({ order, onSave, onCancel }: SalesOrderFormProps) => {
       productId: '',
       productName: '',
       productSku: '',
+      productImage: '',
+      productDescription: '',
+      warehouse: '',
       quantity: 1,
       unitPrice: 0,
+      taxRate: 0,
       totalPrice: 0
     };
     
@@ -112,9 +173,11 @@ const SalesOrderForm = ({ order, onSave, onCancel }: SalesOrderFormProps) => {
     const updatedItems = [...formData.items];
     updatedItems[index] = { ...updatedItems[index], [field]: value };
     
-    // Auto-calculate total price when quantity or unit price changes
-    if (field === 'quantity' || field === 'unitPrice') {
-      updatedItems[index].totalPrice = updatedItems[index].quantity * updatedItems[index].unitPrice;
+    // Auto-calculate total price when quantity, unit price, or tax rate changes
+    if (field === 'quantity' || field === 'unitPrice' || field === 'taxRate') {
+      const subtotal = updatedItems[index].quantity * updatedItems[index].unitPrice;
+      const taxAmount = subtotal * (updatedItems[index].taxRate / 100);
+      updatedItems[index].totalPrice = subtotal + taxAmount;
     }
     
     // Auto-fill product details when product is selected
@@ -123,8 +186,14 @@ const SalesOrderForm = ({ order, onSave, onCancel }: SalesOrderFormProps) => {
       if (selectedProduct) {
         updatedItems[index].productName = selectedProduct.name;
         updatedItems[index].productSku = selectedProduct.sku;
+        updatedItems[index].productImage = selectedProduct.image;
+        updatedItems[index].productDescription = selectedProduct.description;
+        updatedItems[index].warehouse = selectedProduct.warehouse;
         updatedItems[index].unitPrice = selectedProduct.price;
-        updatedItems[index].totalPrice = updatedItems[index].quantity * selectedProduct.price;
+        updatedItems[index].taxRate = selectedProduct.taxRate;
+        const subtotal = updatedItems[index].quantity * selectedProduct.price;
+        const taxAmount = subtotal * (selectedProduct.taxRate / 100);
+        updatedItems[index].totalPrice = subtotal + taxAmount;
       }
     }
     
@@ -359,8 +428,27 @@ const SalesOrderForm = ({ order, onSave, onCancel }: SalesOrderFormProps) => {
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-sm text-gray-600">Total Amount:</span>
+                <span className="text-sm text-gray-600">Subtotal:</span>
                 <span className="font-medium">
+                  ${formData.items.reduce((sum, item) => {
+                    const subtotal = item.quantity * item.unitPrice;
+                    return sum + subtotal;
+                  }, 0).toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm text-gray-600">Total Tax:</span>
+                <span className="font-medium">
+                  ${formData.items.reduce((sum, item) => {
+                    const subtotal = item.quantity * item.unitPrice;
+                    const taxAmount = subtotal * (item.taxRate / 100);
+                    return sum + taxAmount;
+                  }, 0).toFixed(2)}
+                </span>
+              </div>
+              <div className="flex justify-between font-bold text-lg">
+                <span>Total Amount:</span>
+                <span>
                   ${formData.items.reduce((sum, item) => sum + item.totalPrice, 0).toFixed(2)}
                 </span>
               </div>
@@ -386,62 +474,133 @@ const SalesOrderForm = ({ order, onSave, onCancel }: SalesOrderFormProps) => {
               No items added yet. Click "Add Item" to get started.
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead>SKU</TableHead>
-                  <TableHead>Quantity</TableHead>
-                  <TableHead>Unit Price</TableHead>
-                  <TableHead>Total Price</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {formData.items.map((item, index) => (
-                  <TableRow key={item.id}>
-                    <TableCell>
-                      <Select
-                        value={item.productId}
-                        onValueChange={(value) => updateItem(index, 'productId', value)}
-                      >
-                        <SelectTrigger className="w-40">
-                          <SelectValue placeholder="Select product" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {mockProducts.map((product) => (
-                            <SelectItem key={product.id} value={product.id}>
-                              {product.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
-                    <TableCell className="font-mono text-sm">{item.productSku}</TableCell>
-                    <TableCell>
-                      <Input
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 0)}
-                        className="w-20"
-                        min="1"
-                      />
-                    </TableCell>
-                    <TableCell>${item.unitPrice.toFixed(2)}</TableCell>
-                    <TableCell>${item.totalPrice.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeItem(index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Warehouse</TableHead>
+                    <TableHead>Quantity</TableHead>
+                    <TableHead>Unit Price</TableHead>
+                    <TableHead>Tax Rate</TableHead>
+                    <TableHead>Total Price</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {formData.items.map((item, index) => (
+                    <TableRow key={item.id}>
+                      <TableCell>
+                        <div className="flex items-center space-x-3">
+                          {item.productImage && (
+                            <img 
+                              src={item.productImage} 
+                              alt={item.productName}
+                              className="w-10 h-10 rounded object-cover"
+                            />
+                          )}
+                          <div>
+                            <Select
+                              value={item.productId}
+                              onValueChange={(value) => updateItem(index, 'productId', value)}
+                            >
+                              <SelectTrigger className="w-40">
+                                <SelectValue placeholder="Select product" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {mockProducts.map((product) => (
+                                  <SelectItem key={product.id} value={product.id}>
+                                    {product.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {item.productSku && (
+                              <p className="text-xs text-gray-500 mt-1">SKU: {item.productSku}</p>
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="max-w-32">
+                          <p className="text-sm text-gray-600 truncate" title={item.productDescription}>
+                            {item.productDescription}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={item.warehouse}
+                          onValueChange={(value) => updateItem(index, 'warehouse', value)}
+                        >
+                          <SelectTrigger className="w-36">
+                            <SelectValue placeholder="Select warehouse" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {mockWarehouses.map((warehouse) => (
+                              <SelectItem key={warehouse} value={warehouse}>
+                                {warehouse}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) => updateItem(index, 'quantity', parseInt(e.target.value) || 0)}
+                          className="w-20"
+                          min="1"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Input
+                          type="number"
+                          value={item.unitPrice}
+                          onChange={(e) => updateItem(index, 'unitPrice', parseFloat(e.target.value) || 0)}
+                          className="w-24"
+                          min="0"
+                          step="0.01"
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-1">
+                          <Input
+                            type="number"
+                            value={item.taxRate}
+                            onChange={(e) => updateItem(index, 'taxRate', parseFloat(e.target.value) || 0)}
+                            className="w-16"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                          />
+                          <span className="text-sm text-gray-500">%</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-right">
+                          <p className="font-medium">${item.totalPrice.toFixed(2)}</p>
+                          <p className="text-xs text-gray-500">
+                            Tax: ${((item.quantity * item.unitPrice) * (item.taxRate / 100)).toFixed(2)}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeItem(index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
         </CardContent>
       </Card>
