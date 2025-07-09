@@ -19,8 +19,6 @@ export interface Product {
   variants?: ProductVariant[];
   createdAt: string;
   updatedAt: string;
-  salesCount?: number;
-  trending?: 'hot' | 'slow' | 'normal';
 }
 
 export interface ProductUOM {
