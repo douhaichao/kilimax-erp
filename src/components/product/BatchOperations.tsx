@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { X, Package, DollarSign, Archive, Tag, Loader2 } from 'lucide-react';
 import { Product, UOM } from '@/types/product';
 
@@ -52,44 +53,28 @@ const BatchOperations = ({ selectedProducts, products, systemUOMs, onClose }: Ba
     }
     
     setIsProcessing(false);
-    // Here you would implement the actual batch update logic
     console.log(`Batch ${operation} operation completed for ${selectedProducts.length} products`);
+    onClose();
   };
 
   if (selectedProducts.length === 0) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-500">请先选择要操作的商品</p>
-        </CardContent>
-      </Card>
-    );
+    return null;
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              批量操作
-            </CardTitle>
-            <CardDescription>
-              已选择 {selectedProducts.length} 个商品进行批量操作
-            </CardDescription>
-          </div>
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
+    <Dialog open={true} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Package className="h-5 w-5" />
+            Batch Operations
+          </DialogTitle>
+        </DialogHeader>
+
         <div className="space-y-6">
           {/* Selected Products Preview */}
           <div>
-            <Label className="text-sm font-medium">选中的商品</Label>
+            <Label className="text-sm font-medium">Selected Products ({selectedProducts.length})</Label>
             <div className="mt-2 space-y-2 max-h-40 overflow-y-auto">
               {selectedProductsList.map(product => (
                 <div key={product.id} className="flex items-center justify-between p-2 bg-gray-50 rounded">
@@ -108,55 +93,55 @@ const BatchOperations = ({ selectedProducts, products, systemUOMs, onClose }: Ba
             <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="price" className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4" />
-                调价
+                Price Update
               </TabsTrigger>
               <TabsTrigger value="stock" className="flex items-center gap-2">
                 <Package className="h-4 w-4" />
-                库存
+                Stock Update
               </TabsTrigger>
               <TabsTrigger value="category" className="flex items-center gap-2">
                 <Tag className="h-4 w-4" />
-                分类
+                Category
               </TabsTrigger>
               <TabsTrigger value="status" className="flex items-center gap-2">
                 <Archive className="h-4 w-4" />
-                状态
+                Status
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="price" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>操作类型</Label>
+                  <Label>Operation Type</Label>
                   <Select value={priceAction} onValueChange={(value) => setPriceAction(value as 'set' | 'increase' | 'decrease')}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="set">设置价格</SelectItem>
-                      <SelectItem value="increase">增加价格</SelectItem>
-                      <SelectItem value="decrease">减少价格</SelectItem>
+                      <SelectItem value="set">Set Price</SelectItem>
+                      <SelectItem value="increase">Increase Price</SelectItem>
+                      <SelectItem value="decrease">Decrease Price</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label>值类型</Label>
+                  <Label>Value Type</Label>
                   <Select value={priceType} onValueChange={(value) => setPriceType(value as 'fixed' | 'percentage')}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="fixed">固定金额</SelectItem>
-                      <SelectItem value="percentage">百分比</SelectItem>
+                      <SelectItem value="fixed">Fixed Amount</SelectItem>
+                      <SelectItem value="percentage">Percentage</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <div>
-                <Label>价格值</Label>
+                <Label>Price Value</Label>
                 <Input
                   type="number"
-                  placeholder={priceType === 'fixed' ? '输入金额' : '输入百分比'}
+                  placeholder={priceType === 'fixed' ? 'Enter amount' : 'Enter percentage'}
                   value={priceValue}
                   onChange={(e) => setPriceValue(e.target.value)}
                 />
@@ -166,23 +151,23 @@ const BatchOperations = ({ selectedProducts, products, systemUOMs, onClose }: Ba
             <TabsContent value="stock" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>操作类型</Label>
+                  <Label>Operation Type</Label>
                   <Select value={stockAction} onValueChange={(value) => setStockAction(value as 'set' | 'add' | 'subtract')}>
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="set">设置库存</SelectItem>
-                      <SelectItem value="add">增加库存</SelectItem>
-                      <SelectItem value="subtract">减少库存</SelectItem>
+                      <SelectItem value="set">Set Stock</SelectItem>
+                      <SelectItem value="add">Add Stock</SelectItem>
+                      <SelectItem value="subtract">Subtract Stock</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
-                  <Label>单位</Label>
+                  <Label>Unit</Label>
                   <Select value={stockUOM} onValueChange={setStockUOM}>
                     <SelectTrigger>
-                      <SelectValue placeholder="选择单位" />
+                      <SelectValue placeholder="Select unit" />
                     </SelectTrigger>
                     <SelectContent>
                       {systemUOMs.map(uom => (
@@ -195,10 +180,10 @@ const BatchOperations = ({ selectedProducts, products, systemUOMs, onClose }: Ba
                 </div>
               </div>
               <div>
-                <Label>库存数量</Label>
+                <Label>Stock Quantity</Label>
                 <Input
                   type="number"
-                  placeholder="输入数量"
+                  placeholder="Enter quantity"
                   value={stockValue}
                   onChange={(e) => setStockValue(e.target.value)}
                 />
@@ -207,9 +192,9 @@ const BatchOperations = ({ selectedProducts, products, systemUOMs, onClose }: Ba
 
             <TabsContent value="category" className="space-y-4">
               <div>
-                <Label>新分类</Label>
+                <Label>New Category</Label>
                 <Input
-                  placeholder="输入新的分类名称"
+                  placeholder="Enter new category name"
                   value={newCategory}
                   onChange={(e) => setNewCategory(e.target.value)}
                 />
@@ -218,15 +203,15 @@ const BatchOperations = ({ selectedProducts, products, systemUOMs, onClose }: Ba
 
             <TabsContent value="status" className="space-y-4">
               <div>
-                <Label>新状态</Label>
+                <Label>New Status</Label>
                 <Select value={newStatus} onValueChange={(value) => setNewStatus(value as 'active' | 'inactive' | 'archived')}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="active">启用</SelectItem>
-                    <SelectItem value="inactive">禁用</SelectItem>
-                    <SelectItem value="archived">归档</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -237,7 +222,7 @@ const BatchOperations = ({ selectedProducts, products, systemUOMs, onClose }: Ba
           {isProcessing && (
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span>处理进度</span>
+                <span>Processing Progress</span>
                 <span>{progress}%</span>
               </div>
               <Progress value={progress} />
@@ -245,24 +230,24 @@ const BatchOperations = ({ selectedProducts, products, systemUOMs, onClose }: Ba
           )}
 
           {/* Action Buttons */}
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-4 border-t">
             <Button variant="outline" onClick={onClose} disabled={isProcessing}>
-              取消
+              Cancel
             </Button>
             <Button onClick={handleBatchOperation} disabled={isProcessing}>
               {isProcessing ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  处理中...
+                  Processing...
                 </>
               ) : (
-                '执行批量操作'
+                'Execute Batch Operation'
               )}
             </Button>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 };
 
