@@ -220,8 +220,8 @@ const ProductList = ({
                 </div>
               </CardContent>
             </Card> : <>
-              <div className="flex gap-4">
-                <div className="relative flex-1">
+              <div className="flex gap-4 items-center">
+                <div className="relative w-80">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input placeholder="Search product name or SKU..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
                 </div>
