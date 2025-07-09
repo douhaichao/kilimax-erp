@@ -192,10 +192,7 @@ const ProductList = ({
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Product
-            </Button>
+            
           </div>
         </div>
       </CardHeader>
