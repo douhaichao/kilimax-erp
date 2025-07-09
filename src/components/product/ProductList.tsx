@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Filter, Plus, Download, Upload, Eye, AlertTriangle } from 'lucide-react';
 import { Product, UOM, Category, ProductUOM } from '@/types/product';
 import ColumnCustomizer, { ColumnConfig } from './ColumnCustomizer';
-
 interface ProductListProps {
   products: Product[];
   categories: Category[];
@@ -18,7 +16,6 @@ interface ProductListProps {
   onProductSelect: (product: Product) => void;
   onBatchSelect: (productIds: string[]) => void;
 }
-
 const ProductList = ({
   products,
   categories,
@@ -99,11 +96,9 @@ const ProductList = ({
     visible: true,
     order: 12
   }]);
-
   const handleProductSelect = (productId: string) => {
     setSelectedProducts(prev => prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]);
   };
-
   const handleSelectAll = () => {
     if (selectedProducts.length === filteredProducts.length) {
       setSelectedProducts([]);
@@ -111,18 +106,15 @@ const ProductList = ({
       setSelectedProducts(filteredProducts.map(p => p.id));
     }
   };
-
   const filteredProducts = products.filter(product => {
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || product.sku.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || product.category === selectedCategory;
     const matchesSupplier = !selectedSupplier || product.supplier === selectedSupplier;
     return matchesSearch && matchesCategory && matchesSupplier;
   });
-
   React.useEffect(() => {
     onBatchSelect(selectedProducts);
   }, [selectedProducts, onBatchSelect]);
-
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
       active: 'default',
@@ -131,15 +123,11 @@ const ProductList = ({
     };
     return <Badge variant={variants[status] || 'default'}>{status}</Badge>;
   };
-
   const isLowStock = (product: Product) => product.stock <= product.safetyStock;
-
   const handleColumnsChange = (newColumns: ColumnConfig[]) => {
     setColumns(newColumns);
   };
-
   const visibleColumns = columns.filter(col => col.visible).sort((a, b) => a.order - b.order);
-
   const renderTableCell = (column: ColumnConfig, product: Product) => {
     switch (column.key) {
       case 'checkbox':
@@ -187,30 +175,14 @@ const ProductList = ({
         return <TableCell>-</TableCell>;
     }
   };
-
   return <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle>Product List</CardTitle>
-            <CardDescription>Manage and search your product inventory</CardDescription>
+            
+            
           </div>
-          <div className="flex gap-2 items-center">
-            <div className="flex gap-4 items-center">
-              <div className="relative w-80">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                <Input 
-                  placeholder="Search product name or SKU..." 
-                  value={searchTerm} 
-                  onChange={e => setSearchTerm(e.target.value)} 
-                  className="pl-10" 
-                />
-              </div>
-              <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-              </Button>
-            </div>
+          <div className="flex gap-2">
             <ColumnCustomizer columns={columns} onColumnsChange={handleColumnsChange} />
             <Button variant="outline" size="sm">
               <Upload className="h-4 w-4 mr-2" />
@@ -220,6 +192,7 @@ const ProductList = ({
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
+            
           </div>
         </div>
       </CardHeader>
@@ -246,38 +219,49 @@ const ProductList = ({
                   </div>
                 </div>
               </CardContent>
-            </Card> : null}
+            </Card> : <>
+              <div className="flex gap-4 items-center">
+                <div className="relative w-80">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input placeholder="Search product name or SKU..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
+                </div>
+                <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
+                  <Filter className="h-4 w-4 mr-2" />
+                  Filter
+                </Button>
+              </div>
 
-          {showFilters && <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Category</label>
-                <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All Categories</SelectItem>
-                    {categories.map(category => <SelectItem key={category.id} value={category.name}>
-                        {category.name}
-                      </SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">Supplier</label>
-                <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Supplier" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All Suppliers</SelectItem>
-                    {Array.from(new Set(products.map(p => p.supplier))).map(supplier => <SelectItem key={supplier} value={supplier}>
-                        {supplier}
-                      </SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>}
+              {showFilters && <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Category</label>
+                    <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All Categories</SelectItem>
+                        {categories.map(category => <SelectItem key={category.id} value={category.name}>
+                            {category.name}
+                          </SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Supplier</label>
+                    <Select value={selectedSupplier} onValueChange={setSelectedSupplier}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Supplier" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All Suppliers</SelectItem>
+                        {Array.from(new Set(products.map(p => p.supplier))).map(supplier => <SelectItem key={supplier} value={supplier}>
+                            {supplier}
+                          </SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>}
+            </>}
 
           <Table>
             <TableHeader>
@@ -297,5 +281,4 @@ const ProductList = ({
       </CardContent>
     </Card>;
 };
-
 export default ProductList;
