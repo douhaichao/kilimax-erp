@@ -361,52 +361,148 @@ const QuotationForm = ({ quotation, onSave, onCancel }: QuotationFormProps) => {
       {/* Items */}
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
-            <CardTitle>Quotation Items</CardTitle>
-            <Button onClick={addItem}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Item
-            </Button>
-          </div>
+          <CardTitle>Quotation Items</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-6">
+          {/* Add Item Form */}
+          <div className="border rounded-lg p-4 bg-muted/20">
+            <h4 className="font-semibold mb-4">Add New Item</h4>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div>
+                <Label htmlFor="productName">Product Name</Label>
+                <Input
+                  id="productName"
+                  value={newItem.productName}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, productName: e.target.value }))}
+                  placeholder="Enter product name"
+                />
+              </div>
+              <div>
+                <Label htmlFor="sku">SKU</Label>
+                <Input
+                  id="sku"
+                  value={newItem.sku}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, sku: e.target.value }))}
+                  placeholder="Product SKU"
+                />
+              </div>
+              <div>
+                <Label htmlFor="quantity">Quantity</Label>
+                <Input
+                  id="quantity"
+                  type="number"
+                  min="1"
+                  value={newItem.quantity}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="unitPrice">Unit Price</Label>
+                <Input
+                  id="unitPrice"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={newItem.unitPrice}
+                  onChange={(e) => setNewItem(prev => ({ ...prev, unitPrice: parseFloat(e.target.value) || 0 }))}
+                  placeholder="0.00"
+                />
+              </div>
+              <div className="flex items-end">
+                <Button 
+                  onClick={addItem}
+                  disabled={!newItem.productName || !newItem.sku || !newItem.quantity || !newItem.unitPrice}
+                  className="w-full"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Item
+                </Button>
+              </div>
+            </div>
+            <div className="mt-4">
+              <Label htmlFor="description">Description (Optional)</Label>
+              <Textarea
+                id="description"
+                value={newItem.description}
+                onChange={(e) => setNewItem(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Additional item description..."
+                rows={2}
+              />
+            </div>
+            {newItem.quantity && newItem.unitPrice && (
+              <div className="mt-4 p-3 bg-primary/10 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm font-medium">Item Total:</span>
+                  <span className="font-bold text-lg">
+                    ${((newItem.quantity || 0) * (newItem.unitPrice || 0)).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Items Table */}
           {items.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">
-              No items added yet. Click "Add Item" to get started.
+            <div className="text-center py-8 text-muted-foreground">
+              <div className="flex flex-col items-center space-y-2">
+                <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                  <Plus className="h-6 w-6" />
+                </div>
+                <p>No items added yet</p>
+                <p className="text-sm">Fill in the form above to add your first item</p>
+              </div>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Product</TableHead>
-                  <TableHead>SKU</TableHead>
-                  <TableHead>Quantity</TableHead>
-                  <TableHead>Unit Price</TableHead>
-                  <TableHead>Total Price</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {items.map((item) => (
-                  <TableRow key={item.id}>
-                    <TableCell>{item.productName}</TableCell>
-                    <TableCell className="font-mono text-sm">{item.sku}</TableCell>
-                    <TableCell>{item.quantity}</TableCell>
-                    <TableCell>${item.unitPrice.toFixed(2)}</TableCell>
-                    <TableCell>${item.totalPrice.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeItem(item.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <h4 className="font-semibold">Items ({items.length})</h4>
+                <div className="text-sm text-muted-foreground">
+                  Total: <span className="font-bold">${calculateTotal().toFixed(2)}</span>
+                </div>
+              </div>
+              <div className="border rounded-lg overflow-hidden">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Product</TableHead>
+                      <TableHead>SKU</TableHead>
+                      <TableHead className="w-20">Qty</TableHead>
+                      <TableHead className="w-24">Unit Price</TableHead>
+                      <TableHead className="w-24">Total</TableHead>
+                      <TableHead className="w-20">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {items.map((item) => (
+                      <TableRow key={item.id}>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{item.productName}</div>
+                            {item.description && (
+                              <div className="text-sm text-muted-foreground">{item.description}</div>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-mono text-sm">{item.sku}</TableCell>
+                        <TableCell className="text-center">{item.quantity}</TableCell>
+                        <TableCell className="text-right">${item.unitPrice.toFixed(2)}</TableCell>
+                        <TableCell className="text-right font-medium">${item.totalPrice.toFixed(2)}</TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeItem(item.id)}
+                            className="hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>
