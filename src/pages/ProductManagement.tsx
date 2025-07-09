@@ -5,15 +5,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import ProductList from '@/components/product/ProductList';
 import ProductDetail from '@/components/product/ProductDetail';
-import QuickCreateForm from '@/components/product/QuickCreateForm';
 import BatchOperations from '@/components/product/BatchOperations';
 import { Product, Category, UOM, ProductUOM } from '@/types/product';
 import { Package, Plus, Search, Filter, BarChart3 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const ProductManagement = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [currentView, setCurrentView] = useState<'list' | 'detail' | 'create'>('list');
+  const [currentView, setCurrentView] = useState<'list' | 'detail'>('list');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [showBatchOperations, setShowBatchOperations] = useState(false);
@@ -272,20 +273,6 @@ const ProductManagement = () => {
     );
   }
 
-  // Quick Create Form View
-  if (currentView === 'create') {
-    return (
-      <div className="container mx-auto p-6">
-        <QuickCreateForm
-          categories={categories}
-          systemUOMs={systemUOMs}
-          onClose={() => setCurrentView('list')}
-          onSave={handleProductCreate}
-        />
-      </div>
-    );
-  }
-
   // Main Product Management View
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -298,14 +285,14 @@ const ProductManagement = () => {
         <div className="flex gap-3">
           <Button 
             variant="outline" 
-            onClick={() => setCurrentView('create')}
+            onClick={() => navigate('/product-quick-create')}
             className="border-blue-300 text-blue-700 hover:bg-blue-50"
           >
             <Plus className="h-4 w-4 mr-2" />
             Quick Create
           </Button>
           <Button 
-            onClick={() => setCurrentView('create')}
+            onClick={() => navigate('/product-quick-create')}
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
