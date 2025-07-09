@@ -42,15 +42,15 @@ const ColumnCustomizer = ({ columns, onColumnsChange }: ColumnCustomizerProps) =
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm">
           <Settings2 className="h-4 w-4 mr-2" />
-          自定义列
+          Customize Columns
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="font-medium">自定义表格列</h4>
+            <h4 className="font-medium">Customize Table Columns</h4>
             <Button variant="ghost" size="sm" onClick={handleReset}>
-              重置
+              Reset
             </Button>
           </div>
           
@@ -75,7 +75,7 @@ const ColumnCustomizer = ({ columns, onColumnsChange }: ColumnCustomizerProps) =
           
           <div className="flex justify-end space-x-2 pt-2 border-t">
             <Button variant="outline" size="sm" onClick={handleApply}>
-              应用
+              Apply
             </Button>
           </div>
         </div>

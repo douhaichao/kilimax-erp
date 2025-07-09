@@ -28,19 +28,19 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
 
   // Column configuration
   const [columns, setColumns] = useState<ColumnConfig[]>([
-    { key: 'checkbox', label: '选择', visible: true, order: 0 },
+    { key: 'checkbox', label: 'Select', visible: true, order: 0 },
     { key: 'sku', label: 'SKU', visible: true, order: 1 },
-    { key: 'name', label: '商品名称', visible: true, order: 2 },
-    { key: 'category', label: '分类', visible: true, order: 3 },
-    { key: 'stock', label: '库存', visible: true, order: 4 },
-    { key: 'status', label: '状态', visible: true, order: 5 },
-    { key: 'price', label: '价格', visible: true, order: 6 },
-    { key: 'primaryUOM', label: '主单位', visible: true, order: 7 },
-    { key: 'cost', label: '成本', visible: false, order: 8 },
-    { key: 'supplier', label: '供应商', visible: false, order: 9 },
-    { key: 'safetyStock', label: '安全库存', visible: false, order: 10 },
-    { key: 'createdAt', label: '创建时间', visible: false, order: 11 },
-    { key: 'actions', label: '操作', visible: true, order: 12 }
+    { key: 'name', label: 'Product Name', visible: true, order: 2 },
+    { key: 'category', label: 'Category', visible: true, order: 3 },
+    { key: 'stock', label: 'Stock', visible: true, order: 4 },
+    { key: 'status', label: 'Status', visible: true, order: 5 },
+    { key: 'price', label: 'Price', visible: true, order: 6 },
+    { key: 'primaryUOM', label: 'Primary UOM', visible: true, order: 7 },
+    { key: 'cost', label: 'Cost', visible: false, order: 8 },
+    { key: 'supplier', label: 'Supplier', visible: false, order: 9 },
+    { key: 'safetyStock', label: 'Safety Stock', visible: false, order: 10 },
+    { key: 'createdAt', label: 'Created Date', visible: false, order: 11 },
+    { key: 'actions', label: 'Actions', visible: true, order: 12 }
   ]);
 
   const handleProductSelect = (productId: string) => {
