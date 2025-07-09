@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Upload, Edit, Save, X, Plus, Trash2, Scale } from 'lucide-react';
@@ -175,425 +173,381 @@ const ProductDetail = ({ product, categories, onUpdate, onDelete, onBack }: Prod
         </div>
       </div>
 
-      {/* Product Details Tabs */}
-      <Card className="border-blue-200 shadow-sm">
-        <CardContent className="p-0">
-          <Tabs defaultValue="basic" className="w-full">
-            <div className="bg-gradient-to-r from-blue-100 to-indigo-100 border-b border-blue-200 px-6 pt-6">
-              <TabsList className="bg-white border border-blue-200">
-                <TabsTrigger value="basic" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                  Basic Info
-                </TabsTrigger>
-                <TabsTrigger value="uom" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                  <Scale className="h-4 w-4 mr-2" />
-                  Units of Measure
-                </TabsTrigger>
-                <TabsTrigger value="inventory" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                  Inventory
-                </TabsTrigger>
-                <TabsTrigger value="pricing" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                  Pricing
-                </TabsTrigger>
-                <TabsTrigger value="variants" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
-                  Variants
-                </TabsTrigger>
-              </TabsList>
-            </div>
-
-            <TabsContent value="basic" className="p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Product Images */}
-                <div>
-                  <Label className="text-base font-semibold text-blue-800 mb-4 block">Product Images</Label>
-                  <div className="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
-                    <Upload className="h-12 w-12 text-blue-400 mx-auto mb-4" />
-                    <p className="text-blue-600 mb-2">Drag and drop images here</p>
-                    <p className="text-sm text-gray-500">or click to browse files</p>
-                    <Button variant="outline" className="mt-4 border-blue-300 text-blue-700">
-                      Choose Files
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Basic Information */}
-                <div className="space-y-6">
-                  <div>
-                    <Label htmlFor="name" className="text-blue-800 font-medium">Product Name</Label>
-                    {isEditing ? (
-                      <Input
-                        id="name"
-                        value={editedProduct.name}
-                        onChange={(e) => setEditedProduct({...editedProduct, name: e.target.value})}
-                        className="mt-2 border-blue-200 focus:border-blue-400"
-                      />
-                    ) : (
-                      <p className="mt-2 p-3 bg-gray-50 rounded-md">{product.name}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="sku" className="text-blue-800 font-medium">SKU</Label>
-                    {isEditing ? (
-                      <Input
-                        id="sku"
-                        value={editedProduct.sku}
-                        onChange={(e) => setEditedProduct({...editedProduct, sku: e.target.value})}
-                        className="mt-2 border-blue-200 focus:border-blue-400"
-                      />
-                    ) : (
-                      <p className="mt-2 p-3 bg-gray-50 rounded-md font-mono">{product.sku}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="category" className="text-blue-800 font-medium">Category</Label>
-                    <p className="mt-2 p-3 bg-gray-50 rounded-md">{product.category}</p>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="supplier" className="text-blue-800 font-medium">Supplier</Label>
-                    {isEditing ? (
-                      <Input
-                        id="supplier"
-                        value={editedProduct.supplier || ''}
-                        onChange={(e) => setEditedProduct({...editedProduct, supplier: e.target.value})}
-                        className="mt-2 border-blue-200 focus:border-blue-400"
-                      />
-                    ) : (
-                      <p className="mt-2 p-3 bg-gray-50 rounded-md">{product.supplier || 'N/A'}</p>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="description" className="text-blue-800 font-medium">Description</Label>
-                    {isEditing ? (
-                      <Textarea
-                        id="description"
-                        value={editedProduct.description}
-                        onChange={(e) => setEditedProduct({...editedProduct, description: e.target.value})}
-                        className="mt-2 border-blue-200 focus:border-blue-400"
-                        rows={4}
-                      />
-                    ) : (
-                      <p className="mt-2 p-3 bg-gray-50 rounded-md">{product.description}</p>
-                    )}
-                  </div>
-
-                  <div className="flex items-center space-x-3">
-                    <Switch 
-                      id="status" 
-                      checked={editedProduct.status === 'active'}
-                      onCheckedChange={(checked) => 
-                        setEditedProduct({
-                          ...editedProduct, 
-                          status: checked ? 'active' : 'inactive'
-                        })
-                      }
-                      disabled={!isEditing}
-                    />
-                    <Label htmlFor="status" className="text-blue-800 font-medium">
-                      Product Active
-                    </Label>
-                  </div>
+      {/* Product Details */}
+      <div className="space-y-6">
+        {/* Basic Information */}
+        <Card className="border-blue-200 shadow-sm">
+          <CardHeader className="bg-gradient-to-r from-blue-100 to-indigo-100">
+            <CardTitle className="text-blue-800">Basic Information</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Product Images */}
+              <div>
+                <Label className="text-base font-semibold text-blue-800 mb-4 block">Product Images</Label>
+                <div className="border-2 border-dashed border-blue-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors">
+                  <Upload className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                  <p className="text-blue-600 mb-2">Drag and drop images here</p>
+                  <p className="text-sm text-gray-500">or click to browse files</p>
+                  <Button variant="outline" className="mt-4 border-blue-300 text-blue-700">
+                    Choose Files
+                  </Button>
                 </div>
               </div>
-            </TabsContent>
 
-            <TabsContent value="uom" className="p-6">
+              {/* Basic Information */}
               <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-lg font-semibold text-blue-800">Units of Measure</h3>
-                    <p className="text-sm text-gray-600">Manage different selling units for this product</p>
-                  </div>
-                  {isEditing && (
-                    <Button onClick={addUOM} className="bg-blue-600 hover:bg-blue-700 text-white">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add UOM
-                    </Button>
+                <div>
+                  <Label htmlFor="name" className="text-blue-800 font-medium">Product Name</Label>
+                  {isEditing ? (
+                    <Input
+                      id="name"
+                      value={editedProduct.name}
+                      onChange={(e) => setEditedProduct({...editedProduct, name: e.target.value})}
+                      className="mt-2 border-blue-200 focus:border-blue-400"
+                    />
+                  ) : (
+                    <p className="mt-2 p-3 bg-gray-50 rounded-md">{product.name}</p>
                   )}
                 </div>
 
-                <div className="space-y-4">
-                  {editedProduct.uoms.map((productUom, index) => (
-                    <Card key={productUom.id} className={`border-blue-200 ${productUom.isDefault ? 'ring-2 ring-blue-400' : ''}`}>
-                      <CardContent className="p-4">
-                        <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
-                          <div>
-                            <Label className="text-sm text-blue-700">Unit</Label>
-                            {isEditing ? (
-                              <Select
-                                value={productUom.uomId}
-                                onValueChange={(value) => updateUOM(index, 'uomId', value)}
-                              >
-                                <SelectTrigger className="mt-1 border-blue-200">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {systemUOMs.filter(u => u.isActive).map(uom => (
-                                    <SelectItem key={uom.id} value={uom.id}>
-                                      {uom.name} ({uom.symbol})
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              <p className="text-sm font-medium">{productUom.uom?.name} ({productUom.uom?.symbol})</p>
-                            )}
-                          </div>
-                          
-                          <div>
-                            <Label className="text-sm text-blue-700">Price</Label>
-                            {isEditing ? (
-                              <Input
-                                type="number"
-                                step="0.01"
-                                value={productUom.price || 0}
-                                onChange={(e) => updateUOM(index, 'price', parseFloat(e.target.value))}
-                                className="mt-1 border-blue-200"
-                              />
-                            ) : (
-                              <p className="text-sm font-medium text-green-600">{formatCurrency(productUom.price || 0)}</p>
-                            )}
-                          </div>
-
-                          <div>
-                            <Label className="text-sm text-blue-700">Barcode</Label>
-                            {isEditing ? (
-                              <Input
-                                value={productUom.barcode || ''}
-                                onChange={(e) => updateUOM(index, 'barcode', e.target.value)}
-                                className="mt-1 border-blue-200"
-                                placeholder="Optional"
-                              />
-                            ) : (
-                              <p className="text-sm font-mono">{productUom.barcode || 'N/A'}</p>
-                            )}
-                          </div>
-
-                          <div>
-                            <Label className="text-sm text-blue-700">Type</Label>
-                            <p className="text-sm">
-                              <Badge variant={productUom.uom?.type === 'piece' ? 'default' : 'secondary'}>
-                                {productUom.uom?.type || 'N/A'}
-                              </Badge>
-                            </p>
-                          </div>
-
-                          <div>
-                            <Label className="text-sm text-blue-700">Default</Label>
-                            {isEditing ? (
-                              <div className="mt-1">
-                                <Button
-                                  variant={productUom.isDefault ? "default" : "outline"}
-                                  size="sm"
-                                  onClick={() => setAsDefaultUOM(index)}
-                                  className={productUom.isDefault ? "bg-blue-600" : ""}
-                                >
-                                  {productUom.isDefault ? 'Default' : 'Set Default'}
-                                </Button>
-                              </div>
-                            ) : (
-                              <p className="text-sm">
-                                {productUom.isDefault ? (
-                                  <Badge className="bg-blue-600 text-white">Default</Badge>
-                                ) : (
-                                  '-'
-                                )}
-                              </p>
-                            )}
-                          </div>
-
-                          <div>
-                            {isEditing && editedProduct.uoms.length > 1 && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => removeUOM(index)}
-                                className="text-red-600 hover:text-red-800 hover:bg-red-50"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                <div>
+                  <Label htmlFor="sku" className="text-blue-800 font-medium">SKU</Label>
+                  {isEditing ? (
+                    <Input
+                      id="sku"
+                      value={editedProduct.sku}
+                      onChange={(e) => setEditedProduct({...editedProduct, sku: e.target.value})}
+                      className="mt-2 border-blue-200 focus:border-blue-400"
+                    />
+                  ) : (
+                    <p className="mt-2 p-3 bg-gray-50 rounded-md font-mono">{product.sku}</p>
+                  )}
                 </div>
 
-                {editedProduct.uoms.length === 0 && (
-                  <Card className="border-blue-200 border-dashed">
-                    <CardContent className="p-8 text-center">
-                      <Scale className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                      <p className="text-gray-500 mb-4">No units of measure defined</p>
-                      {isEditing && (
-                        <Button onClick={addUOM} variant="outline" className="border-blue-300 text-blue-700">
-                          Add First UOM
-                        </Button>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
+                <div>
+                  <Label htmlFor="category" className="text-blue-800 font-medium">Category</Label>
+                  <p className="mt-2 p-3 bg-gray-50 rounded-md">{product.category}</p>
+                </div>
+
+                <div>
+                  <Label htmlFor="supplier" className="text-blue-800 font-medium">Supplier</Label>
+                  {isEditing ? (
+                    <Input
+                      id="supplier"
+                      value={editedProduct.supplier || ''}
+                      onChange={(e) => setEditedProduct({...editedProduct, supplier: e.target.value})}
+                      className="mt-2 border-blue-200 focus:border-blue-400"
+                    />
+                  ) : (
+                    <p className="mt-2 p-3 bg-gray-50 rounded-md">{product.supplier || 'N/A'}</p>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="description" className="text-blue-800 font-medium">Description</Label>
+                  {isEditing ? (
+                    <Textarea
+                      id="description"
+                      value={editedProduct.description}
+                      onChange={(e) => setEditedProduct({...editedProduct, description: e.target.value})}
+                      className="mt-2 border-blue-200 focus:border-blue-400"
+                      rows={4}
+                    />
+                  ) : (
+                    <p className="mt-2 p-3 bg-gray-50 rounded-md">{product.description}</p>
+                  )}
+                </div>
+
+                <div className="flex items-center space-x-3">
+                  <Switch 
+                    id="status" 
+                    checked={editedProduct.status === 'active'}
+                    onCheckedChange={(checked) => 
+                      setEditedProduct({
+                        ...editedProduct, 
+                        status: checked ? 'active' : 'inactive'
+                      })
+                    }
+                    disabled={!isEditing}
+                  />
+                  <Label htmlFor="status" className="text-blue-800 font-medium">
+                    Product Active
+                  </Label>
+                </div>
               </div>
-            </TabsContent>
+            </div>
+          </CardContent>
+        </Card>
 
-            <TabsContent value="inventory" className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card className="border-blue-200">
-                  <CardHeader>
-                    <CardTitle className="text-lg text-blue-800">Current Stock</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-blue-600 mb-2">{product.stock}</div>
-                    <p className="text-sm text-gray-600">
-                      Units available in {product.uoms.find(u => u.isDefault)?.uom?.symbol || 'base unit'}
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-blue-200">
-                  <CardHeader>
-                    <CardTitle className="text-lg text-blue-800">Safety Stock</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-amber-600 mb-2">{product.safetyStock}</div>
-                    <p className="text-sm text-gray-600">Minimum threshold</p>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-blue-200">
-                  <CardHeader>
-                    <CardTitle className="text-lg text-blue-800">Stock Status</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {(product.stock || 0) <= (product.safetyStock || 0) ? (
-                      <Badge className="bg-amber-500 text-white">Low Stock</Badge>
-                    ) : (
-                      <Badge className="bg-green-500 text-white">In Stock</Badge>
-                    )}
-                  </CardContent>
-                </Card>
+        {/* Units of Measure */}
+        <Card className="border-blue-200 shadow-sm">
+          <CardHeader className="bg-gradient-to-r from-blue-100 to-indigo-100">
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="text-blue-800 flex items-center">
+                  <Scale className="h-5 w-5 mr-2" />
+                  Units of Measure
+                </CardTitle>
+                <p className="text-sm text-blue-600 mt-1">Manage different selling units for this product</p>
               </div>
-
               {isEditing && (
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <Label htmlFor="stock" className="text-blue-800 font-medium">Current Stock</Label>
-                    <Input
-                      id="stock"
-                      type="number"
-                      value={editedProduct.stock || 0}
-                      onChange={(e) => setEditedProduct({...editedProduct, stock: parseInt(e.target.value)})}
-                      className="mt-2 border-blue-200 focus:border-blue-400"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="safetyStock" className="text-blue-800 font-medium">Safety Stock</Label>
-                    <Input
-                      id="safetyStock"
-                      type="number"
-                      value={editedProduct.safetyStock || 0}
-                      onChange={(e) => setEditedProduct({...editedProduct, safetyStock: parseInt(e.target.value)})}
-                      className="mt-2 border-blue-200 focus:border-blue-400"
-                    />
-                  </div>
-                </div>
+                <Button onClick={addUOM} className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add UOM
+                </Button>
               )}
-            </TabsContent>
+            </div>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="space-y-4">
+              {editedProduct.uoms.map((productUom, index) => (
+                <Card key={productUom.id} className={`border-blue-200 ${productUom.isDefault ? 'ring-2 ring-blue-400' : ''}`}>
+                  <CardContent className="p-4">
+                    <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-center">
+                      <div>
+                        <Label className="text-sm text-blue-700">Unit</Label>
+                        {isEditing ? (
+                          <Select
+                            value={productUom.uomId}
+                            onValueChange={(value) => updateUOM(index, 'uomId', value)}
+                          >
+                            <SelectTrigger className="mt-1 border-blue-200">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {systemUOMs.filter(u => u.isActive).map(uom => (
+                                <SelectItem key={uom.id} value={uom.id}>
+                                  {uom.name} ({uom.symbol})
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <p className="text-sm font-medium">{productUom.uom?.name} ({productUom.uom?.symbol})</p>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <Label className="text-sm text-blue-700">Price</Label>
+                        {isEditing ? (
+                          <Input
+                            type="number"
+                            step="0.01"
+                            value={productUom.price || 0}
+                            onChange={(e) => updateUOM(index, 'price', parseFloat(e.target.value))}
+                            className="mt-1 border-blue-200"
+                          />
+                        ) : (
+                          <p className="text-sm font-medium text-green-600">{formatCurrency(productUom.price || 0)}</p>
+                        )}
+                      </div>
 
-            <TabsContent value="pricing" className="p-6">
-              <div className="space-y-6">
-                <Card className="border-blue-200">
-                  <CardHeader>
-                    <CardTitle className="text-lg text-blue-800">Pricing by Unit</CardTitle>
-                    <p className="text-sm text-gray-600">Different units may have different pricing</p>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {product.uoms.map((productUom) => (
-                        <div key={productUom.id} className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                          <div>
-                            <p className="font-medium text-blue-800">
-                              {productUom.uom?.name} ({productUom.uom?.symbol})
-                              {productUom.isDefault && <Badge className="ml-2 bg-blue-600 text-white text-xs">Default</Badge>}
-                            </p>
-                            <p className="text-sm text-gray-600">
-                              Ratio: {productUom.ratio}x base unit
-                            </p>
+                      <div>
+                        <Label className="text-sm text-blue-700">Barcode</Label>
+                        {isEditing ? (
+                          <Input
+                            value={productUom.barcode || ''}
+                            onChange={(e) => updateUOM(index, 'barcode', e.target.value)}
+                            className="mt-1 border-blue-200"
+                            placeholder="Optional"
+                          />
+                        ) : (
+                          <p className="text-sm font-mono">{productUom.barcode || 'N/A'}</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <Label className="text-sm text-blue-700">Type</Label>
+                        <p className="text-sm">
+                          <Badge variant={productUom.uom?.type === 'piece' ? 'default' : 'secondary'}>
+                            {productUom.uom?.type || 'N/A'}
+                          </Badge>
+                        </p>
+                      </div>
+
+                      <div>
+                        <Label className="text-sm text-blue-700">Default</Label>
+                        {isEditing ? (
+                          <div className="mt-1">
+                            <Button
+                              variant={productUom.isDefault ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => setAsDefaultUOM(index)}
+                              className={productUom.isDefault ? "bg-blue-600" : ""}
+                            >
+                              {productUom.isDefault ? 'Default' : 'Set Default'}
+                            </Button>
                           </div>
-                          <div className="text-right">
-                            <p className="text-xl font-bold text-green-600">{formatCurrency(productUom.price || 0)}</p>
-                            <p className="text-sm text-gray-500">per {productUom.uom?.symbol}</p>
-                          </div>
-                        </div>
-                      ))}
+                        ) : (
+                          <p className="text-sm">
+                            {productUom.isDefault ? (
+                              <Badge className="bg-blue-600 text-white">Default</Badge>
+                            ) : (
+                              '-'
+                            )}
+                          </p>
+                        )}
+                      </div>
+
+                      <div>
+                        {isEditing && editedProduct.uoms.length > 1 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeUOM(index)}
+                            className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
-              </div>
-            </TabsContent>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
-            <TabsContent value="variants" className="p-6">
-              <div className="space-y-6">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-blue-800">Product Variants</h3>
-                  {isEditing && (
-                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Variant
-                    </Button>
-                  )}
-                </div>
+        {/* Inventory */}
+        <Card className="border-blue-200 shadow-sm">
+          <CardHeader className="bg-gradient-to-r from-blue-100 to-indigo-100">
+            <CardTitle className="text-blue-800">Inventory</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="stock" className="text-blue-800 font-medium">Current Stock</Label>
+                {isEditing ? (
+                  <Input
+                    id="stock"
+                    type="number"
+                    value={editedProduct.stock}
+                    onChange={(e) => setEditedProduct({...editedProduct, stock: parseInt(e.target.value)})}
+                    className="mt-2 border-blue-200 focus:border-blue-400"
+                  />
+                ) : (
+                  <p className="mt-2 p-3 bg-gray-50 rounded-md">{product.stock} units</p>
+                )}
+              </div>
 
-                <div className="space-y-4">
-                  {product.variants && product.variants.length > 0 ? (
-                    product.variants.map((variant, index) => (
-                      <Card key={variant.id} className="border-blue-200">
-                        <CardContent className="p-4">
-                          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-center">
-                            <div>
-                              <Label className="text-sm text-blue-700">SKU</Label>
-                              <p className="font-mono text-sm">{variant.sku}</p>
-                            </div>
-                            <div>
-                              <Label className="text-sm text-blue-700">Size</Label>
-                              <p className="text-sm">{variant.size || 'N/A'}</p>
-                            </div>
-                            <div>
-                              <Label className="text-sm text-blue-700">Color</Label>
-                              <p className="text-sm">{variant.color || 'N/A'}</p>
-                            </div>
-                            <div>
-                              <Label className="text-sm text-blue-700">Stock</Label>
-                              <p className="text-sm font-medium">{variant.stock}</p>
-                            </div>
-                            <div>
-                              <Label className="text-sm text-blue-700">Price</Label>
-                              <p className="text-sm font-medium text-green-600">{formatCurrency(variant.price)}</p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))
-                  ) : (
-                    <Card className="border-blue-200 border-dashed">
-                      <CardContent className="p-8 text-center">
-                        <p className="text-gray-500 mb-4">No variants defined</p>
-                        {isEditing && (
-                          <Button variant="outline" className="border-blue-300 text-blue-700">
-                            Add First Variant
-                          </Button>
-                        )}
-                      </CardContent>
-                    </Card>
-                  )}
+              <div>
+                <Label htmlFor="safetyStock" className="text-blue-800 font-medium">Safety Stock</Label>
+                {isEditing ? (
+                  <Input
+                    id="safetyStock"
+                    type="number"
+                    value={editedProduct.safetyStock}
+                    onChange={(e) => setEditedProduct({...editedProduct, safetyStock: parseInt(e.target.value)})}
+                    className="mt-2 border-blue-200 focus:border-blue-400"
+                  />
+                ) : (
+                  <p className="mt-2 p-3 bg-gray-50 rounded-md">{product.safetyStock} units</p>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Pricing */}
+        <Card className="border-blue-200 shadow-sm">
+          <CardHeader className="bg-gradient-to-r from-blue-100 to-indigo-100">
+            <CardTitle className="text-blue-800">Pricing</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <Label htmlFor="price" className="text-blue-800 font-medium">Selling Price</Label>
+                {isEditing ? (
+                  <Input
+                    id="price"
+                    type="number"
+                    step="0.01"
+                    value={editedProduct.price}
+                    onChange={(e) => setEditedProduct({...editedProduct, price: parseFloat(e.target.value)})}
+                    className="mt-2 border-blue-200 focus:border-blue-400"
+                  />
+                ) : (
+                  <p className="mt-2 p-3 bg-gray-50 rounded-md text-green-600 font-medium">{formatCurrency(product.price)}</p>
+                )}
+              </div>
+
+              <div>
+                <Label htmlFor="cost" className="text-blue-800 font-medium">Cost Price</Label>
+                {isEditing ? (
+                  <Input
+                    id="cost"
+                    type="number"
+                    step="0.01"
+                    value={editedProduct.cost}
+                    onChange={(e) => setEditedProduct({...editedProduct, cost: parseFloat(e.target.value)})}
+                    className="mt-2 border-blue-200 focus:border-blue-400"
+                  />
+                ) : (
+                  <p className="mt-2 p-3 bg-gray-50 rounded-md text-red-600 font-medium">{formatCurrency(product.cost)}</p>
+                )}
+              </div>
+
+              <div className="md:col-span-2">
+                <div className="p-4 bg-blue-50 rounded-lg">
+                  <div className="flex justify-between items-center">
+                    <span className="text-blue-800 font-medium">Profit Margin</span>
+                    <span className="text-blue-600 font-semibold">
+                      {formatCurrency(product.price - product.cost)} ({((product.price - product.cost) / product.price * 100).toFixed(1)}%)
+                    </span>
+                  </div>
                 </div>
               </div>
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Product Variants */}
+        <Card className="border-blue-200 shadow-sm">
+          <CardHeader className="bg-gradient-to-r from-blue-100 to-indigo-100">
+            <CardTitle className="text-blue-800">Product Variants</CardTitle>
+          </CardHeader>
+          <CardContent className="p-6">
+            {product.variants && product.variants.length > 0 ? (
+              <div className="space-y-4">
+                {product.variants.map((variant, index) => (
+                  <Card key={index} className="border-blue-200">
+                    <CardContent className="p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <div>
+                          <Label className="text-sm text-blue-700">Size</Label>
+                          <p className="text-sm font-medium">{variant.size || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm text-blue-700">Color</Label>
+                          <p className="text-sm font-medium">{variant.color || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm text-blue-700">SKU</Label>
+                          <p className="text-sm font-mono">{variant.sku}</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm text-blue-700">Stock</Label>
+                          <p className="text-sm font-medium">{variant.stock} units</p>
+                        </div>
+                        <div>
+                          <Label className="text-sm text-blue-700">Price</Label>
+                          <p className="text-sm font-medium text-green-600">{formatCurrency(variant.price)}</p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-gray-500">
+                <p>No variants available for this product</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
