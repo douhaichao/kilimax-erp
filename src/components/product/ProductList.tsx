@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Filter, Plus, Download, Upload, Eye, AlertTriangle } from 'lucide-react';
 import { Product, UOM, Category, ProductUOM } from '@/types/product';
 import ColumnCustomizer, { ColumnConfig } from './ColumnCustomizer';
-
 interface ProductListProps {
   products: Product[];
   categories: Category[];
@@ -18,8 +16,13 @@ interface ProductListProps {
   onProductSelect: (product: Product) => void;
   onBatchSelect: (productIds: string[]) => void;
 }
-
-const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatchSelect }: ProductListProps) => {
+const ProductList = ({
+  products,
+  categories,
+  systemUOMs,
+  onProductSelect,
+  onBatchSelect
+}: ProductListProps) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedSupplier, setSelectedSupplier] = useState('');
@@ -27,30 +30,75 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
   const [showFilters, setShowFilters] = useState(false);
 
   // Column configuration
-  const [columns, setColumns] = useState<ColumnConfig[]>([
-    { key: 'checkbox', label: 'Select', visible: true, order: 0 },
-    { key: 'sku', label: 'SKU', visible: true, order: 1 },
-    { key: 'name', label: 'Product Name', visible: true, order: 2 },
-    { key: 'category', label: 'Category', visible: true, order: 3 },
-    { key: 'stock', label: 'Stock', visible: true, order: 4 },
-    { key: 'status', label: 'Status', visible: true, order: 5 },
-    { key: 'price', label: 'Price', visible: true, order: 6 },
-    { key: 'primaryUOM', label: 'Primary UOM', visible: true, order: 7 },
-    { key: 'cost', label: 'Cost', visible: false, order: 8 },
-    { key: 'supplier', label: 'Supplier', visible: false, order: 9 },
-    { key: 'safetyStock', label: 'Safety Stock', visible: false, order: 10 },
-    { key: 'createdAt', label: 'Created Date', visible: false, order: 11 },
-    { key: 'actions', label: 'Actions', visible: true, order: 12 }
-  ]);
-
+  const [columns, setColumns] = useState<ColumnConfig[]>([{
+    key: 'checkbox',
+    label: 'Select',
+    visible: true,
+    order: 0
+  }, {
+    key: 'sku',
+    label: 'SKU',
+    visible: true,
+    order: 1
+  }, {
+    key: 'name',
+    label: 'Product Name',
+    visible: true,
+    order: 2
+  }, {
+    key: 'category',
+    label: 'Category',
+    visible: true,
+    order: 3
+  }, {
+    key: 'stock',
+    label: 'Stock',
+    visible: true,
+    order: 4
+  }, {
+    key: 'status',
+    label: 'Status',
+    visible: true,
+    order: 5
+  }, {
+    key: 'price',
+    label: 'Price',
+    visible: true,
+    order: 6
+  }, {
+    key: 'primaryUOM',
+    label: 'Primary UOM',
+    visible: true,
+    order: 7
+  }, {
+    key: 'cost',
+    label: 'Cost',
+    visible: false,
+    order: 8
+  }, {
+    key: 'supplier',
+    label: 'Supplier',
+    visible: false,
+    order: 9
+  }, {
+    key: 'safetyStock',
+    label: 'Safety Stock',
+    visible: false,
+    order: 10
+  }, {
+    key: 'createdAt',
+    label: 'Created Date',
+    visible: false,
+    order: 11
+  }, {
+    key: 'actions',
+    label: 'Actions',
+    visible: true,
+    order: 12
+  }]);
   const handleProductSelect = (productId: string) => {
-    setSelectedProducts(prev => 
-      prev.includes(productId) 
-        ? prev.filter(id => id !== productId)
-        : [...prev, productId]
-    );
+    setSelectedProducts(prev => prev.includes(productId) ? prev.filter(id => id !== productId) : [...prev, productId]);
   };
-
   const handleSelectAll = () => {
     if (selectedProducts.length === filteredProducts.length) {
       setSelectedProducts([]);
@@ -58,20 +106,15 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
       setSelectedProducts(filteredProducts.map(p => p.id));
     }
   };
-
   const filteredProducts = products.filter(product => {
-    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         product.sku.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase()) || product.sku.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || product.category === selectedCategory;
     const matchesSupplier = !selectedSupplier || product.supplier === selectedSupplier;
-    
     return matchesSearch && matchesCategory && matchesSupplier;
   });
-
   React.useEffect(() => {
     onBatchSelect(selectedProducts);
   }, [selectedProducts, onBatchSelect]);
-
   const getStatusBadge = (status: string) => {
     const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
       active: 'default',
@@ -80,49 +123,34 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
     };
     return <Badge variant={variants[status] || 'default'}>{status}</Badge>;
   };
-
   const isLowStock = (product: Product) => product.stock <= product.safetyStock;
-
   const handleColumnsChange = (newColumns: ColumnConfig[]) => {
     setColumns(newColumns);
   };
-
   const visibleColumns = columns.filter(col => col.visible).sort((a, b) => a.order - b.order);
-
   const renderTableCell = (column: ColumnConfig, product: Product) => {
     switch (column.key) {
       case 'checkbox':
-        return (
-          <TableCell onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={selectedProducts.includes(product.id)}
-              onCheckedChange={() => handleProductSelect(product.id)}
-            />
-          </TableCell>
-        );
+        return <TableCell onClick={e => e.stopPropagation()}>
+            <Checkbox checked={selectedProducts.includes(product.id)} onCheckedChange={() => handleProductSelect(product.id)} />
+          </TableCell>;
       case 'sku':
         return <TableCell className="font-mono text-sm">{product.sku}</TableCell>;
       case 'name':
-        return (
-          <TableCell>
+        return <TableCell>
             <div className="flex items-center gap-2">
               {product.name}
-              {isLowStock(product) && (
-                <AlertTriangle className="h-4 w-4 text-yellow-500" />
-              )}
+              {isLowStock(product) && <AlertTriangle className="h-4 w-4 text-yellow-500" />}
             </div>
-          </TableCell>
-        );
+          </TableCell>;
       case 'category':
         return <TableCell>{product.category}</TableCell>;
       case 'stock':
-        return (
-          <TableCell>
+        return <TableCell>
             <span className={isLowStock(product) ? 'text-yellow-600 font-medium' : ''}>
               {product.stock}
             </span>
-          </TableCell>
-        );
+          </TableCell>;
       case 'status':
         return <TableCell>{getStatusBadge(product.status)}</TableCell>;
       case 'price':
@@ -138,31 +166,24 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
       case 'createdAt':
         return <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>;
       case 'actions':
-        return (
-          <TableCell onClick={(e) => e.stopPropagation()}>
+        return <TableCell onClick={e => e.stopPropagation()}>
             <Button variant="ghost" size="sm">
               <Eye className="h-4 w-4" />
             </Button>
-          </TableCell>
-        );
+          </TableCell>;
       default:
         return <TableCell>-</TableCell>;
     }
   };
-
-  return (
-    <Card>
+  return <Card>
       <CardHeader>
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle>Product List</CardTitle>
-            <CardDescription>Manage your product inventory and information</CardDescription>
+            
+            
           </div>
           <div className="flex gap-2">
-            <ColumnCustomizer
-              columns={columns}
-              onColumnsChange={handleColumnsChange}
-            />
+            <ColumnCustomizer columns={columns} onColumnsChange={handleColumnsChange} />
             <Button variant="outline" size="sm">
               <Upload className="h-4 w-4 mr-2" />
               Batch Import
@@ -180,15 +201,11 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {selectedProducts.length > 0 ? (
-            <Card>
+          {selectedProducts.length > 0 ? <Card>
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
-                    <Checkbox
-                      checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
-                      onCheckedChange={handleSelectAll}
-                    />
+                    <Checkbox checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0} onCheckedChange={handleSelectAll} />
                     <span className="text-sm font-medium">
                       {selectedProducts.length} product(s) selected
                     </span>
@@ -205,30 +222,19 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
                   </div>
                 </div>
               </CardContent>
-            </Card>
-          ) : (
-            <>
+            </Card> : <>
               <div className="flex gap-4">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search product name or SKU..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
+                  <Input placeholder="Search product name or SKU..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10" />
                 </div>
-                <Button
-                  variant="outline"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
+                <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
                   <Filter className="h-4 w-4 mr-2" />
                   Filter
                 </Button>
               </div>
 
-              {showFilters && (
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+              {showFilters && <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
                   <div>
                     <label className="text-sm font-medium mb-2 block">Category</label>
                     <Select value={selectedCategory} onValueChange={setSelectedCategory}>
@@ -237,11 +243,9 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="">All Categories</SelectItem>
-                        {categories.map(category => (
-                          <SelectItem key={category.id} value={category.name}>
+                        {categories.map(category => <SelectItem key={category.id} value={category.name}>
                             {category.name}
-                          </SelectItem>
-                        ))}
+                          </SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
@@ -253,57 +257,31 @@ const ProductList = ({ products, categories, systemUOMs, onProductSelect, onBatc
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="">All Suppliers</SelectItem>
-                        {Array.from(new Set(products.map(p => p.supplier))).map(supplier => (
-                          <SelectItem key={supplier} value={supplier}>
+                        {Array.from(new Set(products.map(p => p.supplier))).map(supplier => <SelectItem key={supplier} value={supplier}>
                             {supplier}
-                          </SelectItem>
-                        ))}
+                          </SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-              )}
-            </>
-          )}
+                </div>}
+            </>}
 
           <Table>
             <TableHeader>
               <TableRow>
-                {visibleColumns.map((column) => (
-                  <TableHead 
-                    key={column.key} 
-                    className={column.key === 'checkbox' ? 'w-12' : ''}
-                  >
-                    {column.key === 'checkbox' ? (
-                      <Checkbox
-                        checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0}
-                        onCheckedChange={handleSelectAll}
-                      />
-                    ) : (
-                      column.label
-                    )}
-                  </TableHead>
-                ))}
+                {visibleColumns.map(column => <TableHead key={column.key} className={column.key === 'checkbox' ? 'w-12' : ''}>
+                    {column.key === 'checkbox' ? <Checkbox checked={selectedProducts.length === filteredProducts.length && filteredProducts.length > 0} onCheckedChange={handleSelectAll} /> : column.label}
+                  </TableHead>)}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredProducts.map((product) => (
-                <TableRow 
-                  key={product.id}
-                  className={`cursor-pointer hover:bg-gray-50 ${isLowStock(product) ? 'bg-yellow-50' : ''}`}
-                  onClick={() => onProductSelect(product)}
-                >
-                  {visibleColumns.map((column) => 
-                    renderTableCell(column, product)
-                  )}
-                </TableRow>
-              ))}
+              {filteredProducts.map(product => <TableRow key={product.id} className={`cursor-pointer hover:bg-gray-50 ${isLowStock(product) ? 'bg-yellow-50' : ''}`} onClick={() => onProductSelect(product)}>
+                  {visibleColumns.map(column => renderTableCell(column, product))}
+                </TableRow>)}
             </TableBody>
           </Table>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
-
 export default ProductList;
