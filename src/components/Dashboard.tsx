@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from './dashboard/AppSidebar';
 import { DashboardHeader } from './dashboard/DashboardHeader';
-import { DashboardContent } from './dashboard/DashboardContent';
+import { DashboardTabs } from './dashboard/DashboardTabs';
 import { ModuleContent } from './dashboard/ModuleContent';
 
 interface DashboardProps {
@@ -24,7 +25,7 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
 
   const renderModuleContent = () => {
     if (currentModule === 'dashboard') {
-      return <DashboardContent />;
+      return <DashboardTabs />;
     }
     return <ModuleContent currentModule={currentModule} />;
   };
