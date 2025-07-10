@@ -36,9 +36,17 @@ export interface TransferOrderItem {
   shippedQuantity?: number;
   receivedQuantity?: number;
   serialNumbers?: string[];
+  batchNumbers?: BatchInfo[];
   unitCost: number;
   totalCost: number;
   notes?: string;
+}
+
+export interface BatchInfo {
+  batchNumber: string;
+  productionDate?: string;
+  expiryDate?: string;
+  quantity: number;
 }
 
 export interface Location {

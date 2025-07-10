@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -34,7 +33,8 @@ import {
   QrCode,
   Plus,
   Minus,
-  AlertTriangle
+  AlertTriangle,
+  PackageCheck
 } from 'lucide-react';
 import {
   Table,
@@ -44,7 +44,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { TransferOrder, TransferOrderStatus } from '@/types/transferOrder';
+import { TransferOrder, TransferOrderStatus, BatchInfo } from '@/types/transferOrder';
+import BatchEntryDialog from './BatchEntryDialog';
 
 interface TransferOrderDetailProps {
   order: TransferOrder;
@@ -59,7 +60,9 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
   const [rejectionReason, setRejectionReason] = useState('');
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [serialNumberDialogOpen, setSerialNumberDialogOpen] = useState(false);
+  const [batchDialogOpen, setBatchDialogOpen] = useState(false);
   const [currentItem, setCurrentItem] = useState<any>(null);
+  const [batchMode, setBatchMode] = useState<'ship' | 'receive'>('ship');
 
   const getStatusBadge = (status: TransferOrderStatus) => {
     const statusConfig = {
@@ -140,6 +143,17 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
           : item
       )
     );
+  };
+
+  const handleBatchUpdate = (itemId: string, batches: BatchInfo[]) => {
+    setEditableItems(items => 
+      items.map(item => 
+        item.id === itemId 
+          ? { ...item, batchNumbers: batches }
+          : item
+      )
+    );
+    saveQuantityChanges();
   };
 
   const saveQuantityChanges = () => {
@@ -349,6 +363,12 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
   const openSerialNumberDialog = (item: any) => {
     setCurrentItem(item);
     setSerialNumberDialogOpen(true);
+  };
+
+  const openBatchDialog = (item: any, mode: 'ship' | 'receive') => {
+    setCurrentItem(item);
+    setBatchMode(mode);
+    setBatchDialogOpen(true);
   };
 
   const canEdit = order.status === 'draft' || order.status === 'submitted';
@@ -592,15 +612,19 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                 <TableHead>UOM</TableHead>
                 <TableHead>Requested</TableHead>
                 <TableHead>Shipped</TableHead>
-                {/* For Approved status, add Serial Number column after Shipped */}
+                {/* For Approved status, add Batch Numbers column after Shipped */}
                 {isApproved && (
-                  <TableHead>Serial Numbers</TableHead>
+                  <>
+                    <TableHead>Serial Numbers</TableHead>
+                    <TableHead>Batch Numbers</TableHead>
+                  </>
                 )}
-                {/* For In Transit and Completed status, show Received and Serial Numbers */}
+                {/* For In Transit and Completed status, show Received and Batch Numbers */}
                 {(isInTransit || isCompleted) && (
                   <>
                     <TableHead>Received</TableHead>
                     <TableHead>Serial Numbers</TableHead>
+                    <TableHead>Batch Numbers</TableHead>
                   </>
                 )}
                 <TableHead>Unit Cost</TableHead>
@@ -630,44 +654,57 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                       <span className="text-sm">{item.shippedQuantity || item.requestedQuantity}</span>
                     )}
                   </TableCell>
-                  {/* For Approved status, add Serial Number column after Shipped */}
+                  {/* For Approved status, add Serial Number and Batch columns after Shipped */}
                   {isApproved && (
-                    <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openSerialNumberDialog(item)}
-                        className="text-xs"
-                      >
-                        <QrCode className="mr-1 h-3 w-3" />
-                        {item.serialNumbers?.length || 0} SNs
-                      </Button>
-                    </TableCell>
+                    <>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openSerialNumberDialog(item)}
+                          className="text-xs"
+                        >
+                          <QrCode className="mr-1 h-3 w-3" />
+                          {item.serialNumbers?.length || 0} SNs
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openBatchDialog(item, 'ship')}
+                          className="text-xs"
+                        >
+                          <PackageCheck className="mr-1 h-3 w-3" />
+                          {item.batchNumbers?.length || 0} Batches
+                        </Button>
+                      </TableCell>
+                    </>
                   )}
-                  {/* For In Transit and Completed status, show Received and Serial Numbers */}
+                  {/* For In Transit and Completed status, show Received, Serial Numbers and Batch Numbers */}
                   {(isInTransit || isCompleted) && (
                     <>
-                   <TableCell>
-                         {/* Editable received quantity for in_transit status, read-only for completed */}
-                         {isInTransit ? (
-                           <Input
-                             type="number"
-                             value={item.receivedQuantity || item.shippedQuantity || 0}
-                             onChange={(e) => handleQuantityUpdate(item.id, 'receivedQuantity', parseInt(e.target.value) || 0)}
-                             onBlur={saveQuantityChanges}
-                             className="w-20"
-                             min={0}
-                             max={item.shippedQuantity || 0}
-                           />
-                         ) : (
-                           <div className="flex items-center space-x-2">
-                             <span className="text-sm">{item.receivedQuantity || item.shippedQuantity || '-'}</span>
-                              {isCompleted && item.receivedQuantity !== (item.shippedQuantity || item.requestedQuantity) && (
-                                <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                              )}
-                           </div>
-                         )}
-                       </TableCell>
+                      <TableCell>
+                        {/* Editable received quantity for in_transit status, read-only for completed */}
+                        {isInTransit ? (
+                          <Input
+                            type="number"
+                            value={item.receivedQuantity || item.shippedQuantity || 0}
+                            onChange={(e) => handleQuantityUpdate(item.id, 'receivedQuantity', parseInt(e.target.value) || 0)}
+                            onBlur={saveQuantityChanges}
+                            className="w-20"
+                            min={0}
+                            max={item.shippedQuantity || 0}
+                          />
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm">{item.receivedQuantity || item.shippedQuantity || '-'}</span>
+                            {isCompleted && item.receivedQuantity !== (item.shippedQuantity || item.requestedQuantity) && (
+                              <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                            )}
+                          </div>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <div className="text-xs">
                           {item.serialNumbers?.length ? (
@@ -686,6 +723,39 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                           ) : (
                             '-'
                           )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="space-y-1">
+                          {isInTransit && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openBatchDialog(item, 'receive')}
+                              className="text-xs mb-1"
+                            >
+                              <PackageCheck className="mr-1 h-3 w-3" />
+                              Update Batches
+                            </Button>
+                          )}
+                          <div className="text-xs">
+                            {item.batchNumbers?.length ? (
+                              <div className="space-y-1">
+                                {item.batchNumbers.slice(0, 2).map((batch, index) => (
+                                  <div key={index} className="font-mono bg-gray-100 px-1 rounded text-xs">
+                                    {batch.batchNumber} ({batch.quantity})
+                                  </div>
+                                ))}
+                                {item.batchNumbers.length > 2 && (
+                                  <div className="text-gray-500">
+                                    +{item.batchNumbers.length - 2} more
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              '-'
+                            )}
+                          </div>
                         </div>
                       </TableCell>
                     </>
@@ -711,6 +781,20 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         item={currentItem}
         open={serialNumberDialogOpen}
         onOpenChange={setSerialNumberDialogOpen}
+      />
+
+      {/* Batch Entry Dialog */}
+      <BatchEntryDialog
+        open={batchDialogOpen}
+        onOpenChange={setBatchDialogOpen}
+        productName={currentItem?.productName || ''}
+        totalQuantity={batchMode === 'ship' 
+          ? (currentItem?.shippedQuantity || currentItem?.requestedQuantity || 0)
+          : (currentItem?.receivedQuantity || currentItem?.shippedQuantity || 0)
+        }
+        currentBatches={currentItem?.batchNumbers || []}
+        onSave={(batches) => handleBatchUpdate(currentItem?.id, batches)}
+        mode={batchMode}
       />
     </div>
   );
