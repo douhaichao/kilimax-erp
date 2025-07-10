@@ -247,7 +247,6 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
     return actions;
   };
 
-  // Serial Number Dialog Component
   const SerialNumberDialog = ({ item, open, onOpenChange }: { item: any, open: boolean, onOpenChange: (open: boolean) => void }) => {
     const [serialNumbers, setSerialNumbers] = useState<string[]>(item?.serialNumbers || []);
     const [newSerial, setNewSerial] = useState('');
@@ -294,7 +293,6 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
             <DialogTitle>Serial Numbers - {item?.productName}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            {/* Single Serial Number Input */}
             <div>
               <Label>Scan or Enter Serial Number</Label>
               <div className="flex space-x-2">
@@ -310,7 +308,6 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
               </div>
             </div>
 
-            {/* Bulk Input */}
             <div>
               <Label>Bulk Input (One per line)</Label>
               <Textarea
@@ -324,7 +321,6 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
               </Button>
             </div>
 
-            {/* Serial Numbers List */}
             {serialNumbers.length > 0 && (
               <div>
                 <Label>Serial Numbers ({serialNumbers.length})</Label>
@@ -371,6 +367,130 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
     setBatchDialogOpen(true);
   };
 
+  const QuantityCell = ({ item, type }: { item: any, type: 'shipped' | 'received' }) => {
+    const isShipped = type === 'shipped';
+    const isReceived = type === 'received';
+    const isApproved = order.status === 'approved';
+    const isInTransit = order.status === 'in_transit';
+    const isCompleted = order.status === 'completed';
+    
+    const quantity = isShipped 
+      ? (item.shippedQuantity || item.requestedQuantity)
+      : (item.receivedQuantity || item.shippedQuantity || 0);
+    
+    const canEdit = (isShipped && isApproved) || (isReceived && isInTransit);
+    const shouldShow = (isShipped && (isApproved || isInTransit || isCompleted)) || 
+                      (isReceived && (isInTransit || isCompleted));
+
+    if (!shouldShow) return null;
+
+    return (
+      <TableCell>
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
+            {canEdit ? (
+              <Input
+                type="number"
+                value={quantity}
+                onChange={(e) => handleQuantityUpdate(
+                  item.id, 
+                  isShipped ? 'shippedQuantity' : 'receivedQuantity', 
+                  parseInt(e.target.value) || 0
+                )}
+                onBlur={saveQuantityChanges}
+                className="w-20"
+                min={0}
+                max={isShipped ? item.requestedQuantity : (item.shippedQuantity || 0)}
+              />
+            ) : (
+              <div className="flex items-center space-x-2">
+                <span className="text-sm font-medium">{quantity}</span>
+                {isCompleted && isReceived && item.receivedQuantity !== (item.shippedQuantity || item.requestedQuantity) && (
+                  <AlertTriangle className="h-4 w-4 text-yellow-500" />
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="flex space-x-1">
+            {canEdit && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => openSerialNumberDialog(item)}
+                  className="text-xs h-7 px-2"
+                >
+                  <QrCode className="mr-1 h-3 w-3" />
+                  {item.serialNumbers?.length || 0} SNs
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => openBatchDialog(item, isShipped ? 'ship' : 'receive')}
+                  className="text-xs h-7 px-2"
+                >
+                  <PackageCheck className="mr-1 h-3 w-3" />
+                  {item.batchNumbers?.length || 0}
+                </Button>
+              </>
+            )}
+            
+            {!canEdit && (item.serialNumbers?.length > 0 || item.batchNumbers?.length > 0) && (
+              <div className="text-xs text-gray-500 space-y-1">
+                {item.serialNumbers?.length > 0 && (
+                  <div className="flex items-center space-x-1">
+                    <QrCode className="h-3 w-3" />
+                    <span>{item.serialNumbers.length} SNs</span>
+                  </div>
+                )}
+                {item.batchNumbers?.length > 0 && (
+                  <div className="flex items-center space-x-1">
+                    <PackageCheck className="h-3 w-3" />
+                    <span>{item.batchNumbers.length} Batches</span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {!canEdit && (
+            <div className="text-xs space-y-1">
+              {item.serialNumbers?.length > 0 && (
+                <div className="space-y-1">
+                  {item.serialNumbers.slice(0, 2).map((sn: string, index: number) => (
+                    <div key={index} className="font-mono bg-gray-100 px-1 rounded text-xs">
+                      {sn}
+                    </div>
+                  ))}
+                  {item.serialNumbers.length > 2 && (
+                    <div className="text-gray-500">
+                      +{item.serialNumbers.length - 2} more
+                    </div>
+                  )}
+                </div>
+              )}
+              {item.batchNumbers?.length > 0 && (
+                <div className="space-y-1">
+                  {item.batchNumbers.slice(0, 2).map((batch: BatchInfo, index: number) => (
+                    <div key={index} className="font-mono bg-gray-100 px-1 rounded text-xs">
+                      {batch.batchNumber} ({batch.quantity})
+                    </div>
+                  ))}
+                  {item.batchNumbers.length > 2 && (
+                    <div className="text-gray-500">
+                      +{item.batchNumbers.length - 2} more
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </TableCell>
+    );
+  };
+
   const canEdit = order.status === 'draft' || order.status === 'submitted';
   const canDelete = order.status === 'draft';
   const isApproved = order.status === 'approved';
@@ -379,7 +499,6 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button variant="ghost" onClick={onBack}>
@@ -391,7 +510,6 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
           </div>
         </div>
         <div className="flex space-x-2">
-          {/* Status Action Buttons */}
           {getAvailableActions()}
           
           {canEdit && (
@@ -409,7 +527,6 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         </div>
       </div>
 
-      {/* Status Flow Indicator */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
@@ -465,9 +582,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         </CardContent>
       </Card>
 
-      {/* Order Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Main Info */}
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -522,7 +637,6 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
           </CardContent>
         </Card>
 
-        {/* Status Timeline */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -598,7 +712,6 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         </Card>
       </div>
 
-      {/* Items Table */}
       <Card>
         <CardHeader>
           <CardTitle>Transfer Items</CardTitle>
@@ -612,21 +725,7 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                 <TableHead>UOM</TableHead>
                 <TableHead>Requested</TableHead>
                 <TableHead>Shipped</TableHead>
-                {/* For Approved status, add Batch Numbers column after Shipped */}
-                {isApproved && (
-                  <>
-                    <TableHead>Serial Numbers</TableHead>
-                    <TableHead>Batch Numbers</TableHead>
-                  </>
-                )}
-                {/* For In Transit and Completed status, show Received and Batch Numbers */}
-                {(isInTransit || isCompleted) && (
-                  <>
-                    <TableHead>Received</TableHead>
-                    <TableHead>Serial Numbers</TableHead>
-                    <TableHead>Batch Numbers</TableHead>
-                  </>
-                )}
+                {(isInTransit || isCompleted) && <TableHead>Received</TableHead>}
                 <TableHead>Unit Cost</TableHead>
                 <TableHead>Total Cost</TableHead>
               </TableRow>
@@ -638,128 +737,8 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
                   <TableCell className="font-mono text-sm">{item.productSku}</TableCell>
                   <TableCell>{item.uom}</TableCell>
                   <TableCell>{item.requestedQuantity}</TableCell>
-                  <TableCell>
-                    {/* Editable shipped quantity for approved status, read-only for in_transit and completed */}
-                    {isApproved ? (
-                      <Input
-                        type="number"
-                        value={item.shippedQuantity || item.requestedQuantity}
-                        onChange={(e) => handleQuantityUpdate(item.id, 'shippedQuantity', parseInt(e.target.value) || 0)}
-                        onBlur={saveQuantityChanges}
-                        className="w-20"
-                        min={0}
-                        max={item.requestedQuantity}
-                      />
-                    ) : (
-                      <span className="text-sm">{item.shippedQuantity || item.requestedQuantity}</span>
-                    )}
-                  </TableCell>
-                  {/* For Approved status, add Serial Number and Batch columns after Shipped */}
-                  {isApproved && (
-                    <>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openSerialNumberDialog(item)}
-                          className="text-xs"
-                        >
-                          <QrCode className="mr-1 h-3 w-3" />
-                          {item.serialNumbers?.length || 0} SNs
-                        </Button>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openBatchDialog(item, 'ship')}
-                          className="text-xs"
-                        >
-                          <PackageCheck className="mr-1 h-3 w-3" />
-                          {item.batchNumbers?.length || 0} Batches
-                        </Button>
-                      </TableCell>
-                    </>
-                  )}
-                  {/* For In Transit and Completed status, show Received, Serial Numbers and Batch Numbers */}
-                  {(isInTransit || isCompleted) && (
-                    <>
-                      <TableCell>
-                        {/* Editable received quantity for in_transit status, read-only for completed */}
-                        {isInTransit ? (
-                          <Input
-                            type="number"
-                            value={item.receivedQuantity || item.shippedQuantity || 0}
-                            onChange={(e) => handleQuantityUpdate(item.id, 'receivedQuantity', parseInt(e.target.value) || 0)}
-                            onBlur={saveQuantityChanges}
-                            className="w-20"
-                            min={0}
-                            max={item.shippedQuantity || 0}
-                          />
-                        ) : (
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm">{item.receivedQuantity || item.shippedQuantity || '-'}</span>
-                            {isCompleted && item.receivedQuantity !== (item.shippedQuantity || item.requestedQuantity) && (
-                              <AlertTriangle className="h-4 w-4 text-yellow-500" />
-                            )}
-                          </div>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-xs">
-                          {item.serialNumbers?.length ? (
-                            <div className="space-y-1">
-                              {item.serialNumbers.slice(0, 2).map((sn, index) => (
-                                <div key={index} className="font-mono bg-gray-100 px-1 rounded">
-                                  {sn}
-                                </div>
-                              ))}
-                              {item.serialNumbers.length > 2 && (
-                                <div className="text-gray-500">
-                                  +{item.serialNumbers.length - 2} more
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            '-'
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          {isInTransit && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openBatchDialog(item, 'receive')}
-                              className="text-xs mb-1"
-                            >
-                              <PackageCheck className="mr-1 h-3 w-3" />
-                              Update Batches
-                            </Button>
-                          )}
-                          <div className="text-xs">
-                            {item.batchNumbers?.length ? (
-                              <div className="space-y-1">
-                                {item.batchNumbers.slice(0, 2).map((batch, index) => (
-                                  <div key={index} className="font-mono bg-gray-100 px-1 rounded text-xs">
-                                    {batch.batchNumber} ({batch.quantity})
-                                  </div>
-                                ))}
-                                {item.batchNumbers.length > 2 && (
-                                  <div className="text-gray-500">
-                                    +{item.batchNumbers.length - 2} more
-                                  </div>
-                                )}
-                              </div>
-                            ) : (
-                              '-'
-                            )}
-                          </div>
-                        </div>
-                      </TableCell>
-                    </>
-                  )}
+                  <QuantityCell item={item} type="shipped" />
+                  {(isInTransit || isCompleted) && <QuantityCell item={item} type="received" />}
                   <TableCell>${item.unitCost.toFixed(2)}</TableCell>
                   <TableCell>${item.totalCost.toFixed(2)}</TableCell>
                 </TableRow>
@@ -776,14 +755,12 @@ const TransferOrderDetail = ({ order, onUpdate, onDelete, onBack, onEdit }: Tran
         </CardContent>
       </Card>
 
-      {/* Serial Number Dialog */}
       <SerialNumberDialog
         item={currentItem}
         open={serialNumberDialogOpen}
         onOpenChange={setSerialNumberDialogOpen}
       />
 
-      {/* Batch Entry Dialog */}
       <BatchEntryDialog
         open={batchDialogOpen}
         onOpenChange={setBatchDialogOpen}
