@@ -137,8 +137,9 @@ const QuotationForm = ({ quotation, onSave, onCancel }: QuotationFormProps) => {
     
     // Auto-fill product details when product is selected
     if (field === 'productName' && value) {
-      const selectedProduct = mockProducts.find(p => p.name === value);
+      const selectedProduct = mockProducts.find(p => p.id === value);
       if (selectedProduct) {
+        updatedItems[index].productName = selectedProduct.name;
         updatedItems[index].sku = selectedProduct.sku;
         updatedItems[index].description = selectedProduct.description;
         updatedItems[index].unitPrice = selectedProduct.price;
@@ -451,15 +452,19 @@ const QuotationForm = ({ quotation, onSave, onCancel }: QuotationFormProps) => {
                       <TableCell>
                         <div className="space-y-2">
                           <Select
-                            value={item.productName}
-                            onValueChange={(value) => updateItem(index, 'productName', value)}
+                            value={item.productName ? mockProducts.find(p => p.name === item.productName)?.id || '' : ''}
+                            onValueChange={(value) => {
+                              if (value) {
+                                updateItem(index, 'productName', value);
+                              }
+                            }}
                           >
                             <SelectTrigger className="w-40">
                               <SelectValue placeholder="Select product" />
                             </SelectTrigger>
                             <SelectContent>
                               {mockProducts.map((product) => (
-                                <SelectItem key={product.id} value={product.name}>
+                                <SelectItem key={product.id} value={product.id}>
                                   <div className="flex items-center space-x-2">
                                     <img 
                                       src={product.image} 
