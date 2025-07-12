@@ -55,9 +55,7 @@ export default function RegistrationForm({
         <CardTitle className="text-2xl font-bold text-center text-gray-900">
           Create Your Account
         </CardTitle>
-        <CardDescription className="text-center text-gray-600">
-          Join thousands of businesses streamlining their operations
-        </CardDescription>
+        
         <div className="flex justify-center">
           <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20">Free 14-day trial</Badge>
         </div>
