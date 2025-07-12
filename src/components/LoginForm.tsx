@@ -56,13 +56,13 @@ const LoginForm = ({
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Kilimax</h1>
-              <p className="text-xs text-gray-500">Enterprise Resource Planning</p>
+              
             </div>
           </div>
         </div>
         <div className="text-center">
           <CardTitle className="text-3xl font-bold text-gray-900">Welcome Back</CardTitle>
-          <CardDescription className="text-gray-600 mt-2 text-base">Sign in to your Kilimax ERP system</CardDescription>
+          
         </div>
       </CardHeader>
       
