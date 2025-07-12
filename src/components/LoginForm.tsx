@@ -11,9 +11,10 @@ import Captcha from './Captcha';
 interface LoginFormProps {
   onForgotPassword: () => void;
   onLogin: () => void;
+  onRegister?: () => void;
 }
 
-const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
+const LoginForm = ({ onForgotPassword, onLogin, onRegister }: LoginFormProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -191,8 +192,24 @@ const LoginForm = ({ onForgotPassword, onLogin }: LoginFormProps) => {
           </Button>
         </form>
 
+        {/* Registration Link */}
+        {onRegister && (
+          <div className="text-center pt-4 border-t border-gray-100">
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <button
+                type="button"
+                onClick={onRegister}
+                className="text-blue-600 hover:text-blue-500 font-medium transition-colors"
+              >
+                Start your free trial
+              </button>
+            </p>
+          </div>
+        )}
+
         {/* Demo Account Hint */}
-        <div className="text-center pt-4 border-t border-gray-100">
+        <div className="text-center pt-3">
           <p className="text-xs text-gray-500 mb-2">Demo Account</p>
           <div className="text-xs text-gray-400 space-y-1">
             <div>Email: demo@kilimax.com</div>

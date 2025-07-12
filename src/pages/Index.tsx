@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import LoginForm from '@/components/LoginForm';
 import ForgotPasswordForm from '@/components/ForgotPasswordForm';
+import RegistrationForm from '@/components/auth/RegistrationForm';
+import EmailVerification from '@/components/auth/EmailVerification';
 import Dashboard from '@/components/Dashboard';
 import Profile from '@/pages/Profile';
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +18,8 @@ import {
 } from 'lucide-react';
 
 const Index = () => {
-  const [currentView, setCurrentView] = useState<'login' | 'forgotPassword' | 'dashboard' | 'profile'>('login');
+  const [currentView, setCurrentView] = useState<'login' | 'register' | 'emailVerification' | 'forgotPassword' | 'dashboard' | 'profile'>('login');
+  const [registrationEmail, setRegistrationEmail] = useState('');
 
   const handleForgotPassword = () => {
     setCurrentView('forgotPassword');
@@ -40,6 +43,20 @@ const Index = () => {
 
   const handleBackToDashboard = () => {
     setCurrentView('dashboard');
+  };
+
+  const handleRegister = () => {
+    setCurrentView('register');
+  };
+
+  const handleRegistrationComplete = (email: string) => {
+    setRegistrationEmail(email);
+    setCurrentView('emailVerification');
+  };
+
+  const handleEmailVerificationComplete = () => {
+    // Redirect to onboarding journey
+    window.location.href = '/onboarding';
   };
 
   if (currentView === 'dashboard') {
@@ -156,6 +173,25 @@ const Index = () => {
                 <LoginForm 
                   onForgotPassword={handleForgotPassword}
                   onLogin={handleLogin}
+                  onRegister={handleRegister}
+                />
+              </div>
+            )}
+            
+            {currentView === 'register' && (
+              <div className="animate-fadeIn">
+                <RegistrationForm 
+                  onRegistrationComplete={() => handleRegistrationComplete('user@example.com')}
+                  onBackToLogin={handleBackToLogin}
+                />
+              </div>
+            )}
+
+            {currentView === 'emailVerification' && (
+              <div className="animate-fadeIn">
+                <EmailVerification 
+                  email={registrationEmail}
+                  onVerificationComplete={handleEmailVerificationComplete}
                 />
               </div>
             )}
