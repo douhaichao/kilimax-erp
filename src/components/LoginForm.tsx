@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, Phone } from 'lucide-react';
 import Captcha from './Captcha';
 interface LoginFormProps {
   onForgotPassword: () => void;
@@ -22,6 +22,7 @@ const LoginForm = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isCaptchaValid, setIsCaptchaValid] = useState(false);
+  const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email');
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isCaptchaValid) {
@@ -68,13 +69,51 @@ const LoginForm = ({
       
       <CardContent className="space-y-6 relative">
         <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Auth Method Toggle */}
+          <div className="flex bg-gray-100 rounded-lg p-1">
+            <button
+              type="button"
+              onClick={() => setAuthMethod('email')}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                authMethod === 'email'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Email
+            </button>
+            <button
+              type="button"
+              onClick={() => setAuthMethod('phone')}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
+                authMethod === 'phone'
+                  ? 'bg-white text-gray-900 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Phone Number
+            </button>
+          </div>
+          
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-              Email Address
+              {authMethod === 'email' ? 'Email Address' : 'Phone Number'}
             </Label>
             <div className="relative group">
-              <Mail className="absolute left-3 top-3.5 h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
-              <Input id="email" type="email" placeholder="Enter your email address" value={email} onChange={e => setEmail(e.target.value)} className="pl-11 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200" required />
+              {authMethod === 'email' ? (
+                <Mail className="absolute left-3 top-3.5 h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+              ) : (
+                <Phone className="absolute left-3 top-3.5 h-5 w-5 text-gray-400 group-focus-within:text-blue-600 transition-colors" />
+              )}
+              <Input 
+                id="email" 
+                type={authMethod === 'email' ? 'email' : 'tel'} 
+                placeholder={authMethod === 'email' ? 'Enter your email address' : 'Enter your phone number'} 
+                value={email} 
+                onChange={e => setEmail(e.target.value)} 
+                className="pl-11 h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500 transition-all duration-200" 
+                required 
+              />
             </div>
           </div>
           
