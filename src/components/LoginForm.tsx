@@ -143,7 +143,7 @@ const LoginForm = ({
         {onRegister && <div className="text-center pt-4 border-t border-gray-100">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
-              <button type="button" onClick={onRegister} className="text-blue-600 hover:text-blue-500 font-medium transition-colors">Sign Up Now</button>
+              <button type="button" onClick={onRegister} className="text-blue-600 hover:text-blue-500 font-medium transition-colors">Sign up now</button>
             </p>
           </div>}
 
