@@ -123,12 +123,7 @@ export default function RegistrationForm({
               </Label>
             </div>
 
-            <div className="flex items-start space-x-2">
-              <Checkbox id="marketing" checked={formData.acceptMarketing} onCheckedChange={checked => handleInputChange('acceptMarketing', !!checked)} className="mt-1" />
-              <Label htmlFor="marketing" className="text-sm text-gray-600 leading-relaxed">
-                Send me product updates and business insights (optional)
-              </Label>
-            </div>
+            
           </div>
 
           {/* Submit Button */}
