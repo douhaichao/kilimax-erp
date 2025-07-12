@@ -66,7 +66,20 @@ export default function RegistrationForm({
       <CardContent className="space-y-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name Fields */}
-          
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
+                First Name
+              </Label>
+              <Input id="firstName" type="text" placeholder="John" value={formData.firstName} onChange={e => handleInputChange('firstName', e.target.value)} className="border-gray-200 focus:border-primary focus:ring-primary/20" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
+                Last Name
+              </Label>
+              <Input id="lastName" type="text" placeholder="Doe" value={formData.lastName} onChange={e => handleInputChange('lastName', e.target.value)} className="border-gray-200 focus:border-primary focus:ring-primary/20" required />
+            </div>
+          </div>
 
           {/* Email */}
           <div className="space-y-2">
