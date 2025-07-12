@@ -12,6 +12,7 @@ import InventoryReport from "./pages/InventoryReport";
 import SubscriptionAgreement from "./pages/SubscriptionAgreement";
 import CurrencyManagement from "./pages/CurrencyManagement";
 import QuotationList from "./pages/QuotationList";
+import OnboardingJourney from "./pages/OnboardingJourney";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/inventory-report" element={<InventoryReport />} />
           <Route path="/currency" element={<CurrencyManagement />} />
           <Route path="/quotations" element={<QuotationList />} />
+          <Route path="/onboarding" element={<OnboardingJourney />} />
           <Route path="/subscription-agreement" element={<SubscriptionAgreement />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
