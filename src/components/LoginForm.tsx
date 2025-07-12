@@ -62,9 +62,7 @@ const LoginForm = ({
         </div>
         <div className="text-center">
           <CardTitle className="text-3xl font-bold text-gray-900">Welcome Back</CardTitle>
-          <CardDescription className="text-gray-600 mt-2 text-base">
-            Sign in to your Kilimax ERP system
-          </CardDescription>
+          <CardDescription className="text-gray-600 mt-2 text-base">Sign in to your Kilimax ERP system</CardDescription>
         </div>
       </CardHeader>
       
@@ -145,9 +143,7 @@ const LoginForm = ({
         {onRegister && <div className="text-center pt-4 border-t border-gray-100">
             <p className="text-sm text-gray-600">
               Don't have an account?{' '}
-              <button type="button" onClick={onRegister} className="text-blue-600 hover:text-blue-500 font-medium transition-colors">
-                Start your free trial
-              </button>
+              <button type="button" onClick={onRegister} className="text-blue-600 hover:text-blue-500 font-medium transition-colors">Sign Up Now</button>
             </p>
           </div>}
 
