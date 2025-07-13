@@ -315,19 +315,74 @@ export const MissionControl: React.FC<MissionControlProps> = ({ onNext, onGoToSt
           </DialogHeader>
           
           <div className="space-y-4">
-            <div className="bg-muted/30 rounded-lg p-4 text-center">
-              <Package className="w-12 h-12 text-primary mx-auto mb-3" />
-              <h3 className="font-medium mb-2">Sample Product Created!</h3>
-              <p className="text-sm text-muted-foreground">
-                We've created a sample product for you to explore the system.
-              </p>
+            {/* Product Creation Form */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Product Name</label>
+                  <input 
+                    className="w-full px-3 py-2 border rounded-md text-sm" 
+                    placeholder="Premium Coffee Beans"
+                    defaultValue="Premium Coffee Beans"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Price</label>
+                  <input 
+                    className="w-full px-3 py-2 border rounded-md text-sm" 
+                    placeholder="$29.99"
+                    defaultValue="$29.99"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Category</label>
+                  <select className="w-full px-3 py-2 border rounded-md text-sm">
+                    <option>Food & Beverage</option>
+                  </select>
+                </div>
+              </div>
+              
+              {/* Live System Preview */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-muted-foreground">Live Preview - Product in System</h4>
+                
+                {/* Product Card Preview */}
+                <div className="bg-card border rounded-lg p-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                      <Package className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-medium text-sm">Premium Coffee Beans</h4>
+                      <p className="text-xs text-muted-foreground">Food & Beverage</p>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-sm font-medium text-primary">$29.99</span>
+                        <Badge variant="secondary" className="text-xs">In Stock</Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Inventory Preview */}
+                <div className="bg-muted/30 rounded-lg p-3">
+                  <h5 className="text-xs font-medium mb-2">Inventory Status</h5>
+                  <div className="flex justify-between text-xs">
+                    <span>Stock Level:</span>
+                    <span className="font-medium">50 units</span>
+                  </div>
+                  <div className="flex justify-between text-xs mt-1">
+                    <span>Reorder Point:</span>
+                    <span className="font-medium">10 units</span>
+                  </div>
+                </div>
+              </div>
             </div>
             
             <Button 
               onClick={() => completeTask('add-product')} 
               className="w-full"
             >
-              Complete Task
+              Create Product & Continue
             </Button>
           </div>
         </DialogContent>

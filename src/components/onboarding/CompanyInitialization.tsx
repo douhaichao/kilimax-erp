@@ -44,7 +44,7 @@ export const CompanyInitialization: React.FC<CompanyInitializationProps> = ({ on
     phone: data.phone || '',
     email: data.email || '',
   });
-  const [showPreview, setShowPreview] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedCountry = countries.find(c => c.code === formData.country);
@@ -281,20 +281,6 @@ export const CompanyInitialization: React.FC<CompanyInitializationProps> = ({ on
                       </div>
                     </div>
 
-                    {/* AI Preview Button */}
-                    <div className="pt-4 border-t">
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => setShowPreview(!showPreview)}
-                        className="w-full h-12 flex items-center gap-2 hover:scale-[1.02] transition-transform"
-                      >
-                        <Bot className="w-4 h-4 animate-pulse" />
-                        <Eye className="w-4 h-4" />
-                        {showPreview ? 'Hide AI Preview' : 'Show AI Preview'}
-                        <Sparkles className="w-4 h-4 animate-pulse" />
-                      </Button>
-                    </div>
                   </form>
                 </CardContent>
               </Card>
@@ -330,9 +316,8 @@ export const CompanyInitialization: React.FC<CompanyInitializationProps> = ({ on
             </div>
 
             {/* AI-Enhanced Live Preview Section */}
-            {showPreview && (
-              <div className="space-y-6 animate-fade-in">
-                <Card className="border-primary/20 shadow-lg">
+            <div className="space-y-6 animate-fade-in">
+              <Card className="border-primary/20 shadow-lg">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                       <Bot className="w-5 h-5 text-primary animate-pulse" />
@@ -525,8 +510,7 @@ export const CompanyInitialization: React.FC<CompanyInitializationProps> = ({ on
                     </div>
                   </CardContent>
                 </Card>
-              </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
