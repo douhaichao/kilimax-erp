@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Factory, Truck, Briefcase, ChevronDown, Check, Bot } from 'lucide-react';
+import { Factory, Truck, Briefcase, ChevronDown, Check, Bot, Sparkles, Zap, Brain } from 'lucide-react';
 import { OnboardingData } from '@/pages/OnboardingJourney';
 
 interface AIIndustrySetupProps {
@@ -52,8 +52,21 @@ export const AIIndustrySetup: React.FC<AIIndustrySetupProps> = ({ onNext, data }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 relative overflow-hidden">
+      {/* AI-Enhanced Background */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-1/3 left-1/3 transform -translate-x-1/2 -translate-y-1/2">
+          <Brain className="w-64 h-64 text-primary animate-pulse" />
+        </div>
+        <div className="absolute top-1/4 right-1/4 transform translate-x-1/2 -translate-y-1/2">
+          <Sparkles className="w-32 h-32 text-primary/30 animate-pulse" style={{ animationDelay: '1.5s' }} />
+        </div>
+        <div className="absolute bottom-1/3 left-1/2 transform -translate-x-1/2 translate-y-1/2">
+          <Zap className="w-40 h-40 text-primary/20 animate-pulse" style={{ animationDelay: '0.5s' }} />
+        </div>
+      </div>
+      
+      <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Progress Bar */}
         <div className="max-w-2xl mx-auto mb-8">
           <div className="flex items-center justify-between mb-2">
@@ -65,16 +78,17 @@ export const AIIndustrySetup: React.FC<AIIndustrySetupProps> = ({ onNext, data }
 
         {/* AI Assistant Message */}
         <div className="max-w-2xl mx-auto mb-8">
-          <div className="flex items-start space-x-4 bg-card border rounded-xl p-6 shadow-sm">
-            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="flex items-start space-x-4 bg-gradient-to-r from-card to-card/80 border border-primary/20 rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-full flex items-center justify-center flex-shrink-0 animate-pulse">
               <Bot className="w-6 h-6 text-primary" />
             </div>
             <div>
-              <p className="text-lg font-medium mb-2">
-                I'm your setup assistant! Which best describes your business?
+              <p className="text-lg font-medium mb-2 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-primary animate-pulse" />
+                I'm analyzing your business needs!
               </p>
               <p className="text-muted-foreground">
-                I'll customize your workflows and features based on your industry.
+                Select your industry and I'll instantly customize workflows, templates, and features just for you.
               </p>
             </div>
           </div>
@@ -90,24 +104,31 @@ export const AIIndustrySetup: React.FC<AIIndustrySetupProps> = ({ onNext, data }
               return (
                 <Card 
                   key={option.id}
-                  className={`cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 relative ${
+                  className={`cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 relative group ${
                     isSelected 
-                      ? 'ring-2 ring-secondary shadow-lg scale-105' 
-                      : 'hover:shadow-md'
+                      ? 'ring-2 ring-primary shadow-lg scale-105 bg-gradient-to-br from-card to-primary/5' 
+                      : 'hover:shadow-md hover:bg-gradient-to-br hover:from-card hover:to-primary/5'
                   }`}
                   onClick={() => setSelectedIndustry(option.id)}
                 >
                   {isSelected && (
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center animate-pulse">
                       <Check className="w-5 h-5 text-white" />
                     </div>
                   )}
                   
                   <CardHeader className="text-center pb-4">
-                    <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <Icon className="w-8 h-8 text-primary" />
+                    <div className={`w-16 h-16 bg-gradient-to-br ${
+                      isSelected 
+                        ? 'from-primary/20 to-primary/10' 
+                        : 'from-primary/10 to-primary/5'
+                    } rounded-full flex items-center justify-center mx-auto mb-4 group-hover:animate-pulse transition-all duration-300`}>
+                      <Icon className={`w-8 h-8 text-primary ${isSelected ? 'animate-pulse' : ''}`} />
                     </div>
-                    <CardTitle className="text-xl">{option.title}</CardTitle>
+                    <CardTitle className="text-xl flex items-center justify-center gap-2">
+                      {option.title}
+                      {isSelected && <Sparkles className="w-4 h-4 text-primary animate-pulse" />}
+                    </CardTitle>
                     <CardDescription className="text-sm">
                       {option.description}
                     </CardDescription>
@@ -117,7 +138,9 @@ export const AIIndustrySetup: React.FC<AIIndustrySetupProps> = ({ onNext, data }
                     <div className="space-y-2">
                       {option.features.map((feature, index) => (
                         <div key={index} className="flex items-center space-x-2">
-                          <div className="w-1.5 h-1.5 bg-primary rounded-full"></div>
+                          <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${
+                            isSelected ? 'bg-primary animate-pulse' : 'bg-primary'
+                          }`}></div>
                           <span className="text-sm text-muted-foreground">{feature}</span>
                         </div>
                       ))}
@@ -133,8 +156,9 @@ export const AIIndustrySetup: React.FC<AIIndustrySetupProps> = ({ onNext, data }
         <div className="max-w-2xl mx-auto mb-8">
           <Collapsible open={isExamplesOpen} onOpenChange={setIsExamplesOpen}>
             <CollapsibleTrigger asChild>
-              <Button variant="ghost" className="w-full flex items-center justify-center space-x-2">
-                <span>Not sure? See examples by industry</span>
+              <Button variant="ghost" className="w-full flex items-center justify-center space-x-2 hover:bg-primary/5 transition-colors">
+                <Brain className="w-4 h-4 text-primary" />
+                <span>Not sure? Let AI help you choose</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${isExamplesOpen ? 'rotate-180' : ''}`} />
               </Button>
             </CollapsibleTrigger>
@@ -160,15 +184,23 @@ export const AIIndustrySetup: React.FC<AIIndustrySetupProps> = ({ onNext, data }
           </Collapsible>
         </div>
 
-        {/* Continue Button */}
+        {/* AI-Enhanced Continue Button */}
         <div className="max-w-md mx-auto">
           <Button 
             onClick={handleContinue}
-            className="w-full h-12 text-lg"
+            className="w-full h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transform hover:scale-[1.02] transition-all duration-200 shadow-lg"
             disabled={!selectedIndustry}
           >
-            Select & Continue
+            <Bot className="w-5 h-5 mr-2 animate-pulse" />
+            AI Setup Complete - Continue
+            <Sparkles className="w-5 h-5 ml-2 animate-pulse" />
           </Button>
+          {selectedIndustry && (
+            <p className="text-center text-xs text-muted-foreground mt-2 flex items-center justify-center gap-1">
+              <Zap className="w-3 h-3 text-primary" />
+              AI is customizing templates for {industryOptions.find(opt => opt.id === selectedIndustry)?.title}
+            </p>
+          )}
         </div>
       </div>
     </div>
