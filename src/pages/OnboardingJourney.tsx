@@ -22,6 +22,10 @@ export interface OnboardingData {
   industry: string;
   completedTasks: string[];
   customerData?: any;
+  logo?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
 }
 
 const OnboardingJourney = () => {
