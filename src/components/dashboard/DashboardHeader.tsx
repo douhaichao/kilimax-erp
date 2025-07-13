@@ -7,10 +7,26 @@ import {
   Mail,
   User,
   Settings,
-  LogOut
+  LogOut,
+  Plus,
+  Package,
+  Users,
+  ShoppingCart,
+  FileText,
+  Building,
+  CreditCard
 } from 'lucide-react';
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { sidebarMenuItems } from './AppSidebar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
 
 interface DashboardHeaderProps {
   currentModule: string;
@@ -18,7 +34,17 @@ interface DashboardHeaderProps {
   onProfileClick: () => void;
 }
 
-export const DashboardHeader = ({ currentModule, onLogout, onProfileClick }: DashboardHeaderProps) => (
+export const DashboardHeader = ({ currentModule, onLogout, onProfileClick }: DashboardHeaderProps) => {
+  const { toast } = useToast();
+
+  const handleQuickCreate = (type: string) => {
+    toast({
+      title: "Quick Create",
+      description: `Creating new ${type}...`,
+    });
+  };
+
+  return (
   <header className="bg-white shadow-sm border-b border-green-200 sticky top-0 z-10">
     <div className="flex justify-between items-center h-16 px-6">
       <div className="flex items-center space-x-4">
@@ -31,6 +57,54 @@ export const DashboardHeader = ({ currentModule, onLogout, onProfileClick }: Das
       </div>
       
       <div className="flex items-center space-x-4">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="default" 
+              size="sm"
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Quick Create
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuLabel>Products</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => handleQuickCreate('Product')}>
+              <Package className="mr-2 h-4 w-4" />
+              Product
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Sales</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => handleQuickCreate('Customer')}>
+              <Users className="mr-2 h-4 w-4" />
+              Customer
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleQuickCreate('Sales Order')}>
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              Sales Order
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleQuickCreate('Invoice')}>
+              <FileText className="mr-2 h-4 w-4" />
+              Invoice
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Purchase</DropdownMenuLabel>
+            <DropdownMenuItem onClick={() => handleQuickCreate('Vendor')}>
+              <Building className="mr-2 h-4 w-4" />
+              Vendor
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleQuickCreate('Purchase Order')}>
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              Purchase Order
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleQuickCreate('Credit')}>
+              <CreditCard className="mr-2 h-4 w-4" />
+              Credit
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        
         <div className="relative">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-green-400" />
           <input
@@ -76,4 +150,5 @@ export const DashboardHeader = ({ currentModule, onLogout, onProfileClick }: Das
       </div>
     </div>
   </header>
-);
+  );
+};
