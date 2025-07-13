@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   ShoppingCart, 
   Users, 
@@ -15,12 +14,10 @@ import {
   Star,
   MessageCircle,
   Play,
-  Clock,
-  FileText,
-  Plus,
-  Minus
+  Clock
 } from 'lucide-react';
 import { OnboardingData, OnboardingStep } from '@/pages/OnboardingJourney';
+import { OrderCreationWizard } from './OrderCreationWizard';
 
 interface MissionControlProps {
   onNext: (data: Partial<OnboardingData>) => void;
@@ -403,209 +400,18 @@ export const MissionControl: React.FC<MissionControlProps> = ({ onNext, onGoToSt
         </DialogContent>
       </Dialog>
 
-      {/* Order Generation Modal */}
-      <Dialog open={showOrderModal} onOpenChange={setShowOrderModal}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Generate Your First Sales Order</DialogTitle>
-            <DialogDescription>
-              Create a sample sales order and see how it appears in your system.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Order Form */}
-            <div className="space-y-4">
-              <h4 className="font-medium text-lg">Order Details</h4>
-              
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Customer</label>
-                  <Select value={orderData.customer} onValueChange={(value) => setOrderData({...orderData, customer: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Kilimanjaro Trading Co.">Kilimanjaro Trading Co.</SelectItem>
-                      <SelectItem value="Lagos Tech Solutions">Lagos Tech Solutions</SelectItem>
-                      <SelectItem value="Sahara Logistics Ltd">Sahara Logistics Ltd</SelectItem>
-                      <SelectItem value="Cape Verde Industries">Cape Verde Industries</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Product</label>
-                  <Select value={orderData.product} onValueChange={(value) => setOrderData({...orderData, product: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Premium Coffee Beans">Premium Coffee Beans - $29.99</SelectItem>
-                      <SelectItem value="Wireless Headphones">Wireless Headphones - $150.00</SelectItem>
-                      <SelectItem value="Smart Watch">Smart Watch - $299.99</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Quantity</label>
-                  <div className="flex items-center space-x-3">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setOrderData({...orderData, quantity: Math.max(1, orderData.quantity - 1)})}
-                    >
-                      <Minus className="w-4 h-4" />
-                    </Button>
-                    <span className="w-12 text-center font-medium">{orderData.quantity}</span>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => setOrderData({...orderData, quantity: orderData.quantity + 1})}
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="bg-muted/30 rounded-lg p-4 space-y-2">
-                  <h5 className="font-medium text-sm">Order Summary</h5>
-                  <div className="flex justify-between text-sm">
-                    <span>Unit Price:</span>
-                    <span>${orderData.unitPrice.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Quantity:</span>
-                    <span>{orderData.quantity}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Subtotal:</span>
-                    <span>${(orderData.quantity * orderData.unitPrice).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Tax (10%):</span>
-                    <span>${(orderData.quantity * orderData.unitPrice * 0.1).toFixed(2)}</span>
-                  </div>
-                  <hr className="my-2" />
-                  <div className="flex justify-between font-medium">
-                    <span>Total:</span>
-                    <span>${(orderData.quantity * orderData.unitPrice * 1.1).toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Live System Preview */}
-            <div className="space-y-4">
-              <h4 className="font-medium text-lg text-muted-foreground">Live Preview - Order in System</h4>
-              
-              {/* Order Card Preview */}
-              <div className="bg-card border rounded-lg p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-primary" />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-sm">SO-2024-001</h4>
-                      <p className="text-xs text-muted-foreground">Sales Order</p>
-                    </div>
-                  </div>
-                  <Badge variant="secondary">Pending</Badge>
-                </div>
-                
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Customer:</span>
-                    <span className="font-medium">{orderData.customer}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Date:</span>
-                    <span>{new Date().toLocaleDateString()}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Status:</span>
-                    <Badge variant="outline" className="text-xs">Pending Approval</Badge>
-                  </div>
-                </div>
-
-                <hr />
-
-                {/* Order Items */}
-                <div className="space-y-3">
-                  <h5 className="font-medium text-sm">Order Items</h5>
-                  <div className="bg-muted/20 rounded-lg p-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
-                        <Package className="w-4 h-4 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <h6 className="text-sm font-medium">{orderData.product}</h6>
-                        <p className="text-xs text-muted-foreground">SKU: {orderData.product.replace(/\s+/g, '').toUpperCase().slice(0, 8)}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium">{orderData.quantity} × ${orderData.unitPrice}</p>
-                        <p className="text-xs text-muted-foreground">${(orderData.quantity * orderData.unitPrice).toFixed(2)}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <hr />
-
-                {/* Order Total */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Subtotal:</span>
-                    <span>${(orderData.quantity * orderData.unitPrice).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Tax:</span>
-                    <span>${(orderData.quantity * orderData.unitPrice * 0.1).toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between font-medium text-lg">
-                    <span>Total:</span>
-                    <span className="text-primary">${(orderData.quantity * orderData.unitPrice * 1.1).toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* System Actions Preview */}
-              <div className="bg-muted/30 rounded-lg p-4">
-                <h5 className="font-medium text-sm mb-3">Available Actions</h5>
-                <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" size="sm" className="text-xs">
-                    <FileText className="w-3 h-3 mr-1" />
-                    Print Order
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-xs">
-                    <Users className="w-3 h-3 mr-1" />
-                    Send to Customer
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-xs">
-                    <CheckCircle2 className="w-3 h-3 mr-1" />
-                    Approve
-                  </Button>
-                  <Button variant="outline" size="sm" className="text-xs">
-                    <Package className="w-3 h-3 mr-1" />
-                    Fulfill
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex justify-end space-x-3 mt-6">
-            <Button variant="outline" onClick={() => setShowOrderModal(false)}>
-              Cancel
-            </Button>
-            <Button onClick={() => completeTask('generate-order')} className="bg-gradient-to-r from-primary to-primary/80">
-              Generate Order & Continue
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      {/* Order Generation Wizard */}
+      {showOrderModal && (
+        <div className="fixed inset-0 z-50">
+          <OrderCreationWizard
+            onComplete={(orderData) => {
+              console.log('Order created:', orderData);
+              completeTask('generate-order');
+            }}
+            onCancel={() => setShowOrderModal(false)}
+          />
+        </div>
+      )}
     </div>
   );
 };
