@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { ArrowRight, ArrowLeft, Eye, Bot, Sparkles, Zap, FileText, Palette, Settings, CreditCard } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Eye, Bot, Sparkles, Zap, FileText, Settings, Upload, FileImage } from 'lucide-react';
 import { OnboardingData } from '@/pages/OnboardingJourney';
 
 interface InvoiceTemplateConfigurationProps {
@@ -36,11 +36,13 @@ const taxRates = [
   { label: 'Custom', value: 'custom' },
 ];
 
-const templateStyles = [
-  { id: 'modern', name: 'Modern', preview: 'Clean lines, bold headers' },
-  { id: 'classic', name: 'Classic', preview: 'Traditional business style' },
-  { id: 'minimal', name: 'Minimal', preview: 'Simple and elegant' },
-  { id: 'colorful', name: 'Colorful', preview: 'Brand-focused design' },
+const themeColors = [
+  { name: 'Professional Blue', value: '#3B82F6', preview: 'bg-blue-500' },
+  { name: 'Forest Green', value: '#059669', preview: 'bg-emerald-600' },
+  { name: 'Royal Purple', value: '#7C3AED', preview: 'bg-violet-600' },
+  { name: 'Crimson Red', value: '#DC2626', preview: 'bg-red-600' },
+  { name: 'Sunset Orange', value: '#EA580C', preview: 'bg-orange-600' },
+  { name: 'Deep Slate', value: '#475569', preview: 'bg-slate-600' },
 ];
 
 export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfigurationProps> = ({ onNext, onBack, data }) => {
@@ -49,24 +51,34 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
     invoiceStartNumber: '1001',
     paymentTerms: 'Net 30',
     taxRate: '0',
-    customTaxRate: '',
     taxLabel: 'Tax',
     showTax: true,
-    showDiscount: true,
-    showNotes: true,
-    templateStyle: 'modern',
-    primaryColor: '#059669',
+    primaryColor: '#3B82F6',
     footerText: 'Thank you for your business!',
-    bankDetails: '',
-    paymentInstructions: '',
   });
+
+  const [logo, setLogo] = useState(data.logo || '');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onNext({ 
       ...data,
+      logo,
       invoiceSettings: formData 
     });
+  };
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const result = event.target?.result as string;
+        setLogo(result);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const selectedCountry = data.country;
@@ -128,6 +140,43 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
                 </CardHeader>
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Company Logo */}
+                    <div className="space-y-2">
+                      <Label htmlFor="logo" className="text-sm font-medium flex items-center gap-2">
+                        <FileImage className="w-4 h-4 text-primary" />
+                        Company Logo
+                      </Label>
+                      <div className="flex items-center gap-4">
+                        {logo && (
+                          <div className="w-16 h-16 rounded-lg border bg-muted flex items-center justify-center overflow-hidden">
+                            <img 
+                              src={logo} 
+                              alt="Company logo" 
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleLogoUpload}
+                            className="hidden"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="w-full h-10"
+                          >
+                            <Upload className="w-4 h-4 mr-2" />
+                            {logo ? 'Change Logo' : 'Upload Logo'}
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Invoice Numbering */}
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -226,84 +275,49 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
                       )}
                     </div>
 
-                    {/* Additional Options */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="showDiscount" className="text-sm font-medium">
-                          Show Discount Field
-                        </Label>
-                        <Switch
-                          id="showDiscount"
-                          checked={formData.showDiscount}
-                          onCheckedChange={(checked) => setFormData(prev => ({ ...prev, showDiscount: checked }))}
-                        />
-                      </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="showNotes" className="text-sm font-medium">
-                          Show Notes Section
-                        </Label>
-                        <Switch
-                          id="showNotes"
-                          checked={formData.showNotes}
-                          onCheckedChange={(checked) => setFormData(prev => ({ ...prev, showNotes: checked }))}
-                        />
-                      </div>
-                    </div>
-
                     {/* Footer Text */}
                     <div className="space-y-2">
                       <Label htmlFor="footerText" className="text-sm font-medium">
                         Footer Message
                       </Label>
-                      <Textarea
+                      <Input
                         id="footerText"
+                        type="text"
                         placeholder="Thank you for your business!"
                         value={formData.footerText}
                         onChange={(e) => setFormData(prev => ({ ...prev, footerText: e.target.value }))}
-                        className="min-h-[60px]"
-                      />
-                    </div>
-
-                    {/* Payment Instructions */}
-                    <div className="space-y-2">
-                      <Label htmlFor="paymentInstructions" className="text-sm font-medium">
-                        Payment Instructions
-                      </Label>
-                      <Textarea
-                        id="paymentInstructions"
-                        placeholder="Please remit payment within 30 days..."
-                        value={formData.paymentInstructions}
-                        onChange={(e) => setFormData(prev => ({ ...prev, paymentInstructions: e.target.value }))}
-                        className="min-h-[60px]"
+                        className="h-10"
                       />
                     </div>
                   </form>
                 </CardContent>
               </Card>
 
-              {/* Template Style */}
+              {/* Theme Color */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Palette className="w-5 h-5 text-primary" />
-                    Template Style
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    Theme Color
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-3">
-                    {templateStyles.map((style) => (
+                    {themeColors.map((color) => (
                       <div
-                        key={style.id}
+                        key={color.value}
                         className={`border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md ${
-                          formData.templateStyle === style.id 
+                          formData.primaryColor === color.value 
                             ? 'border-primary bg-primary/5' 
                             : 'border-border hover:border-primary/50'
                         }`}
-                        onClick={() => setFormData(prev => ({ ...prev, templateStyle: style.id }))}
+                        onClick={() => setFormData(prev => ({ ...prev, primaryColor: color.value }))}
                       >
-                        <h4 className="font-medium text-sm">{style.name}</h4>
-                        <p className="text-xs text-muted-foreground mt-1">{style.preview}</p>
+                        <div className="flex items-center gap-2 mb-1">
+                          <div className={`w-4 h-4 rounded-full ${color.preview}`}></div>
+                          <h4 className="font-medium text-sm">{color.name}</h4>
+                        </div>
+                        <p className="text-xs text-muted-foreground">{color.value}</p>
                       </div>
                     ))}
                   </div>
@@ -347,10 +361,10 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
                     {/* Invoice Header */}
                     <div className="flex justify-between items-start mb-6">
                       <div>
-                        {data.logo && (
+                        {logo && (
                           <div className="w-16 h-16 rounded overflow-hidden mb-3">
                             <img 
-                              src={data.logo} 
+                              src={logo} 
                               alt="Company logo" 
                               className="w-full h-full object-contain"
                             />
@@ -423,7 +437,7 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
                             <span>Subtotal:</span>
                             <span>$100.00</span>
                           </div>
-                          {formData.showDiscount && (
+                          {formData.showTax && (
                             <div className="flex justify-between text-sm">
                               <span>Discount:</span>
                               <span>-$0.00</span>
@@ -442,16 +456,6 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
                         </div>
                       </div>
                     </div>
-
-                    {/* Payment Instructions */}
-                    {formData.paymentInstructions && (
-                      <div className="mb-4">
-                        <h4 className="font-medium text-gray-900 mb-2">Payment Instructions:</h4>
-                        <p className="text-sm text-gray-600 whitespace-pre-line">
-                          {formData.paymentInstructions}
-                        </p>
-                      </div>
-                    )}
 
                     {/* Footer */}
                     {formData.footerText && (

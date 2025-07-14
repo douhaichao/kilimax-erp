@@ -36,16 +36,10 @@ export interface OnboardingData {
     invoiceStartNumber: string;
     paymentTerms: string;
     taxRate: string;
-    customTaxRate: string;
     taxLabel: string;
     showTax: boolean;
-    showDiscount: boolean;
-    showNotes: boolean;
-    templateStyle: string;
     primaryColor: string;
     footerText: string;
-    bankDetails: string;
-    paymentInstructions: string;
   };
 }
 

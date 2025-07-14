@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
-import { ArrowRight, MapPin, Globe, Upload, FileImage, Bot, Sparkles, Zap, Users, Briefcase } from 'lucide-react';
+import { ArrowRight, MapPin, Globe, Bot, Sparkles, Zap, Users, Briefcase } from 'lucide-react';
 import { OnboardingData } from '@/pages/OnboardingJourney';
 
 interface CompanyProfileSurveyProps {
@@ -59,16 +59,12 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({ onNe
     companyName: data.companyName || '',
     country: data.country || '',
     industry: data.industry || '',
-    logo: data.logo || '',
     address: data.address || '',
     phone: data.phone || '',
     email: data.email || '',
     employeeCount: (data as any).employeeCount || '',
     userRole: (data as any).userRole || '',
-    businessDescription: (data as any).businessDescription || '',
   });
-  
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedCountry = countries.find(c => c.code === formData.country);
   
@@ -77,17 +73,6 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({ onNe
     onNext(formData);
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const result = event.target?.result as string;
-        setFormData(prev => ({ ...prev, logo: result }));
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const showVATSuggestion = formData.country === 'DE';
 
@@ -127,11 +112,11 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({ onNe
             </div>
             <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center justify-center gap-2">
               <Sparkles className="w-6 h-6 text-primary animate-pulse" />
-              Company Profile Survey
+              Tell Us About Your Company
               <Sparkles className="w-6 h-6 text-primary animate-pulse" />
             </h1>
             <p className="text-muted-foreground">
-              Tell us about your company so we can personalize your experience
+              Help us personalize your experience with a few quick questions
             </p>
           </div>
 
@@ -144,84 +129,29 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({ onNe
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Company Name and Logo Row */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                  <div className="md:col-span-2 space-y-2">
-                    <Label htmlFor="companyName" className="text-sm font-medium flex items-center gap-1">
-                      Company Name *
-                      <Sparkles className="w-3 h-3 text-primary" />
-                    </Label>
-                    <Input
-                      id="companyName"
-                      type="text"
-                      placeholder="Enter your company name"
-                      value={formData.companyName}
-                      onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
-                      className="h-12"
-                      required
-                    />
-                  </div>
-                  
-                  {/* Compact Logo Section */}
-                  <div className="space-y-2">
-                    <Label htmlFor="logo" className="text-sm font-medium flex items-center gap-1">
-                      Logo
-                      <FileImage className="w-3 h-3 text-primary" />
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      {formData.logo && (
-                        <div className="w-12 h-12 rounded-lg border bg-muted flex items-center justify-center overflow-hidden">
-                          <img 
-                            src={formData.logo} 
-                            alt="Company logo" 
-                            className="w-full h-full object-contain"
-                          />
-                        </div>
-                      )}
-                      <div className="flex-1">
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/*"
-                          onChange={handleLogoUpload}
-                          className="hidden"
-                        />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="w-full h-12"
-                        >
-                          <Upload className="w-4 h-4 mr-1" />
-                          {formData.logo ? 'Change' : 'Upload'}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Business Description */}
+                {/* Company Name */}
                 <div className="space-y-2">
-                  <Label htmlFor="businessDescription" className="text-sm font-medium flex items-center gap-1">
-                    Business Description
-                    <Briefcase className="w-3 h-3 text-primary" />
+                  <Label htmlFor="companyName" className="text-base font-medium text-foreground flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    What's your company name? *
                   </Label>
-                  <Textarea
-                    id="businessDescription"
-                    placeholder="Briefly describe what your business does..."
-                    value={formData.businessDescription}
-                    onChange={(e) => setFormData(prev => ({ ...prev, businessDescription: e.target.value }))}
-                    className="min-h-[80px]"
+                  <Input
+                    id="companyName"
+                    type="text"
+                    placeholder="Enter your company name"
+                    value={formData.companyName}
+                    onChange={(e) => setFormData(prev => ({ ...prev, companyName: e.target.value }))}
+                    className="h-12"
+                    required
                   />
                 </div>
 
                 {/* Country and Industry Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="country" className="text-sm font-medium flex items-center gap-1">
-                      Country *
-                      <Globe className="w-3 h-3 text-primary" />
+                    <Label htmlFor="country" className="text-base font-medium text-foreground flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-primary" />
+                      Which country is your business located in? *
                     </Label>
                     <Select value={formData.country} onValueChange={(value) => setFormData(prev => ({ ...prev, country: value }))}>
                       <SelectTrigger className="h-12">
@@ -246,9 +176,9 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({ onNe
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="industry" className="text-sm font-medium flex items-center gap-1">
-                      Industry *
-                      <Zap className="w-3 h-3 text-primary" />
+                    <Label htmlFor="industry" className="text-base font-medium text-foreground flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-primary" />
+                      What industry are you in? *
                     </Label>
                     <Select value={formData.industry} onValueChange={(value) => setFormData(prev => ({ ...prev, industry: value }))}>
                       <SelectTrigger className="h-12">
@@ -268,9 +198,9 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({ onNe
                 {/* Employee Count and Role Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="employeeCount" className="text-sm font-medium flex items-center gap-1">
-                      Company Size *
-                      <Users className="w-3 h-3 text-primary" />
+                    <Label htmlFor="employeeCount" className="text-base font-medium text-foreground flex items-center gap-2">
+                      <Users className="w-4 h-4 text-primary" />
+                      How many people work at your company? *
                     </Label>
                     <Select value={formData.employeeCount} onValueChange={(value) => setFormData(prev => ({ ...prev, employeeCount: value }))}>
                       <SelectTrigger className="h-12">
@@ -287,9 +217,9 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({ onNe
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="userRole" className="text-sm font-medium flex items-center gap-1">
-                      Your Role *
-                      <Briefcase className="w-3 h-3 text-primary" />
+                    <Label htmlFor="userRole" className="text-base font-medium text-foreground flex items-center gap-2">
+                      <Briefcase className="w-4 h-4 text-primary" />
+                      What's your role in the company? *
                     </Label>
                     <Select value={formData.userRole} onValueChange={(value) => setFormData(prev => ({ ...prev, userRole: value }))}>
                       <SelectTrigger className="h-12">
@@ -308,9 +238,9 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({ onNe
 
                 {/* Address */}
                 <div className="space-y-2">
-                  <Label htmlFor="address" className="text-sm font-medium flex items-center gap-1">
-                    Business Address
-                    <MapPin className="w-3 h-3 text-primary" />
+                  <Label htmlFor="address" className="text-base font-medium text-foreground flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-primary" />
+                    What's your business address?
                   </Label>
                   <Textarea
                     id="address"
@@ -324,8 +254,8 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({ onNe
                 {/* Contact Info Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm font-medium">
-                      Phone Number
+                    <Label htmlFor="phone" className="text-base font-medium text-foreground">
+                      What's your business phone number?
                     </Label>
                     <Input
                       id="phone"
@@ -338,8 +268,8 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({ onNe
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium">
-                      Business Email
+                    <Label htmlFor="email" className="text-base font-medium text-foreground">
+                      What's your business email?
                     </Label>
                     <Input
                       id="email"
