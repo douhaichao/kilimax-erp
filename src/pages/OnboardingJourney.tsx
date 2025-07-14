@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { PersonalProfileSurvey } from '@/components/onboarding/PersonalProfileSurvey';
 import { CompanyProfileSurvey } from '@/components/onboarding/CompanyProfileSurvey';
 import { InvoiceTemplateConfiguration } from '@/components/onboarding/InvoiceTemplateConfiguration';
 import { AIIndustrySetup } from '@/components/onboarding/AIIndustrySetup';
@@ -9,6 +10,7 @@ import { PersonalizedLearningHub } from '@/components/onboarding/PersonalizedLea
 import { TrialSuccessDashboard } from '@/components/onboarding/TrialSuccessDashboard';
 
 export type OnboardingStep = 
+  | 'personal-profile'
   | 'company-profile'
   | 'invoice-config'
   | 'industry-setup' 
@@ -19,6 +21,9 @@ export type OnboardingStep =
   | 'trial-success';
 
 export interface OnboardingData {
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
   companyName: string;
   country: string;
   industry: string;
@@ -44,7 +49,7 @@ export interface OnboardingData {
 }
 
 const OnboardingJourney = () => {
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>('company-profile');
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>('personal-profile');
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     companyName: '',
     country: '',
@@ -58,6 +63,7 @@ const OnboardingJourney = () => {
     }
 
     const stepOrder: OnboardingStep[] = [
+      'personal-profile',
       'company-profile',
       'invoice-config',
       'industry-setup', 
@@ -80,6 +86,7 @@ const OnboardingJourney = () => {
 
   const goBack = () => {
     const stepOrder: OnboardingStep[] = [
+      'personal-profile',
       'company-profile',
       'invoice-config',
       'industry-setup', 
@@ -98,8 +105,10 @@ const OnboardingJourney = () => {
 
   const renderCurrentStep = () => {
     switch (currentStep) {
+      case 'personal-profile':
+        return <PersonalProfileSurvey onNext={nextStep} data={onboardingData} />;
       case 'company-profile':
-        return <CompanyProfileSurvey onNext={nextStep} data={onboardingData} />;
+        return <CompanyProfileSurvey onNext={nextStep} onBack={goBack} data={onboardingData} />;
       case 'invoice-config':
         return <InvoiceTemplateConfiguration onNext={nextStep} onBack={goBack} data={onboardingData} />;
       case 'industry-setup':
@@ -115,7 +124,7 @@ const OnboardingJourney = () => {
       case 'trial-success':
         return <TrialSuccessDashboard data={onboardingData} />;
       default:
-        return <CompanyProfileSurvey onNext={nextStep} data={onboardingData} />;
+        return <PersonalProfileSurvey onNext={nextStep} data={onboardingData} />;
     }
   };
 
