@@ -189,7 +189,7 @@ const GuidedTutorial = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Getting StartedWelcome to KiliMax</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2">Welcome to KiliMax</h1>
           <p className="text-muted-foreground">Follow this step-by-step guide to set up your business</p>
         </div>
 
