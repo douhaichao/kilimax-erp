@@ -87,6 +87,59 @@ const GuidedTutorial = () => {
     }
   };
 
+  const getStepImage = (stepId: string) => {
+    switch (stepId) {
+      case 'purchase': return 'photo-1488590528505-98d2b5aba04b';
+      case 'sales': return 'photo-1461749280684-dccba630e2f6';
+      case 'receipts': return 'photo-1486312338219-ce68d2c6f44d';
+      case 'invoices': return 'photo-1531297484001-80022131f5a1';
+      case 'profile': return 'photo-1487058792275-0ad4aaf24ca7';
+      case 'products': return 'photo-1488590528505-98d2b5aba04b';
+      case 'dashboard': return 'photo-1461749280684-dccba630e2f6';
+      default: return 'photo-1486312338219-ce68d2c6f44d';
+    }
+  };
+
+  const getStepFeatures = (stepId: string) => {
+    switch (stepId) {
+      case 'purchase':
+        return [
+          'Track supplier orders and deliveries',
+          'Automatic inventory updates',
+          'Cost tracking and reporting',
+          'Supplier performance analytics'
+        ];
+      case 'sales':
+        return [
+          'Create professional sales orders',
+          'Customer management integration',
+          'Real-time inventory checking',
+          'Order status tracking'
+        ];
+      case 'receipts':
+        return [
+          'Record customer payments',
+          'Multiple payment methods support',
+          'Automatic receipt generation',
+          'Payment history tracking'
+        ];
+      case 'invoices':
+        return [
+          'Professional invoice templates',
+          'Automated calculations',
+          'Custom branding options',
+          'PDF generation and email delivery'
+        ];
+      default:
+        return [
+          'Easy to use interface',
+          'Real-time updates',
+          'Professional features',
+          'Comprehensive reporting'
+        ];
+    }
+  };
+
   const handleStepClick = (stepIndex: number) => {
     setCurrentStepIndex(stepIndex);
   };
@@ -212,25 +265,40 @@ const GuidedTutorial = () => {
             </CardContent>
           </Card>
 
-          {/* Progress Overview */}
+          {/* Feature Demo */}
           <Card>
             <CardHeader>
-              <CardTitle>Your Progress</CardTitle>
-              <CardDescription>Track your onboarding journey</CardDescription>
+              <CardTitle>How It Works</CardTitle>
+              <CardDescription>See {currentStep.title} in action</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                {modules.map((module, index) => (
-                  <div key={module.id} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{module.title}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {module.steps.filter(s => s.isCompleted).length}/{module.steps.length}
-                      </span>
+              <div className="space-y-4">
+                {/* Main Demo Image */}
+                <div className="relative bg-muted rounded-lg overflow-hidden aspect-video">
+                  <img 
+                    src={`https://images.unsplash.com/${getStepImage(currentStep.id)}?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80`}
+                    alt={`${currentStep.title} demonstration`}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                    <div className="bg-white/90 rounded-full p-3">
+                      <div className="w-6 h-6 bg-primary rounded-full animate-pulse"></div>
                     </div>
-                    <Progress value={getModuleProgress(module)} className="h-2" />
                   </div>
-                ))}
+                </div>
+                
+                {/* Step Features */}
+                <div className="space-y-3">
+                  <h4 className="font-medium">Key Features:</h4>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    {getStepFeatures(currentStep.id).map((feature, index) => (
+                      <li key={index} className="flex items-start gap-2">
+                        <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                        <span>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
               
               <div className="mt-6 p-4 bg-muted/50 rounded-lg">
