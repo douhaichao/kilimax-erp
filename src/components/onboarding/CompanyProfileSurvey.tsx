@@ -10,7 +10,6 @@ import { ArrowRight, MapPin, Globe, Bot, Sparkles, Zap, Users, Briefcase } from 
 import { OnboardingData } from '@/pages/OnboardingJourney';
 interface CompanyProfileSurveyProps {
   onNext: (data: Partial<OnboardingData>) => void;
-  onBack: () => void;
   data: OnboardingData;
 }
 const countries = [{
@@ -55,7 +54,6 @@ const employeeCounts = ['1-5 employees', '6-20 employees', '21-50 employees', '5
 const userRoles = ['Owner/Founder', 'CEO/President', 'CFO', 'Operations Manager', 'Finance Manager', 'Accountant', 'Administrator', 'Other'];
 export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
   onNext,
-  onBack,
   data
 }) => {
   const [formData, setFormData] = useState({
@@ -96,10 +94,10 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
         {/* Progress Bar */}
         <div className="max-w-md mx-auto mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Personal Profile → Company Info</span>
-            <span className="text-sm text-muted-foreground">→ Invoice Setup</span>
+            <span className="text-sm text-muted-foreground">Step 1 of 2</span>
+            <span className="text-sm font-medium text-primary">50% Complete</span>
           </div>
-          <Progress value={66} className="h-2" />
+          <Progress value={50} className="h-2" />
         </div>
 
         {/* Main Content */}
@@ -249,11 +247,8 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
                 {/* Contact Info Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-base font-medium text-foreground">Phone number</Label>
-                    <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" value={formData.phone} onChange={e => setFormData(prev => ({
-                    ...prev,
-                    phone: e.target.value
-                  }))} className="h-12" />
+                    
+                    
                   </div>
 
                   <div className="space-y-2">
@@ -283,26 +278,12 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
                     </div>
                   </div>}
 
-                {/* Navigation Buttons */}
-                <div className="flex gap-4">
-                  <Button 
-                    type="button"
-                    onClick={onBack}
-                    variant="outline"
-                    className="flex-1 h-12 text-lg"
-                  >
-                    Back
-                  </Button>
-                  <Button 
-                    type="submit" 
-                    className="flex-1 h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transform hover:scale-[1.02] transition-all duration-200 shadow-lg" 
-                    disabled={!formData.companyName || !formData.country || !formData.industry || !formData.employeeCount || !formData.userRole}
-                  >
-                    <Bot className="w-5 h-5 mr-2 animate-pulse" />
-                    Continue to Invoice Setup
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </Button>
-                </div>
+                {/* Continue Button */}
+                <Button type="submit" className="w-full h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transform hover:scale-[1.02] transition-all duration-200 shadow-lg" disabled={!formData.companyName || !formData.country || !formData.industry || !formData.employeeCount || !formData.userRole}>
+                  <Bot className="w-5 h-5 mr-2 animate-pulse" />
+                  Continue to Invoice Setup
+                  <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
               </form>
             </CardContent>
           </Card>
