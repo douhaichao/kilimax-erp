@@ -103,8 +103,8 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
         {/* Progress Bar */}
         <div className="max-w-md mx-auto mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Step 2 of 2</span>
-            <span className="text-sm font-medium text-primary">100% Complete</span>
+            <span className="text-sm text-muted-foreground">Personal Profile → Company Info → Invoice Setup</span>
+            <span className="text-sm font-medium text-primary">Optional</span>
           </div>
           <Progress value={100} className="h-2" />
         </div>
@@ -124,7 +124,7 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
               <Sparkles className="w-6 h-6 text-primary animate-pulse" />
             </h1>
             <p className="text-muted-foreground">
-              Customize your invoice template with your company details
+              Customize your invoice template with your company details (Optional - can be configured later in settings)
             </p>
           </div>
 
@@ -334,6 +334,14 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
                 >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Profile
+                </Button>
+                <Button 
+                  type="button"
+                  variant="outline"
+                  onClick={() => onNext(data)}
+                  className="flex-1 h-12"
+                >
+                  Skip for Now
                 </Button>
                 <Button 
                   onClick={handleSubmit}

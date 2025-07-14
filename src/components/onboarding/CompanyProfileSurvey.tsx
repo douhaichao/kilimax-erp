@@ -96,10 +96,10 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
         {/* Progress Bar */}
         <div className="max-w-md mx-auto mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-muted-foreground">Step 1 of 2</span>
-            <span className="text-sm font-medium text-primary">50% Complete</span>
+            <span className="text-sm text-muted-foreground">Personal Profile → Company Info</span>
+            <span className="text-sm text-muted-foreground">→ Invoice Setup</span>
           </div>
-          <Progress value={50} className="h-2" />
+          <Progress value={66} className="h-2" />
         </div>
 
         {/* Main Content */}
