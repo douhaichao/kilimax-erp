@@ -13,7 +13,7 @@ export const DashboardTabs = () => {
         </TabsTrigger>
         <TabsTrigger value="setup" className="flex items-center space-x-2">
           <Settings className="w-4 h-4" />
-          <span>Getting Started Guide</span>
+          <span>Getting Started</span>
         </TabsTrigger>
         <TabsTrigger value="help" className="flex items-center space-x-2">
           <HelpCircle className="w-4 h-4" />
