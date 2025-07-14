@@ -144,7 +144,31 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
 
                 {/* Country and Industry Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  
+                  <div className="space-y-2">
+                    <Label htmlFor="country" className="text-base font-medium text-foreground flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-primary" />
+                      Which country is your business located in? *
+                    </Label>
+                    <Select value={formData.country} onValueChange={value => setFormData(prev => ({
+                    ...prev,
+                    country: value
+                  }))}>
+                      <SelectTrigger className="h-12">
+                        <SelectValue placeholder="Select your country" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {countries.map(country => <SelectItem key={country.code} value={country.code}>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-lg">{country.flag}</span>
+                              <span>{country.name}</span>
+                            </div>
+                          </SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                    {selectedCountry && <p className="text-xs text-muted-foreground">
+                        Currency: {selectedCountry.currency} • Timezone: {selectedCountry.timezone}
+                      </p>}
+                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="industry" className="text-base font-medium text-foreground flex items-center gap-2">
@@ -224,9 +248,23 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
 
                 {/* Contact Info Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  
+                  <div className="space-y-2">
+                    <Label htmlFor="phone" className="text-base font-medium text-foreground">Phone number</Label>
+                    <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" value={formData.phone} onChange={e => setFormData(prev => ({
+                    ...prev,
+                    phone: e.target.value
+                  }))} className="h-12" />
+                  </div>
 
-                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-base font-medium text-foreground">
+                      What's your business email?
+                    </Label>
+                    <Input id="email" type="email" placeholder="hello@company.com" value={formData.email} onChange={e => setFormData(prev => ({
+                    ...prev,
+                    email: e.target.value
+                  }))} className="h-12" />
+                  </div>
                 </div>
 
                 {/* AI Smart Suggestion */}
@@ -247,10 +285,19 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
 
                 {/* Navigation Buttons */}
                 <div className="flex gap-4">
-                  <Button type="button" onClick={onBack} variant="outline" className="flex-1 h-12 text-lg">
+                  <Button 
+                    type="button"
+                    onClick={onBack}
+                    variant="outline"
+                    className="flex-1 h-12 text-lg"
+                  >
                     Back
                   </Button>
-                  <Button type="submit" className="flex-1 h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transform hover:scale-[1.02] transition-all duration-200 shadow-lg" disabled={!formData.companyName || !formData.country || !formData.industry || !formData.employeeCount || !formData.userRole}>
+                  <Button 
+                    type="submit" 
+                    className="flex-1 h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transform hover:scale-[1.02] transition-all duration-200 shadow-lg" 
+                    disabled={!formData.companyName || !formData.country || !formData.industry || !formData.employeeCount || !formData.userRole}
+                  >
                     <Bot className="w-5 h-5 mr-2 animate-pulse" />
                     Continue to Invoice Setup
                     <ArrowRight className="w-5 h-5 ml-2" />
