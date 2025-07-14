@@ -1,15 +1,11 @@
-
 import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardContent } from './DashboardContent';
 import GuidedTutorial from '@/components/onboarding/GuidedTutorial';
 import { LayoutDashboard, Settings, HelpCircle } from 'lucide-react';
-
 export const DashboardTabs = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-
-  return (
-    <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+  return <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
       <TabsList className="grid w-full grid-cols-3 mb-6">
         <TabsTrigger value="dashboard" className="flex items-center space-x-2">
           <LayoutDashboard className="w-4 h-4" />
@@ -17,7 +13,7 @@ export const DashboardTabs = () => {
         </TabsTrigger>
         <TabsTrigger value="setup" className="flex items-center space-x-2">
           <Settings className="w-4 h-4" />
-          <span>Setup Guide</span>
+          <span>Getting Started Guide</span>
         </TabsTrigger>
         <TabsTrigger value="help" className="flex items-center space-x-2">
           <HelpCircle className="w-4 h-4" />
@@ -40,6 +36,5 @@ export const DashboardTabs = () => {
           <p className="text-gray-600">Documentation and support resources coming soon</p>
         </div>
       </TabsContent>
-    </Tabs>
-  );
+    </Tabs>;
 };
