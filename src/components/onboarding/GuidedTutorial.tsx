@@ -31,10 +31,12 @@ const GuidedTutorial = () => {
       title: 'Initial Setup',
       description: 'Configure your business profile and basic settings',
       isActive: false,
-      isCompleted: true,
+      isCompleted: false,
       steps: [
-        { id: 'profile', title: 'Create Profile', description: 'Set up your business profile', isCompleted: true },
-        { id: 'settings', title: 'Basic Settings', description: 'Configure initial preferences', isCompleted: true }
+        { id: 'profile', title: 'Business Profile', description: 'Set up your company information, logo, and contact details to create a professional identity', isCompleted: true },
+        { id: 'users', title: 'User Accounts', description: 'Add team members and configure user roles and permissions', isCompleted: false },
+        { id: 'settings', title: 'System Settings', description: 'Configure currencies, tax rates, and business preferences', isCompleted: false },
+        { id: 'templates', title: 'Document Templates', description: 'Customize invoice and document templates with your branding', isCompleted: false }
       ]
     },
     {
@@ -42,10 +44,12 @@ const GuidedTutorial = () => {
       title: 'Inventory Setup',
       description: 'Add your products and manage inventory',
       isActive: false,
-      isCompleted: true,
+      isCompleted: false,
       steps: [
-        { id: 'products', title: 'Add Products', description: 'Create your product catalog', isCompleted: true },
-        { id: 'categories', title: 'Setup Categories', description: 'Organize your products', isCompleted: true }
+        { id: 'categories', title: 'Product Categories', description: 'Create categories to organize your products effectively', isCompleted: false },
+        { id: 'products', title: 'Add Products', description: 'Create your product catalog with prices, descriptions, and images', isCompleted: true },
+        { id: 'suppliers', title: 'Supplier Setup', description: 'Add supplier information for purchase order management', isCompleted: false },
+        { id: 'warehouse', title: 'Warehouse Setup', description: 'Configure storage locations and inventory tracking', isCompleted: false }
       ]
     },
     {
@@ -170,27 +174,37 @@ const GuidedTutorial = () => {
         {/* Progress Steps */}
         <div className="flex items-center justify-between mb-8 relative">
           {modules.map((module, index) => (
-            <div key={module.id} className="flex flex-col items-center relative z-10">
+            <button
+              key={module.id}
+              onClick={() => {
+                setCurrentModuleIndex(index);
+                setCurrentStepIndex(0);
+              }}
+              className="flex flex-col items-center relative z-10 group"
+            >
               <div className={`
-                w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium
+                w-12 h-12 rounded-full flex items-center justify-center text-sm font-medium transition-all
                 ${index === currentModuleIndex 
                   ? 'bg-primary text-primary-foreground' 
                   : module.isCompleted 
-                    ? 'bg-primary/20 text-primary' 
-                    : 'bg-muted text-muted-foreground'
+                    ? 'bg-green-500 text-white' 
+                    : 'bg-muted text-muted-foreground group-hover:bg-muted-foreground/20'
                 }
               `}>
-                {index + 1}
+                {module.isCompleted ? <CheckCircle className="w-5 h-5" /> : index + 1}
               </div>
               <div className="mt-2 text-center max-w-24">
                 <div className="text-sm font-medium text-foreground">{module.title}</div>
+                {module.isCompleted && (
+                  <div className="text-xs text-green-600 font-medium">Completed</div>
+                )}
               </div>
               {index === currentModuleIndex && (
                 <Badge variant="secondary" className="mt-1 bg-primary/10 text-primary">
                   Active
                 </Badge>
               )}
-            </div>
+            </button>
           ))}
           <div className="absolute top-6 left-0 right-0 h-0.5 bg-muted -z-0">
             <div 
@@ -216,12 +230,17 @@ const GuidedTutorial = () => {
                 `}
               >
                 <div className={`
-                  w-8 h-8 rounded-full flex items-center justify-center mb-2
-                  ${step.isCompleted ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}
+                  w-8 h-8 rounded-full flex items-center justify-center mb-2 transition-all
+                  ${step.isCompleted ? 'bg-green-500 text-white' : 'bg-muted text-muted-foreground'}
                 `}>
                   {step.isCompleted ? <CheckCircle className="w-4 h-4" /> : <Circle className="w-4 h-4" />}
                 </div>
-                <span className="text-sm font-medium text-center">{step.title}</span>
+                <div className="flex flex-col items-center">
+                  <span className="text-sm font-medium text-center">{step.title}</span>
+                  {step.isCompleted && (
+                    <span className="text-xs text-green-600 font-medium mt-1">✓ Done</span>
+                  )}
+                </div>
                 {index === currentStepIndex && (
                   <div className="w-full h-0.5 bg-primary mt-2 rounded"></div>
                 )}
@@ -237,8 +256,16 @@ const GuidedTutorial = () => {
             <CardHeader>
               <div className="flex items-center gap-3">
                 {React.createElement(getStepIcon(currentStep.id), { className: "w-6 h-6 text-primary" })}
-                <div>
-                  <CardTitle className="text-xl">{currentStep.title}</CardTitle>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <CardTitle className="text-xl">{currentStep.title}</CardTitle>
+                    {currentStep.isCompleted && (
+                      <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Completed
+                      </Badge>
+                    )}
+                  </div>
                   <CardDescription className="mt-1">
                     Step {currentStepIndex + 1} of {currentModule.steps.length} in {currentModule.title}
                   </CardDescription>
@@ -251,16 +278,23 @@ const GuidedTutorial = () => {
               </p>
               
               <div className="space-y-4">
-                <Button onClick={handleNextStep} className="w-full">
-                  Get Started
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-                
-                <div className="text-center">
-                  <button className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                    Skip this step
-                  </button>
-                </div>
+                {currentStep.isCompleted ? (
+                  <div className="space-y-3">
+                    <Button variant="outline" className="w-full">
+                      View Details
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                    <Button className="w-full">
+                      Edit Configuration
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </Button>
+                  </div>
+                ) : (
+                  <Button className="w-full">
+                    Add New
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                )}
               </div>
             </CardContent>
           </Card>
