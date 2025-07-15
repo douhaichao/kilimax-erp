@@ -17,11 +17,13 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
   const [currentStep, setCurrentStep] = useState<'swap' | 'variant'>('swap');
   const [oldItemUIN, setOldItemUIN] = useState('');
   const [newItemUIN, setNewItemUIN] = useState('');
+  const [selectedProduct, setSelectedProduct] = useState('');
   const [isSwapping, setIsSwapping] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
   // Mock product details for display
   const [productDetails, setProductDetails] = useState<any>(null);
+  const [selectedProductDetails, setSelectedProductDetails] = useState<any>(null);
   
   // Variant details for the new item
   const [variantDetails, setVariantDetails] = useState({
@@ -37,6 +39,42 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
   const existingColors = ['Space Gray', 'Silver', 'Gold', 'Blue', 'Green', 'Red', 'Black', 'White'];
   const existingSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '6', '7', '8', '9', '10', '11', '12'];
   const existingMemory = ['64GB', '128GB', '256GB', '512GB', '1TB', '2TB', '4GB', '8GB', '16GB', '32GB'];
+  
+  // Mock product catalog
+  const productCatalog = [
+    {
+      id: 'prod-001',
+      name: 'iPhone 15 Pro',
+      category: 'Smartphones',
+      specifications: 'A17 Pro chip, ProRes video, Titanium design',
+      sku: 'IPH15P-001',
+      price: 999.00
+    },
+    {
+      id: 'prod-002',
+      name: 'Samsung Galaxy S24',
+      category: 'Smartphones',
+      specifications: 'Snapdragon 8 Gen 3, 50MP camera, 120Hz display',
+      sku: 'SGS24-001',
+      price: 899.00
+    },
+    {
+      id: 'prod-003',
+      name: 'MacBook Pro 14"',
+      category: 'Laptops',
+      specifications: 'M3 chip, 14-inch Liquid Retina XDR display',
+      sku: 'MBP14-001',
+      price: 1999.00
+    },
+    {
+      id: 'prod-004',
+      name: 'AirPods Pro',
+      category: 'Audio',
+      specifications: 'Active Noise Cancellation, Spatial Audio',
+      sku: 'APP-001',
+      price: 249.00
+    }
+  ];
   
   const { toast } = useToast();
 
@@ -63,6 +101,19 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
   const handleOldItemChange = (value: string) => {
     setOldItemUIN(value);
     fetchProductDetails(value);
+  };
+
+  const handleProductSelect = (productId: string) => {
+    setSelectedProduct(productId);
+    const product = productCatalog.find(p => p.id === productId);
+    if (product) {
+      setSelectedProductDetails(product);
+      // Auto-generate UIN when product is selected
+      const autoUIN = `${product.sku}-${Date.now().toString().slice(-6)}`;
+      setNewItemUIN(autoUIN);
+    } else {
+      setSelectedProductDetails(null);
+    }
   };
 
   const handleSwap = async () => {
@@ -150,7 +201,9 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
     setCurrentStep('swap');
     setOldItemUIN('');
     setNewItemUIN('');
+    setSelectedProduct('');
     setProductDetails(null);
+    setSelectedProductDetails(null);
     setVariantDetails({
       color: '',
       size: '',
@@ -252,6 +305,50 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
                       disabled={isSwapping}
                     />
                   </div>
+
+                  {/* Product Selection */}
+                  <div className="space-y-2">
+                    <Label htmlFor="productSelect">Or Select Product</Label>
+                    <Select 
+                      value={selectedProduct} 
+                      onValueChange={handleProductSelect}
+                      disabled={isSwapping}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Choose a product" />
+                      </SelectTrigger>
+                      <SelectContent className="z-50 bg-popover">
+                        {productCatalog.map((product) => (
+                          <SelectItem key={product.id} value={product.id}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{product.name}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {product.category} • {product.specifications}
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Selected Product Details */}
+                  {selectedProductDetails && (
+                    <div className="bg-muted/50 p-4 rounded-lg border">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Package className="h-4 w-4 text-green-600" />
+                        <span className="font-medium text-sm">Selected Product</span>
+                      </div>
+                      <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">Name:</span> {selectedProductDetails.name}</div>
+                        <div><span className="font-medium">Category:</span> {selectedProductDetails.category}</div>
+                        <div><span className="font-medium">SKU:</span> {selectedProductDetails.sku}</div>
+                        <div><span className="font-medium">Specifications:</span> {selectedProductDetails.specifications}</div>
+                        <div><span className="font-medium">Price:</span> ${selectedProductDetails.price}</div>
+                        <div><span className="font-medium">Generated UIN:</span> {newItemUIN}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -290,7 +387,7 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
                     <SelectTrigger>
                       <SelectValue placeholder="Select color" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-50 bg-popover">
                       {existingColors.map((color) => (
                         <SelectItem key={color} value={color}>
                           {color}
@@ -309,7 +406,7 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
                     <SelectTrigger>
                       <SelectValue placeholder="Select size" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-50 bg-popover">
                       {existingSizes.map((size) => (
                         <SelectItem key={size} value={size}>
                           {size}
@@ -331,7 +428,7 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
                     <SelectTrigger>
                       <SelectValue placeholder="Select memory/storage" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="z-50 bg-popover">
                       {existingMemory.map((memory) => (
                         <SelectItem key={memory} value={memory}>
                           {memory}
