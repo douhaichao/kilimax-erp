@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ export const DashboardCardConfig = ({ cardVisibility, onCardToggle }: DashboardC
   const [isOpen, setIsOpen] = useState(false);
 
   const cards = [
+    { id: 'gettingStarted', name: 'Complete your setup', description: 'Getting started banner with setup guidance' },
     { id: 'stats', name: 'Dashboard Stats', description: 'Sales, orders, profit and customer metrics' },
     { id: 'hotProducts', name: 'Hot Products', description: 'Trending and popular products' },
     { id: 'customerFollowups', name: 'Customer Follow-ups', description: 'Pending payments and orders' },

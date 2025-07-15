@@ -12,6 +12,7 @@ import { DashboardCardConfig } from './DashboardCardConfig';
 
 export const DashboardContent = () => {
   const [cardVisibility, setCardVisibility] = useState({
+    gettingStarted: true,
     stats: true,
     hotProducts: true,
     customerFollowups: true,
@@ -35,7 +36,7 @@ export const DashboardContent = () => {
 
   return (
     <>
-      <GettingStartedBanner />
+      {cardVisibility.gettingStarted && <GettingStartedBanner />}
       <DashboardGreeting />
       <DashboardCardConfig cardVisibility={cardVisibility} onCardToggle={handleCardToggle} />
       
