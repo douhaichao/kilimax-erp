@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Search, Filter, Plus, Download, Upload, Eye, AlertTriangle } from 'lucide-react';
 import { Product, UOM, Category, ProductUOM } from '@/types/product';
 import ColumnCustomizer, { ColumnConfig } from './ColumnCustomizer';
+import ProductViewOverlay from './ProductViewOverlay';
 interface ProductListProps {
   products: Product[];
   categories: Category[];
@@ -28,6 +29,8 @@ const ProductList = ({
   const [selectedSupplier, setSelectedSupplier] = useState('');
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [viewProduct, setViewProduct] = useState<Product | null>(null);
+  const [showViewOverlay, setShowViewOverlay] = useState(false);
 
   // Column configuration
   const [columns, setColumns] = useState<ColumnConfig[]>([{
@@ -127,6 +130,11 @@ const ProductList = ({
   const handleColumnsChange = (newColumns: ColumnConfig[]) => {
     setColumns(newColumns);
   };
+
+  const handleViewProduct = (product: Product) => {
+    setViewProduct(product);
+    setShowViewOverlay(true);
+  };
   const visibleColumns = columns.filter(col => col.visible).sort((a, b) => a.order - b.order);
   const renderTableCell = (column: ColumnConfig, product: Product) => {
     switch (column.key) {
@@ -167,7 +175,7 @@ const ProductList = ({
         return <TableCell>{new Date(product.createdAt).toLocaleDateString()}</TableCell>;
       case 'actions':
         return <TableCell onClick={e => e.stopPropagation()}>
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={() => handleViewProduct(product)}>
               <Eye className="h-4 w-4" />
             </Button>
           </TableCell>;
@@ -279,6 +287,12 @@ const ProductList = ({
           </Table>
         </div>
       </CardContent>
+
+      <ProductViewOverlay
+        product={viewProduct}
+        open={showViewOverlay}
+        onOpenChange={setShowViewOverlay}
+      />
     </Card>;
 };
 export default ProductList;
