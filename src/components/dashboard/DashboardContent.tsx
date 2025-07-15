@@ -7,9 +7,15 @@ import { CustomerFollowups } from './CustomerFollowups';
 import { SalesChampions } from './SalesChampions';
 import { SmartSuggestions } from './SmartSuggestions';
 import { QuickActions } from './QuickActions';
+import { GettingStartedBanner } from './GettingStartedBanner';
 
-export const DashboardContent = () => (
+interface DashboardContentProps {
+  onGetStarted?: () => void;
+}
+
+export const DashboardContent = ({ onGetStarted }: DashboardContentProps) => (
   <>
+    <GettingStartedBanner onGetStarted={onGetStarted} />
     <DashboardGreeting />
     <DashboardStats />
     
