@@ -139,14 +139,8 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
 
                 {/* Email */}
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-base font-medium text-foreground flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary" />
-                    What's your business email? *
-                  </Label>
-                  <Input id="email" type="email" placeholder="Enter your business email" value={formData.email} onChange={e => setFormData(prev => ({
-                  ...prev,
-                  email: e.target.value
-                }))} className="h-12" required />
+                  
+                  
                 </div>
 
                 {/* Country and Industry Row */}
