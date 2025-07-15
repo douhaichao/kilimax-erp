@@ -1,9 +1,9 @@
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeftRight, Save, X, Edit3, ArrowRight } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
@@ -13,20 +13,20 @@ interface ProductSwapDialogProps {
 }
 
 const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
-  const [currentStep, setCurrentStep] = useState<'swap' | 'modify'>('swap');
+  const [currentStep, setCurrentStep] = useState<'swap' | 'variant'>('swap');
   const [oldItemUIN, setOldItemUIN] = useState('');
   const [newItemUIN, setNewItemUIN] = useState('');
   const [isSwapping, setIsSwapping] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
-  // New item details for modification
-  const [newItemDetails, setNewItemDetails] = useState({
-    name: '',
-    model: '',
-    condition: '',
-    notes: '',
+  // Variant details for the new item
+  const [variantDetails, setVariantDetails] = useState({
+    color: '',
+    size: '',
+    memory: '',
+    sku: '',
     price: '',
-    category: ''
+    stock: ''
   });
   
   const { toast } = useToast();
@@ -61,11 +61,11 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
         description: `Product swapped successfully! Old: ${oldItemUIN} → New: ${newItemUIN}`,
       });
       
-      // Move to modification step instead of closing
-      setCurrentStep('modify');
-      setNewItemDetails(prev => ({
+      // Move to variant editing step
+      setCurrentStep('variant');
+      setVariantDetails(prev => ({
         ...prev,
-        name: `Product ${newItemUIN}` // Pre-populate with basic info
+        sku: `${newItemUIN}-VAR` // Pre-populate with basic SKU
       }));
     } catch (error) {
       toast({
@@ -78,11 +78,11 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
     }
   };
 
-  const handleModifyDetails = async () => {
-    if (!newItemDetails.name.trim()) {
+  const handleSaveVariant = async () => {
+    if (!variantDetails.color.trim() && !variantDetails.size.trim() && !variantDetails.memory.trim()) {
       toast({
         title: "Error",
-        description: "Product name is required",
+        description: "Please specify at least one variant attribute (color, size, or memory)",
         variant: "destructive",
       });
       return;
@@ -91,12 +91,12 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
     setIsSaving(true);
     
     try {
-      // Simulate API call for updating item details
+      // Simulate API call for updating variant details
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       toast({
         title: "Success",
-        description: `New item details updated successfully for ${newItemUIN}`,
+        description: `Variant details saved successfully for ${newItemUIN}`,
       });
       
       // Reset and close dialog
@@ -104,7 +104,7 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to update item details. Please try again.",
+        description: "Failed to save variant details. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -116,13 +116,13 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
     setCurrentStep('swap');
     setOldItemUIN('');
     setNewItemUIN('');
-    setNewItemDetails({
-      name: '',
-      model: '',
-      condition: '',
-      notes: '',
+    setVariantDetails({
+      color: '',
+      size: '',
+      memory: '',
+      sku: '',
       price: '',
-      category: ''
+      stock: ''
     });
     onOpenChange(false);
   };
@@ -144,14 +144,14 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
             ) : (
               <>
                 <Edit3 className="h-5 w-5 text-blue-600" />
-                Modify New Item Details
+                Edit Variant Details
               </>
             )}
           </DialogTitle>
           <DialogDescription>
             {currentStep === 'swap' 
               ? "Swap a product with another using UIN (IMEI, Serial Number, etc.)"
-              : `Update details for the new item: ${newItemUIN}`
+              : `Set variant details for the new item: ${newItemUIN}`
             }
           </DialogDescription>
         </DialogHeader>
@@ -207,27 +207,27 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
             </div>
           </>
         ) : (
-          // Step 2: Modify New Item Details
+          // Step 2: Edit Variant Details
           <>
             <div className="space-y-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="itemName">Product Name *</Label>
+                  <Label htmlFor="variantColor">Color</Label>
                   <Input
-                    id="itemName"
-                    placeholder="Enter product name"
-                    value={newItemDetails.name}
-                    onChange={(e) => setNewItemDetails(prev => ({ ...prev, name: e.target.value }))}
+                    id="variantColor"
+                    placeholder="e.g., Space Gray, Blue"
+                    value={variantDetails.color}
+                    onChange={(e) => setVariantDetails(prev => ({ ...prev, color: e.target.value }))}
                     disabled={isSaving}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="itemModel">Model</Label>
+                  <Label htmlFor="variantSize">Size</Label>
                   <Input
-                    id="itemModel"
-                    placeholder="Enter model"
-                    value={newItemDetails.model}
-                    onChange={(e) => setNewItemDetails(prev => ({ ...prev, model: e.target.value }))}
+                    id="variantSize"
+                    placeholder="e.g., Small, Medium, Large"
+                    value={variantDetails.size}
+                    onChange={(e) => setVariantDetails(prev => ({ ...prev, size: e.target.value }))}
                     disabled={isSaving}
                   />
                 </div>
@@ -235,49 +235,50 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="itemCondition">Condition</Label>
+                  <Label htmlFor="variantMemory">Memory/Storage</Label>
                   <Input
-                    id="itemCondition"
-                    placeholder="e.g., New, Used, Refurbished"
-                    value={newItemDetails.condition}
-                    onChange={(e) => setNewItemDetails(prev => ({ ...prev, condition: e.target.value }))}
+                    id="variantMemory"
+                    placeholder="e.g., 128GB, 256GB, 512GB"
+                    value={variantDetails.memory}
+                    onChange={(e) => setVariantDetails(prev => ({ ...prev, memory: e.target.value }))}
                     disabled={isSaving}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="itemPrice">Price</Label>
+                  <Label htmlFor="variantSku">Variant SKU</Label>
                   <Input
-                    id="itemPrice"
-                    placeholder="0.00"
-                    type="number"
-                    value={newItemDetails.price}
-                    onChange={(e) => setNewItemDetails(prev => ({ ...prev, price: e.target.value }))}
+                    id="variantSku"
+                    placeholder="Auto-generated SKU"
+                    value={variantDetails.sku}
+                    onChange={(e) => setVariantDetails(prev => ({ ...prev, sku: e.target.value }))}
                     disabled={isSaving}
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="itemCategory">Category</Label>
-                <Input
-                  id="itemCategory"
-                  placeholder="Enter category"
-                  value={newItemDetails.category}
-                  onChange={(e) => setNewItemDetails(prev => ({ ...prev, category: e.target.value }))}
-                  disabled={isSaving}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="itemNotes">Notes</Label>
-                <Textarea
-                  id="itemNotes"
-                  placeholder="Additional notes about the item..."
-                  value={newItemDetails.notes}
-                  onChange={(e) => setNewItemDetails(prev => ({ ...prev, notes: e.target.value }))}
-                  disabled={isSaving}
-                  className="min-h-[60px]"
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="variantPrice">Variant Price</Label>
+                  <Input
+                    id="variantPrice"
+                    placeholder="0.00"
+                    type="number"
+                    value={variantDetails.price}
+                    onChange={(e) => setVariantDetails(prev => ({ ...prev, price: e.target.value }))}
+                    disabled={isSaving}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="variantStock">Initial Stock</Label>
+                  <Input
+                    id="variantStock"
+                    placeholder="0"
+                    type="number"
+                    value={variantDetails.stock}
+                    onChange={(e) => setVariantDetails(prev => ({ ...prev, stock: e.target.value }))}
+                    disabled={isSaving}
+                  />
+                </div>
               </div>
             </div>
             
@@ -291,12 +292,12 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
                 Back
               </Button>
               <Button
-                onClick={handleModifyDetails}
-                disabled={isSaving || !newItemDetails.name.trim()}
+                onClick={handleSaveVariant}
+                disabled={isSaving}
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 <Save className="h-4 w-4 mr-2" />
-                {isSaving ? 'Saving...' : 'Save Details'}
+                {isSaving ? 'Saving...' : 'Save Variant'}
               </Button>
             </div>
           </>
