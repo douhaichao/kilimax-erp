@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -8,11 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowRight, MapPin, Globe, Bot, Sparkles, Zap, Users, Briefcase } from 'lucide-react';
 import { OnboardingData } from '@/pages/OnboardingJourney';
+
 interface CompanyProfileSurveyProps {
   onNext: (data: Partial<OnboardingData>) => void;
   onBack: () => void;
   data: OnboardingData;
 }
+
 const countries = [{
   code: 'US',
   name: 'United States',
@@ -50,9 +53,11 @@ const countries = [{
   currency: 'AUD',
   timezone: 'AEST'
 }];
+
 const industries = ['Manufacturing', 'Wholesale Distribution', 'Professional Services', 'Technology', 'Healthcare', 'Retail', 'Construction', 'Food & Beverage'];
 const employeeCounts = ['1-5 employees', '6-20 employees', '21-50 employees', '51-100 employees', '101-500 employees', '500+ employees'];
 const userRoles = ['Owner/Founder', 'CEO/President', 'CFO', 'Operations Manager', 'Finance Manager', 'Accountant', 'Administrator', 'Other'];
+
 export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
   onNext,
   onBack,
@@ -62,17 +67,21 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
     companyName: data.companyName || '',
     country: data.country || '',
     industry: data.industry || '',
-    email: data.email || '',
     employeeCount: (data as any).employeeCount || '',
     userRole: (data as any).userRole || ''
   });
+
   const selectedCountry = countries.find(c => c.code === formData.country);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onNext(formData);
   };
+
   const showVATSuggestion = formData.country === 'DE';
-  return <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 relative overflow-hidden">
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 relative overflow-hidden">
       {/* AI-Enhanced Background */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -95,9 +104,9 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
         <div className="max-w-md mx-auto mb-8">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-muted-foreground">Personal Profile → Company Info</span>
-            <span className="text-sm text-muted-foreground">→ Invoice Setup</span>
+            <span className="text-sm text-muted-foreground">Complete</span>
           </div>
-          <Progress value={66} className="h-2" />
+          <Progress value={100} className="h-2" />
         </div>
 
         {/* Main Content */}
@@ -137,24 +146,12 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
                 }))} className="h-12" required />
                 </div>
 
-                {/* Email */}
-                <div className="space-y-2">
-                  <Label htmlFor="email" className="text-base font-medium text-foreground flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-primary" />
-                    What's your business email? *
-                  </Label>
-                  <Input id="email" type="email" placeholder="Enter your business email" value={formData.email} onChange={e => setFormData(prev => ({
-                  ...prev,
-                  email: e.target.value
-                }))} className="h-12" required />
-                </div>
-
                 {/* Country and Industry Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="country" className="text-base font-medium text-foreground flex items-center gap-2">
                       <Globe className="w-4 h-4 text-primary" />
-                      Which country is your business located in? *
+                      Where are your business located? *
                     </Label>
                     <Select value={formData.country} onValueChange={value => setFormData(prev => ({
                     ...prev,
@@ -262,9 +259,9 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
                   <Button type="button" onClick={onBack} variant="outline" className="flex-1 h-12 text-lg">
                     Back
                   </Button>
-                  <Button type="submit" className="flex-1 h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transform hover:scale-[1.02] transition-all duration-200 shadow-lg" disabled={!formData.companyName || !formData.country || !formData.industry || !formData.employeeCount || !formData.userRole || !formData.email}>
+                  <Button type="submit" className="flex-1 h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transform hover:scale-[1.02] transition-all duration-200 shadow-lg" disabled={!formData.companyName || !formData.country || !formData.industry || !formData.employeeCount || !formData.userRole}>
                     <Bot className="w-5 h-5 mr-2 animate-pulse" />
-                    Continue to Invoice Setup
+                    Complete Setup
                     <ArrowRight className="w-5 h-5 ml-2" />
                   </Button>
                 </div>
@@ -273,5 +270,6 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
           </Card>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };

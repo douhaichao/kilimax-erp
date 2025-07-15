@@ -40,9 +40,9 @@ export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({ on
         <div className="max-w-md mx-auto mb-8">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm text-muted-foreground">Personal Profile</span>
-            <span className="text-sm text-muted-foreground">→ Company Info → Invoice Setup</span>
+            <span className="text-sm text-muted-foreground">→ Company Info</span>
           </div>
-          <Progress value={33} className="h-2" />
+          <Progress value={50} className="h-2" />
         </div>
 
         <div className="max-w-2xl mx-auto">
@@ -93,7 +93,7 @@ export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({ on
                 disabled={!isFormValid}
                 className="w-full h-12 text-lg font-semibold"
               >
-                Continue to Company Information
+                Next
               </Button>
             </CardContent>
           </Card>

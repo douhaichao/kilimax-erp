@@ -1,7 +1,7 @@
+
 import React, { useState } from 'react';
 import { PersonalProfileSurvey } from '@/components/onboarding/PersonalProfileSurvey';
 import { CompanyProfileSurvey } from '@/components/onboarding/CompanyProfileSurvey';
-import { InvoiceTemplateConfiguration } from '@/components/onboarding/InvoiceTemplateConfiguration';
 import { AIIndustrySetup } from '@/components/onboarding/AIIndustrySetup';
 import { GuidedTourDashboard } from '@/components/onboarding/GuidedTourDashboard';
 import { MissionControl } from '@/components/onboarding/MissionControl';
@@ -12,7 +12,6 @@ import { TrialSuccessDashboard } from '@/components/onboarding/TrialSuccessDashb
 export type OnboardingStep = 
   | 'personal-profile'
   | 'company-profile'
-  | 'invoice-config'
   | 'industry-setup' 
   | 'guided-tour'
   | 'mission-control'
@@ -65,7 +64,6 @@ const OnboardingJourney = () => {
     const stepOrder: OnboardingStep[] = [
       'personal-profile',
       'company-profile',
-      'invoice-config',
       'industry-setup', 
       'guided-tour',
       'mission-control',
@@ -88,7 +86,6 @@ const OnboardingJourney = () => {
     const stepOrder: OnboardingStep[] = [
       'personal-profile',
       'company-profile',
-      'invoice-config',
       'industry-setup', 
       'guided-tour',
       'mission-control',
@@ -109,8 +106,6 @@ const OnboardingJourney = () => {
         return <PersonalProfileSurvey onNext={nextStep} data={onboardingData} />;
       case 'company-profile':
         return <CompanyProfileSurvey onNext={nextStep} onBack={goBack} data={onboardingData} />;
-      case 'invoice-config':
-        return <InvoiceTemplateConfiguration onNext={nextStep} onBack={goBack} data={onboardingData} />;
       case 'industry-setup':
         return <AIIndustrySetup onNext={nextStep} data={onboardingData} />;
       case 'guided-tour':
