@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeftRight, Save, X, Edit3, ArrowRight } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
@@ -28,6 +29,11 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
     price: '',
     stock: ''
   });
+
+  // Mock data for existing variants
+  const existingColors = ['Space Gray', 'Silver', 'Gold', 'Blue', 'Green', 'Red', 'Black', 'White'];
+  const existingSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '6', '7', '8', '9', '10', '11', '12'];
+  const existingMemory = ['64GB', '128GB', '256GB', '512GB', '1TB', '2TB', '4GB', '8GB', '16GB', '32GB'];
   
   const { toast } = useToast();
 
@@ -213,36 +219,63 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="variantColor">Color</Label>
-                  <Input
-                    id="variantColor"
-                    placeholder="e.g., Space Gray, Blue"
-                    value={variantDetails.color}
-                    onChange={(e) => setVariantDetails(prev => ({ ...prev, color: e.target.value }))}
+                  <Select 
+                    value={variantDetails.color} 
+                    onValueChange={(value) => setVariantDetails(prev => ({ ...prev, color: value }))}
                     disabled={isSaving}
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select color" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {existingColors.map((color) => (
+                        <SelectItem key={color} value={color}>
+                          {color}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="variantSize">Size</Label>
-                  <Input
-                    id="variantSize"
-                    placeholder="e.g., Small, Medium, Large"
-                    value={variantDetails.size}
-                    onChange={(e) => setVariantDetails(prev => ({ ...prev, size: e.target.value }))}
+                  <Select 
+                    value={variantDetails.size} 
+                    onValueChange={(value) => setVariantDetails(prev => ({ ...prev, size: value }))}
                     disabled={isSaving}
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select size" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {existingSizes.map((size) => (
+                        <SelectItem key={size} value={size}>
+                          {size}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="variantMemory">Memory/Storage</Label>
-                  <Input
-                    id="variantMemory"
-                    placeholder="e.g., 128GB, 256GB, 512GB"
-                    value={variantDetails.memory}
-                    onChange={(e) => setVariantDetails(prev => ({ ...prev, memory: e.target.value }))}
+                  <Select 
+                    value={variantDetails.memory} 
+                    onValueChange={(value) => setVariantDetails(prev => ({ ...prev, memory: value }))}
                     disabled={isSaving}
-                  />
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select memory/storage" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {existingMemory.map((memory) => (
+                        <SelectItem key={memory} value={memory}>
+                          {memory}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="variantSku">Variant SKU</Label>
