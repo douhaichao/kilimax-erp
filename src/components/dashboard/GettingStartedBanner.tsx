@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { X, Settings, ArrowRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface GettingStartedBannerProps {
-  onGetStarted?: () => void;
-}
-
-export const GettingStartedBanner = ({ onGetStarted }: GettingStartedBannerProps) => {
+export const GettingStartedBanner = () => {
+  const navigate = useNavigate();
   const [isVisible, setIsVisible] = useState(false);
   
   useEffect(() => {
@@ -23,9 +21,7 @@ export const GettingStartedBanner = ({ onGetStarted }: GettingStartedBannerProps
   };
 
   const handleGetStarted = () => {
-    if (onGetStarted) {
-      onGetStarted();
-    }
+    navigate('/tutorial');
   };
 
   if (!isVisible) return null;

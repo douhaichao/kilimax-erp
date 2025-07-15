@@ -25,7 +25,7 @@ const Dashboard = ({ onLogout, onProfileClick }: DashboardProps) => {
 
   const renderModuleContent = () => {
     if (currentModule === 'dashboard') {
-      return <DashboardTabs onGetStarted={() => setCurrentModule('setup')} />;
+      return <DashboardTabs />;
     }
     return <ModuleContent currentModule={currentModule} />;
   };
