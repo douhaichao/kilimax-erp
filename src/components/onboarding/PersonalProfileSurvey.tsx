@@ -20,19 +20,15 @@ const countries = [
 export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({ onNext, data }) => {
   const [firstName, setFirstName] = useState(data.firstName || '');
   const [lastName, setLastName] = useState(data.lastName || '');
-  const [country, setCountry] = useState(data.country || '');
-  const [phoneNumber, setPhoneNumber] = useState(data.phoneNumber || '');
 
   const handleNext = () => {
     onNext({
       firstName,
       lastName,
-      country,
-      phoneNumber,
     });
   };
 
-  const isFormValid = firstName && lastName && country && phoneNumber;
+  const isFormValid = firstName && lastName;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 relative overflow-hidden">
@@ -76,33 +72,6 @@ export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({ on
                     className="h-12"
                   />
                 </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="country">Which country are you based in?</Label>
-                <Select value={country} onValueChange={setCountry}>
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Select your country" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {countries.map((countryOption) => (
-                      <SelectItem key={countryOption} value={countryOption}>
-                        {countryOption}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phoneNumber">What's your phone number?</Label>
-                <Input
-                  id="phoneNumber"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="Enter your phone number"
-                  className="h-12"
-                />
               </div>
 
               <Button 

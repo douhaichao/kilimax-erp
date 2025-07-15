@@ -246,27 +246,6 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
                 }))} className="min-h-[80px]" />
                 </div>
 
-                {/* Contact Info Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-base font-medium text-foreground">Phone number</Label>
-                    <Input id="phone" type="tel" placeholder="+1 (555) 123-4567" value={formData.phone} onChange={e => setFormData(prev => ({
-                    ...prev,
-                    phone: e.target.value
-                  }))} className="h-12" />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-base font-medium text-foreground">
-                      What's your business email?
-                    </Label>
-                    <Input id="email" type="email" placeholder="hello@company.com" value={formData.email} onChange={e => setFormData(prev => ({
-                    ...prev,
-                    email: e.target.value
-                  }))} className="h-12" />
-                  </div>
-                </div>
-
                 {/* AI Smart Suggestion */}
                 {showVATSuggestion && <div className="bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 rounded-lg p-4 flex items-start space-x-3 animate-fade-in">
                     <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center animate-pulse">

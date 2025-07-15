@@ -3,10 +3,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Textarea } from '@/components/ui/textarea';
-import { Switch } from '@/components/ui/switch';
 import { ArrowRight, ArrowLeft, Eye, Bot, Sparkles, Zap, FileText, Settings, Upload, FileImage } from 'lucide-react';
 import { OnboardingData } from '@/pages/OnboardingJourney';
 
@@ -16,25 +13,6 @@ interface InvoiceTemplateConfigurationProps {
   data: OnboardingData;
 }
 
-const paymentTerms = [
-  'Net 30',
-  'Net 15',
-  'Due on receipt',
-  'Net 60',
-  'Net 90',
-  'Custom',
-];
-
-const taxRates = [
-  { label: 'No Tax', value: '0' },
-  { label: '5%', value: '5' },
-  { label: '7%', value: '7' },
-  { label: '8.25%', value: '8.25' },
-  { label: '10%', value: '10' },
-  { label: '15%', value: '15' },
-  { label: '20%', value: '20' },
-  { label: 'Custom', value: 'custom' },
-];
 
 const themeColors = [
   { name: 'Professional Blue', value: '#3B82F6', preview: 'bg-blue-500' },
@@ -47,14 +25,7 @@ const themeColors = [
 
 export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfigurationProps> = ({ onNext, onBack, data }) => {
   const [formData, setFormData] = useState({
-    invoicePrefix: 'INV',
-    invoiceStartNumber: '1001',
-    paymentTerms: 'Net 30',
-    taxRate: '0',
-    taxLabel: 'Tax',
-    showTax: true,
     primaryColor: '#3B82F6',
-    footerText: 'Thank you for your business!',
   });
 
   const [logo, setLogo] = useState(data.logo || '');
@@ -65,7 +36,16 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
     onNext({ 
       ...data,
       logo,
-      invoiceSettings: formData 
+      invoiceSettings: {
+        invoicePrefix: 'INV',
+        invoiceStartNumber: '1001',
+        paymentTerms: 'Net 30',
+        taxRate: '0',
+        taxLabel: 'Tax',
+        showTax: true,
+        primaryColor: formData.primaryColor,
+        footerText: 'Thank you for your business!'
+      }
     });
   };
 
@@ -81,8 +61,6 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
     }
   };
 
-  const selectedCountry = data.country;
-  const isEU = ['DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'AT'].includes(selectedCountry);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 relative overflow-hidden">
@@ -177,118 +155,6 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
                       </div>
                     </div>
 
-                    {/* Invoice Numbering */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="invoicePrefix" className="text-sm font-medium">
-                          Invoice Prefix
-                        </Label>
-                        <Input
-                          id="invoicePrefix"
-                          type="text"
-                          placeholder="INV"
-                          value={formData.invoicePrefix}
-                          onChange={(e) => setFormData(prev => ({ ...prev, invoicePrefix: e.target.value }))}
-                          className="h-10"
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="invoiceStartNumber" className="text-sm font-medium">
-                          Start Number
-                        </Label>
-                        <Input
-                          id="invoiceStartNumber"
-                          type="text"
-                          placeholder="1001"
-                          value={formData.invoiceStartNumber}
-                          onChange={(e) => setFormData(prev => ({ ...prev, invoiceStartNumber: e.target.value }))}
-                          className="h-10"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Payment Terms */}
-                    <div className="space-y-2">
-                      <Label htmlFor="paymentTerms" className="text-sm font-medium">
-                        Payment Terms
-                      </Label>
-                      <Select value={formData.paymentTerms} onValueChange={(value) => setFormData(prev => ({ ...prev, paymentTerms: value }))}>
-                        <SelectTrigger className="h-10">
-                          <SelectValue placeholder="Select payment terms" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {paymentTerms.map((term) => (
-                            <SelectItem key={term} value={term}>
-                              {term}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {/* Tax Configuration */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="showTax" className="text-sm font-medium">
-                          Show Tax on Invoice
-                        </Label>
-                        <Switch
-                          id="showTax"
-                          checked={formData.showTax}
-                          onCheckedChange={(checked) => setFormData(prev => ({ ...prev, showTax: checked }))}
-                        />
-                      </div>
-                      
-                      {formData.showTax && (
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="taxRate" className="text-sm font-medium">
-                              Tax Rate
-                            </Label>
-                            <Select value={formData.taxRate} onValueChange={(value) => setFormData(prev => ({ ...prev, taxRate: value }))}>
-                              <SelectTrigger className="h-10">
-                                <SelectValue placeholder="Select tax rate" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {taxRates.map((rate) => (
-                                  <SelectItem key={rate.value} value={rate.value}>
-                                    {rate.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="taxLabel" className="text-sm font-medium">
-                              Tax Label
-                            </Label>
-                            <Input
-                              id="taxLabel"
-                              type="text"
-                              placeholder={isEU ? "VAT" : "Tax"}
-                              value={formData.taxLabel}
-                              onChange={(e) => setFormData(prev => ({ ...prev, taxLabel: e.target.value }))}
-                              className="h-10"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Footer Text */}
-                    <div className="space-y-2">
-                      <Label htmlFor="footerText" className="text-sm font-medium">
-                        Footer Message
-                      </Label>
-                      <Input
-                        id="footerText"
-                        type="text"
-                        placeholder="Thank you for your business!"
-                        value={formData.footerText}
-                        onChange={(e) => setFormData(prev => ({ ...prev, footerText: e.target.value }))}
-                        className="h-10"
-                      />
-                    </div>
                   </form>
                 </CardContent>
               </Card>
@@ -378,30 +244,23 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
                             />
                           </div>
                         )}
-                        <h1 className="text-xl font-bold text-gray-900">
-                          {data.companyName || 'Your Company Name'}
-                        </h1>
-                        {data.address && (
-                          <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">
-                            {data.address}
-                          </p>
-                        )}
-                        <div className="text-sm text-gray-600 mt-1">
-                          {data.phone && <div>Tel: {data.phone}</div>}
-                          {data.email && <div>Email: {data.email}</div>}
-                        </div>
+                         <h1 className="text-xl font-bold text-gray-900">
+                           {data.companyName || 'Your Company Name'}
+                         </h1>
+                         {data.address && (
+                           <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">
+                             {data.address}
+                           </p>
+                         )}
                       </div>
-                      <div className="text-right">
-                        <h2 className="text-2xl font-bold text-gray-900">INVOICE</h2>
-                        <p className="text-sm text-gray-600 mt-2">
-                          #{formData.invoicePrefix}-{formData.invoiceStartNumber}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Date: {new Date().toLocaleDateString()}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Due: {formData.paymentTerms}
-                        </p>
+                       <div className="text-right">
+                         <h2 className="text-2xl font-bold text-gray-900">INVOICE</h2>
+                         <p className="text-sm text-gray-600 mt-2">
+                           #INV-1001
+                         </p>
+                         <p className="text-sm text-gray-600">
+                           Date: {new Date().toLocaleDateString()}
+                         </p>
                       </div>
                     </div>
 
@@ -437,42 +296,28 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
                       </table>
                     </div>
 
-                    {/* Totals */}
-                    <div className="mb-6">
-                      <div className="flex justify-end">
-                        <div className="w-48 space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span>Subtotal:</span>
-                            <span>$100.00</span>
-                          </div>
-                          {formData.showTax && (
-                            <div className="flex justify-between text-sm">
-                              <span>Discount:</span>
-                              <span>-$0.00</span>
-                            </div>
-                          )}
-                          {formData.showTax && formData.taxRate !== '0' && (
-                            <div className="flex justify-between text-sm">
-                              <span>{formData.taxLabel || (isEU ? 'VAT' : 'Tax')} ({formData.taxRate}%):</span>
-                              <span>${(100 * parseFloat(formData.taxRate) / 100).toFixed(2)}</span>
-                            </div>
-                          )}
-                          <div className="flex justify-between font-bold border-t pt-2">
-                            <span>Total:</span>
-                            <span>${formData.showTax && formData.taxRate !== '0' ? (100 + (100 * parseFloat(formData.taxRate) / 100)).toFixed(2) : '100.00'}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                     {/* Totals */}
+                     <div className="mb-6">
+                       <div className="flex justify-end">
+                         <div className="w-48 space-y-2">
+                           <div className="flex justify-between text-sm">
+                             <span>Subtotal:</span>
+                             <span>$100.00</span>
+                           </div>
+                           <div className="flex justify-between font-bold border-t pt-2">
+                             <span>Total:</span>
+                             <span>$100.00</span>
+                           </div>
+                         </div>
+                       </div>
+                     </div>
 
-                    {/* Footer */}
-                    {formData.footerText && (
-                      <div className="text-center border-t pt-4">
-                        <p className="text-sm text-gray-600">
-                          {formData.footerText}
-                        </p>
-                      </div>
-                    )}
+                     {/* Footer */}
+                     <div className="text-center border-t pt-4">
+                       <p className="text-sm text-gray-600">
+                         Thank you for your business!
+                       </p>
+                     </div>
                   </div>
 
                   {/* AI Enhancement Notice */}
