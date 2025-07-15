@@ -7,8 +7,9 @@ import ProductList from '@/components/product/ProductList';
 import ProductDetail from '@/components/product/ProductDetail';
 import QuickCreateForm from '@/components/product/QuickCreateForm';
 import BatchOperations from '@/components/product/BatchOperations';
+import ProductSwapDialog from '@/components/product/ProductSwapDialog';
 import { Product, Category, UOM, ProductUOM } from '@/types/product';
-import { Package, Plus, Search, Filter, BarChart3 } from 'lucide-react';
+import { Package, Plus, Search, Filter, BarChart3, ArrowLeftRight } from 'lucide-react';
 
 const ProductManagement = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -17,6 +18,7 @@ const ProductManagement = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [showBatchOperations, setShowBatchOperations] = useState(false);
+  const [showSwapDialog, setShowSwapDialog] = useState(false);
 
   // System UOMs data
   const systemUOMs: UOM[] = [
@@ -298,6 +300,14 @@ const ProductManagement = () => {
         <div className="flex gap-3">
           <Button 
             variant="outline" 
+            onClick={() => setShowSwapDialog(true)}
+            className="border-orange-300 text-orange-700 hover:bg-orange-50"
+          >
+            <ArrowLeftRight className="h-4 w-4 mr-2" />
+            Swap
+          </Button>
+          <Button 
+            variant="outline" 
             onClick={() => setCurrentView('create')}
             className="border-blue-300 text-blue-700 hover:bg-blue-50"
           >
@@ -395,6 +405,12 @@ const ProductManagement = () => {
           onBatchSelect={handleBatchSelect}
         />
       </div>
+
+      {/* Product Swap Dialog */}
+      <ProductSwapDialog
+        open={showSwapDialog}
+        onOpenChange={setShowSwapDialog}
+      />
     </div>
   );
 };
