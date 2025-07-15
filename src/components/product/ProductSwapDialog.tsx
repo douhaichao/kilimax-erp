@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeftRight, Save, X, Edit3, ArrowRight } from 'lucide-react';
+import { ArrowLeftRight, Save, X, Edit3, ArrowRight, Package } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
 interface ProductSwapDialogProps {
@@ -19,6 +19,9 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
   const [newItemUIN, setNewItemUIN] = useState('');
   const [isSwapping, setIsSwapping] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  
+  // Mock product details for display
+  const [productDetails, setProductDetails] = useState<any>(null);
   
   // Variant details for the new item
   const [variantDetails, setVariantDetails] = useState({
@@ -36,6 +39,31 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
   const existingMemory = ['64GB', '128GB', '256GB', '512GB', '1TB', '2TB', '4GB', '8GB', '16GB', '32GB'];
   
   const { toast } = useToast();
+
+  // Mock function to fetch product details
+  const fetchProductDetails = (uin: string) => {
+    if (uin.length > 5) {
+      // Simulate API call
+      setProductDetails({
+        name: 'iPhone 15 Pro',
+        category: 'Smartphones',
+        sku: 'IPH15P-001',
+        currentVariant: {
+          color: 'Space Gray',
+          memory: '256GB',
+          price: 999.00
+        },
+        stock: 15
+      });
+    } else {
+      setProductDetails(null);
+    }
+  };
+
+  const handleOldItemChange = (value: string) => {
+    setOldItemUIN(value);
+    fetchProductDetails(value);
+  };
 
   const handleSwap = async () => {
     if (!oldItemUIN.trim() || !newItemUIN.trim()) {
@@ -122,6 +150,7 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
     setCurrentStep('swap');
     setOldItemUIN('');
     setNewItemUIN('');
+    setProductDetails(null);
     setVariantDetails({
       color: '',
       size: '',
@@ -139,7 +168,7 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-4xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {currentStep === 'swap' ? (
@@ -163,33 +192,67 @@ const ProductSwapDialog = ({ open, onOpenChange }: ProductSwapDialogProps) => {
         </DialogHeader>
         
         {currentStep === 'swap' ? (
-          // Step 1: Swap Items
+          // Step 1: Swap Items with horizontal layout
           <>
-            <div className="space-y-6 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="oldItem">Old Item UIN/Serial Number</Label>
-                <Input
-                  id="oldItem"
-                  placeholder="Enter old item UIN (e.g., IMEI, Serial Number)"
-                  value={oldItemUIN}
-                  onChange={(e) => setOldItemUIN(e.target.value)}
-                  disabled={isSwapping}
-                />
-              </div>
-              
-              <div className="flex justify-center">
-                <ArrowLeftRight className="h-6 w-6 text-orange-500" />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="newItem">New Item UIN/Serial Number</Label>
-                <Input
-                  id="newItem"
-                  placeholder="Enter new item UIN (e.g., IMEI, Serial Number)"
-                  value={newItemUIN}
-                  onChange={(e) => setNewItemUIN(e.target.value)}
-                  disabled={isSwapping}
-                />
+            <div className="py-4">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Old Item Section */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="oldItem">Old Item UIN/Serial Number</Label>
+                    <Input
+                      id="oldItem"
+                      placeholder="Enter old item UIN"
+                      value={oldItemUIN}
+                      onChange={(e) => handleOldItemChange(e.target.value)}
+                      disabled={isSwapping}
+                    />
+                  </div>
+                  
+                  {/* Product Details Display */}
+                  {productDetails && (
+                    <div className="bg-muted/50 p-4 rounded-lg border">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Package className="h-4 w-4 text-blue-600" />
+                        <span className="font-medium text-sm">Product Details</span>
+                      </div>
+                      <div className="space-y-2 text-sm">
+                        <div><span className="font-medium">Name:</span> {productDetails.name}</div>
+                        <div><span className="font-medium">Category:</span> {productDetails.category}</div>
+                        <div><span className="font-medium">SKU:</span> {productDetails.sku}</div>
+                        <div><span className="font-medium">Current Variant:</span></div>
+                        <div className="ml-4 space-y-1">
+                          <div>• Color: {productDetails.currentVariant.color}</div>
+                          <div>• Memory: {productDetails.currentVariant.memory}</div>
+                          <div>• Price: ${productDetails.currentVariant.price}</div>
+                        </div>
+                        <div><span className="font-medium">Stock:</span> {productDetails.stock} units</div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Arrow Section */}
+                <div className="flex items-center justify-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <ArrowLeftRight className="h-8 w-8 text-orange-500" />
+                    <span className="text-sm text-muted-foreground">Swap</span>
+                  </div>
+                </div>
+                
+                {/* New Item Section */}
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="newItem">New Item UIN/Serial Number</Label>
+                    <Input
+                      id="newItem"
+                      placeholder="Enter new item UIN"
+                      value={newItemUIN}
+                      onChange={(e) => setNewItemUIN(e.target.value)}
+                      disabled={isSwapping}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             
