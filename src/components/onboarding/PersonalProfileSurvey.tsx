@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -20,15 +21,17 @@ const countries = [
 export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({ onNext, data }) => {
   const [firstName, setFirstName] = useState(data.firstName || '');
   const [lastName, setLastName] = useState(data.lastName || '');
+  const [phoneNumber, setPhoneNumber] = useState(data.phoneNumber || '');
 
   const handleNext = () => {
     onNext({
       firstName,
       lastName,
+      phoneNumber,
     });
   };
 
-  const isFormValid = firstName && lastName;
+  const isFormValid = firstName && lastName && phoneNumber;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 relative overflow-hidden">
@@ -53,7 +56,7 @@ export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({ on
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">What's your first name?</Label>
+                  <Label htmlFor="firstName">First Name *</Label>
                   <Input
                     id="firstName"
                     value={firstName}
@@ -63,7 +66,7 @@ export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({ on
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">What's your last name?</Label>
+                  <Label htmlFor="lastName">Last Name *</Label>
                   <Input
                     id="lastName"
                     value={lastName}
@@ -72,6 +75,17 @@ export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({ on
                     className="h-12"
                   />
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber">Phone Number *</Label>
+                <Input
+                  id="phoneNumber"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="Enter your phone number"
+                  className="h-12"
+                />
               </div>
 
               <Button 

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -62,8 +63,6 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
     companyName: data.companyName || '',
     country: data.country || '',
     industry: data.industry || '',
-    address: data.address || '',
-    phone: data.phone || '',
     email: data.email || '',
     employeeCount: (data as any).employeeCount || '',
     userRole: (data as any).userRole || ''
@@ -142,6 +141,18 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
                 }))} className="h-12" required />
                 </div>
 
+                {/* Email */}
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-base font-medium text-foreground flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    What's your business email? *
+                  </Label>
+                  <Input id="email" type="email" placeholder="Enter your business email" value={formData.email} onChange={e => setFormData(prev => ({
+                  ...prev,
+                  email: e.target.value
+                }))} className="h-12" required />
+                </div>
+
                 {/* Country and Industry Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -173,7 +184,7 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
                   <div className="space-y-2">
                     <Label htmlFor="industry" className="text-base font-medium text-foreground flex items-center gap-2">
                       <Zap className="w-4 h-4 text-primary" />
-                      What industry are you in? *
+                      What does your business do? *
                     </Label>
                     <Select value={formData.industry} onValueChange={value => setFormData(prev => ({
                     ...prev,
@@ -196,7 +207,7 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
                   <div className="space-y-2">
                     <Label htmlFor="employeeCount" className="text-base font-medium text-foreground flex items-center gap-2">
                       <Users className="w-4 h-4 text-primary" />
-                      How many people work at your company? *
+                      How many employees? *
                     </Label>
                     <Select value={formData.employeeCount} onValueChange={value => setFormData(prev => ({
                     ...prev,
@@ -216,7 +227,7 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
                   <div className="space-y-2">
                     <Label htmlFor="userRole" className="text-base font-medium text-foreground flex items-center gap-2">
                       <Briefcase className="w-4 h-4 text-primary" />
-                      What's your role in the company? *
+                      What's your role? *
                     </Label>
                     <Select value={formData.userRole} onValueChange={value => setFormData(prev => ({
                     ...prev,
@@ -232,18 +243,6 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
-
-                {/* Address */}
-                <div className="space-y-2">
-                  <Label htmlFor="address" className="text-base font-medium text-foreground flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-primary" />
-                    What's your business address?
-                  </Label>
-                  <Textarea id="address" placeholder="Enter your business address" value={formData.address} onChange={e => setFormData(prev => ({
-                  ...prev,
-                  address: e.target.value
-                }))} className="min-h-[80px]" />
                 </div>
 
                 {/* AI Smart Suggestion */}
@@ -275,7 +274,7 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
                   <Button 
                     type="submit" 
                     className="flex-1 h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transform hover:scale-[1.02] transition-all duration-200 shadow-lg" 
-                    disabled={!formData.companyName || !formData.country || !formData.industry || !formData.employeeCount || !formData.userRole}
+                    disabled={!formData.companyName || !formData.country || !formData.industry || !formData.employeeCount || !formData.userRole || !formData.email}
                   >
                     <Bot className="w-5 h-5 mr-2 animate-pulse" />
                     Continue to Invoice Setup

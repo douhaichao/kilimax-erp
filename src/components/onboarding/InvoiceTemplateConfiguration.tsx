@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -247,9 +248,14 @@ export const InvoiceTemplateConfiguration: React.FC<InvoiceTemplateConfiguration
                          <h1 className="text-xl font-bold text-gray-900">
                            {data.companyName || 'Your Company Name'}
                          </h1>
-                         {data.address && (
-                           <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">
-                             {data.address}
+                         {data.phoneNumber && (
+                           <p className="text-sm text-gray-600 mt-1">
+                             Phone: {data.phoneNumber}
+                           </p>
+                         )}
+                         {data.email && (
+                           <p className="text-sm text-gray-600">
+                             Email: {data.email}
                            </p>
                          )}
                       </div>
