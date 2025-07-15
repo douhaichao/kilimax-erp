@@ -1,14 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { X, Settings, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from "@/hooks/use-toast";
 
 export const GettingStartedBanner = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [isVisible, setIsVisible] = useState(false);
   
   useEffect(() => {
@@ -21,12 +18,6 @@ export const GettingStartedBanner = () => {
   const handleDismiss = () => {
     localStorage.setItem('getting-started-banner-dismissed', 'true');
     setIsVisible(false);
-    
-    // Show toast notification
-    toast({
-      title: "Setup banner hidden",
-      description: "You can turn it back on in Configure Dashboard if needed.",
-    });
   };
 
   const handleGetStarted = () => {
