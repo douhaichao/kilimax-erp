@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { X, Camera, Save, ArrowRight, ArrowLeft, CheckCircle, Scale, Plus, Trash2 } from 'lucide-react';
 import { Category, UOM, ProductUOM, Product, ProductVariant } from '@/types/product';
 
@@ -19,6 +20,16 @@ interface QuickCreateFormProps {
 
 const QuickCreateForm = ({ onClose, onSave, categories, systemUOMs = [] }: QuickCreateFormProps) => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [useExistingVariants, setUseExistingVariants] = useState(false);
+  
+  // Mock existing variants that could be selected
+  const existingVariants = [
+    { id: '1', size: 'Small', color: 'Red', sku: 'VAR-S-RED' },
+    { id: '2', size: 'Medium', color: 'Blue', sku: 'VAR-M-BLUE' },
+    { id: '3', size: 'Large', color: 'Green', sku: 'VAR-L-GREEN' },
+    { id: '4', size: 'XL', color: 'Black', sku: 'VAR-XL-BLACK' },
+    { id: '5', size: 'Small', color: 'White', sku: 'VAR-S-WHITE' },
+  ];
   
   const defaultSystemUOMs: UOM[] = [
     { id: 'pcs', name: 'Piece', ratio: 1, isDefault: true, symbol: 'pc', type: 'piece', isActive: true, conversionFactor: 1 },
@@ -466,12 +477,69 @@ const QuickCreateForm = ({ onClose, onSave, categories, systemUOMs = [] }: Quick
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-blue-800">Product Variants</h3>
-                <Button onClick={addVariant} className="bg-blue-600 hover:bg-blue-700 text-white">
-                  Add Variant
-                </Button>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      checked={useExistingVariants}
+                      onCheckedChange={setUseExistingVariants}
+                      id="variant-mode"
+                    />
+                    <Label htmlFor="variant-mode" className="text-sm text-blue-700">
+                      Use existing variants
+                    </Label>
+                  </div>
+                  {!useExistingVariants && (
+                    <Button onClick={addVariant} className="bg-blue-600 hover:bg-blue-700 text-white">
+                      Add Variant
+                    </Button>
+                  )}
+                </div>
               </div>
 
-              {formData.variants.length === 0 ? (
+              {useExistingVariants ? (
+                <Card className="border-blue-200">
+                  <CardHeader>
+                    <CardTitle className="text-lg text-blue-800">Available Variants</CardTitle>
+                    <p className="text-sm text-gray-600">Select from existing variants in the system</p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {existingVariants.map((variant) => (
+                        <Card 
+                          key={variant.id} 
+                          className="border-blue-100 hover:border-blue-300 cursor-pointer transition-colors"
+                          onClick={() => {
+                            const newVariant = {
+                              size: variant.size,
+                              color: variant.color,
+                              sku: `${formData.sku}-${variant.sku}`,
+                              stock: '',
+                              price: formData.price
+                            };
+                            setFormData(prev => ({
+                              ...prev,
+                              variants: [...prev.variants, newVariant]
+                            }));
+                          }}
+                        >
+                          <CardContent className="p-4">
+                            <div className="space-y-2">
+                              <div className="flex justify-between items-start">
+                                <h4 className="font-medium text-blue-800">{variant.size}</h4>
+                                <Badge variant="outline" className="text-xs">{variant.color}</Badge>
+                              </div>
+                              <p className="text-sm text-gray-600">SKU: {variant.sku}</p>
+                              <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700">
+                                Add to Product
+                              </Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : formData.variants.length === 0 ? (
                 <Card className="border-blue-200 border-dashed">
                   <CardContent className="p-8 text-center">
                     <p className="text-gray-500 mb-4">No variants added yet</p>
