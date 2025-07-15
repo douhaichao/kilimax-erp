@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -121,11 +120,8 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
           </div>
 
           <Card className="hover:shadow-lg transition-shadow duration-300">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bot className="w-5 h-5 text-primary animate-pulse" />
-                Company Information
-              </CardTitle>
+            <CardHeader className="rounded-none">
+              
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -263,19 +259,10 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
 
                 {/* Navigation Buttons */}
                 <div className="flex gap-4">
-                  <Button 
-                    type="button"
-                    onClick={onBack}
-                    variant="outline"
-                    className="flex-1 h-12 text-lg"
-                  >
+                  <Button type="button" onClick={onBack} variant="outline" className="flex-1 h-12 text-lg">
                     Back
                   </Button>
-                  <Button 
-                    type="submit" 
-                    className="flex-1 h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transform hover:scale-[1.02] transition-all duration-200 shadow-lg" 
-                    disabled={!formData.companyName || !formData.country || !formData.industry || !formData.employeeCount || !formData.userRole || !formData.email}
-                  >
+                  <Button type="submit" className="flex-1 h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transform hover:scale-[1.02] transition-all duration-200 shadow-lg" disabled={!formData.companyName || !formData.country || !formData.industry || !formData.employeeCount || !formData.userRole || !formData.email}>
                     <Bot className="w-5 h-5 mr-2 animate-pulse" />
                     Continue to Invoice Setup
                     <ArrowRight className="w-5 h-5 ml-2" />
