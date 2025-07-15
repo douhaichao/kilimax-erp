@@ -21,7 +21,7 @@ const ProductViewOverlay = ({ product, open, onOpenChange }: ProductViewOverlayP
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[500px] sm:w-[540px]">
+      <SheetContent className="w-[600px] sm:w-[700px]">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
@@ -33,6 +33,19 @@ const ProductViewOverlay = ({ product, open, onOpenChange }: ProductViewOverlayP
         </SheetHeader>
 
         <div className="space-y-6 mt-6">
+          {/* Product Image */}
+          <Card>
+            <CardContent className="p-4">
+              <div className="aspect-video w-full overflow-hidden rounded-lg bg-muted">
+                <img
+                  src={`https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=300&fit=crop`}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Basic Information */}
           <Card>
             <CardHeader>
