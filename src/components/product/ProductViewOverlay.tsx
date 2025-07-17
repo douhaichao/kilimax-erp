@@ -21,7 +21,7 @@ const ProductViewOverlay = ({ product, open, onOpenChange }: ProductViewOverlayP
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[600px] sm:w-[700px]">
+      <SheetContent className="w-[800px] sm:w-[900px] max-w-[90vw]">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
