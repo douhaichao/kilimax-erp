@@ -5,23 +5,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Product } from '@/types/product';
 import { Package, DollarSign, Users, Calendar, AlertTriangle } from 'lucide-react';
-
 interface ProductViewOverlayProps {
   product: Product | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const ProductViewOverlay = ({ product, open, onOpenChange }: ProductViewOverlayProps) => {
+const ProductViewOverlay = ({
+  product,
+  open,
+  onOpenChange
+}: ProductViewOverlayProps) => {
   if (!product) return null;
-
   const isLowStock = product.stock <= product.safetyStock;
   const margin = product.price - product.cost;
-  const marginPercent = ((margin / product.price) * 100).toFixed(1);
-
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[800px] sm:w-[900px] max-w-[90vw]">
+  const marginPercent = (margin / product.price * 100).toFixed(1);
+  return <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent className="w-[800px] sm:w-[900px] max-w-[90vw] rounded-3xl">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
@@ -37,11 +36,7 @@ const ProductViewOverlay = ({ product, open, onOpenChange }: ProductViewOverlayP
           <Card>
             <CardContent className="p-4">
               <div className="aspect-video w-full overflow-hidden rounded-lg bg-muted">
-                <img
-                  src={`https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=300&fit=crop`}
-                  alt={product.name}
-                  className="w-full h-full object-cover"
-                />
+                <img src={`https://images.unsplash.com/photo-1518770660439-4636190af475?w=600&h=300&fit=crop`} alt={product.name} className="w-full h-full object-cover" />
               </div>
             </CardContent>
           </Card>
@@ -70,18 +65,14 @@ const ProductViewOverlay = ({ product, open, onOpenChange }: ProductViewOverlayP
                 <label className="text-sm font-medium text-muted-foreground">Category</label>
                 <p>{product.category}</p>
               </div>
-              {product.description && (
-                <div>
+              {product.description && <div>
                   <label className="text-sm font-medium text-muted-foreground">Description</label>
                   <p className="text-sm">{product.description}</p>
-                </div>
-              )}
-              {product.supplier && (
-                <div>
+                </div>}
+              {product.supplier && <div>
                   <label className="text-sm font-medium text-muted-foreground">Supplier</label>
                   <p>{product.supplier}</p>
-                </div>
-              )}
+                </div>}
             </CardContent>
           </Card>
 
@@ -111,8 +102,7 @@ const ProductViewOverlay = ({ product, open, onOpenChange }: ProductViewOverlayP
                 <label className="text-sm font-medium text-muted-foreground">Primary UOM</label>
                 <p>{product.primaryUOM.name} ({product.primaryUOM.symbol})</p>
               </div>
-              {isLowStock && (
-                <div className="bg-destructive/10 border border-destructive/20 p-3 rounded-lg">
+              {isLowStock && <div className="bg-destructive/10 border border-destructive/20 p-3 rounded-lg">
                   <div className="flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-destructive" />
                     <span className="text-sm font-medium text-destructive">Low Stock Warning</span>
@@ -120,8 +110,7 @@ const ProductViewOverlay = ({ product, open, onOpenChange }: ProductViewOverlayP
                   <p className="text-sm text-destructive/80 mt-1">
                     Current stock is at or below safety stock level
                   </p>
-                </div>
-              )}
+                </div>}
             </CardContent>
           </Card>
 
@@ -180,24 +169,18 @@ const ProductViewOverlay = ({ product, open, onOpenChange }: ProductViewOverlayP
                   <p className="text-sm">{new Date(product.updatedAt).toLocaleDateString()}</p>
                 </div>
               </div>
-              {product.uoms && product.uoms.length > 0 && (
-                <div>
+              {product.uoms && product.uoms.length > 0 && <div>
                   <label className="text-sm font-medium text-muted-foreground">Available UOMs</label>
                   <div className="flex flex-wrap gap-2 mt-1">
-                    {product.uoms.map((uom) => (
-                      <Badge key={uom.id} variant="outline" className="text-xs">
+                    {product.uoms.map(uom => <Badge key={uom.id} variant="outline" className="text-xs">
                         {uom.name} {uom.isDefault && '(Default)'}
-                      </Badge>
-                    ))}
+                      </Badge>)}
                   </div>
-                </div>
-              )}
+                </div>}
             </CardContent>
           </Card>
         </div>
       </SheetContent>
-    </Sheet>
-  );
+    </Sheet>;
 };
-
 export default ProductViewOverlay;
