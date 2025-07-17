@@ -20,7 +20,7 @@ const ProductViewOverlay = ({
   const margin = product.price - product.cost;
   const marginPercent = (margin / product.price * 100).toFixed(1);
   return <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[800px] sm:w-[900px] max-w-[90vw] rounded-3xl">
+      <SheetContent className="w-[800px] sm:w-[900px] max-w-[90vw] rounded-2xl">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
