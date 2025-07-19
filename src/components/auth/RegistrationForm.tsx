@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, EyeOff, ArrowRight, Mail, User, Globe } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Mail, User, Globe, Building, Phone } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 interface RegistrationFormProps {
   onRegistrationComplete: () => void;
@@ -18,6 +18,8 @@ export default function RegistrationForm({
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    companyName: '',
+    phoneNumber: '',
     email: '',
     password: '',
     acceptTerms: false,
@@ -43,7 +45,7 @@ export default function RegistrationForm({
     }, 1000);
   };
   const isFormValid = () => {
-    return formData.firstName && formData.lastName && formData.email && formData.password.length >= 8 && formData.acceptTerms;
+    return formData.firstName && formData.lastName && formData.companyName && formData.phoneNumber && formData.email && formData.password.length >= 8 && formData.acceptTerms;
   };
   return <Card className="w-full max-w-md mx-auto shadow-xl border-0 bg-white/95 backdrop-blur-sm">
       <CardHeader className="space-y-2 pb-6">
@@ -64,7 +66,66 @@ export default function RegistrationForm({
       <CardContent className="space-y-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name Fields */}
-          
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">First Name</Label>
+              <Input 
+                id="firstName" 
+                type="text" 
+                placeholder="John" 
+                value={formData.firstName}
+                onChange={(e) => handleInputChange('firstName', e.target.value)}
+                className="border-gray-200 focus:border-primary focus:ring-primary/20"
+                required 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">Last Name</Label>
+              <Input 
+                id="lastName" 
+                type="text" 
+                placeholder="Doe" 
+                value={formData.lastName}
+                onChange={(e) => handleInputChange('lastName', e.target.value)}
+                className="border-gray-200 focus:border-primary focus:ring-primary/20"
+                required 
+              />
+            </div>
+          </div>
+
+          {/* Company Name */}
+          <div className="space-y-2">
+            <Label htmlFor="companyName" className="text-sm font-medium text-gray-700">Company Name</Label>
+            <div className="relative">
+              <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input 
+                id="companyName" 
+                type="text" 
+                placeholder="Acme Corporation" 
+                value={formData.companyName}
+                onChange={(e) => handleInputChange('companyName', e.target.value)}
+                className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20"
+                required 
+              />
+            </div>
+          </div>
+
+          {/* Phone Number */}
+          <div className="space-y-2">
+            <Label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</Label>
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <Input 
+                id="phoneNumber" 
+                type="tel" 
+                placeholder="+1 (555) 123-4567" 
+                value={formData.phoneNumber}
+                onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20"
+                required 
+              />
+            </div>
+          </div>
 
           {/* Email */}
           <div className="space-y-2">
