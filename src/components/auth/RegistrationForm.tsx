@@ -4,8 +4,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, EyeOff, ArrowRight, Mail, User, Globe, Building, Phone } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Mail, User, Globe, Building, Phone, ChevronDown } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 interface RegistrationFormProps {
   onRegistrationComplete: () => void;
   onBackToLogin: () => void;
@@ -19,12 +20,28 @@ export default function RegistrationForm({
     firstName: '',
     lastName: '',
     companyName: '',
+    countryCode: '+1',
     phoneNumber: '',
     email: '',
     password: '',
     acceptTerms: false,
     acceptMarketing: false
   });
+
+  const countryCodes = [
+    { code: '+1', country: 'US', flag: '🇺🇸' },
+    { code: '+44', country: 'UK', flag: '🇬🇧' },
+    { code: '+33', country: 'FR', flag: '🇫🇷' },
+    { code: '+49', country: 'DE', flag: '🇩🇪' },
+    { code: '+39', country: 'IT', flag: '🇮🇹' },
+    { code: '+34', country: 'ES', flag: '🇪🇸' },
+    { code: '+81', country: 'JP', flag: '🇯🇵' },
+    { code: '+86', country: 'CN', flag: '🇨🇳' },
+    { code: '+91', country: 'IN', flag: '🇮🇳' },
+    { code: '+61', country: 'AU', flag: '🇦🇺' },
+    { code: '+55', country: 'BR', flag: '🇧🇷' },
+    { code: '+7', country: 'RU', flag: '🇷🇺' },
+  ];
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Simulate registration process
@@ -110,29 +127,54 @@ export default function RegistrationForm({
             </div>
           </div>
 
-          {/* Phone Number */}
-          <div className="space-y-2">
-            <Label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</Label>
-            <div className="relative">
-              <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input 
-                id="phoneNumber" 
-                type="tel" 
-                placeholder="+1 (555) 123-4567" 
-                value={formData.phoneNumber}
-                onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20"
-                required 
-              />
-            </div>
-          </div>
-
           {/* Email */}
           <div className="space-y-2">
             <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input id="email" type="email" placeholder="john@company.com" value={formData.email} onChange={e => handleInputChange('email', e.target.value)} className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20" required />
+              <Input 
+                id="email" 
+                type="email" 
+                placeholder="john@company.com" 
+                value={formData.email} 
+                onChange={e => handleInputChange('email', e.target.value)} 
+                className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20" 
+                required 
+              />
+            </div>
+          </div>
+
+          {/* Phone Number */}
+          <div className="space-y-2">
+            <Label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</Label>
+            <div className="flex gap-2">
+              <Select value={formData.countryCode} onValueChange={(value) => handleInputChange('countryCode', value)}>
+                <SelectTrigger className="w-24 border-gray-200 focus:border-primary focus:ring-primary/20">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-white border shadow-lg">
+                  {countryCodes.map((country) => (
+                    <SelectItem key={country.code} value={country.code} className="hover:bg-gray-50">
+                      <span className="flex items-center gap-2">
+                        <span>{country.flag}</span>
+                        <span>{country.code}</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="relative flex-1">
+                <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <Input 
+                  id="phoneNumber" 
+                  type="tel" 
+                  placeholder="(555) 123-4567" 
+                  value={formData.phoneNumber}
+                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                  className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20"
+                  required 
+                />
+              </div>
             </div>
           </div>
 
