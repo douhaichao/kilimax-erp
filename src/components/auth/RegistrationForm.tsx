@@ -66,47 +66,14 @@ export default function RegistrationForm({
       <CardContent className="space-y-4">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Name Fields */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">First Name</Label>
-              <Input 
-                id="firstName" 
-                type="text" 
-                placeholder="John" 
-                value={formData.firstName}
-                onChange={(e) => handleInputChange('firstName', e.target.value)}
-                className="border-gray-200 focus:border-primary focus:ring-primary/20"
-                required 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">Last Name</Label>
-              <Input 
-                id="lastName" 
-                type="text" 
-                placeholder="Doe" 
-                value={formData.lastName}
-                onChange={(e) => handleInputChange('lastName', e.target.value)}
-                className="border-gray-200 focus:border-primary focus:ring-primary/20"
-                required 
-              />
-            </div>
-          </div>
+          
 
           {/* Company Name */}
           <div className="space-y-2">
             <Label htmlFor="companyName" className="text-sm font-medium text-gray-700">Company Name</Label>
             <div className="relative">
               <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input 
-                id="companyName" 
-                type="text" 
-                placeholder="Acme Corporation" 
-                value={formData.companyName}
-                onChange={(e) => handleInputChange('companyName', e.target.value)}
-                className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20"
-                required 
-              />
+              <Input id="companyName" type="text" placeholder="Acme Corporation" value={formData.companyName} onChange={e => handleInputChange('companyName', e.target.value)} className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20" required />
             </div>
           </div>
 
@@ -115,15 +82,7 @@ export default function RegistrationForm({
             <Label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</Label>
             <div className="relative">
               <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input 
-                id="phoneNumber" 
-                type="tel" 
-                placeholder="+1 (555) 123-4567" 
-                value={formData.phoneNumber}
-                onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20"
-                required 
-              />
+              <Input id="phoneNumber" type="tel" placeholder="+1 (555) 123-4567" value={formData.phoneNumber} onChange={e => handleInputChange('phoneNumber', e.target.value)} className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20" required />
             </div>
           </div>
 
