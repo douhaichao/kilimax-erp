@@ -216,7 +216,7 @@ export default function RegistrationForm({
 
           {/* Submit Button */}
           <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-2.5" disabled={!isFormValid()}>
-            Create Account & Start Trial
+            Create Account
             <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
         </form>
