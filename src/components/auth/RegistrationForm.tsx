@@ -27,21 +27,55 @@ export default function RegistrationForm({
     acceptTerms: false,
     acceptMarketing: false
   });
-
-  const countryCodes = [
-    { code: '+1', country: 'US', flag: '🇺🇸' },
-    { code: '+44', country: 'UK', flag: '🇬🇧' },
-    { code: '+33', country: 'FR', flag: '🇫🇷' },
-    { code: '+49', country: 'DE', flag: '🇩🇪' },
-    { code: '+39', country: 'IT', flag: '🇮🇹' },
-    { code: '+34', country: 'ES', flag: '🇪🇸' },
-    { code: '+81', country: 'JP', flag: '🇯🇵' },
-    { code: '+86', country: 'CN', flag: '🇨🇳' },
-    { code: '+91', country: 'IN', flag: '🇮🇳' },
-    { code: '+61', country: 'AU', flag: '🇦🇺' },
-    { code: '+55', country: 'BR', flag: '🇧🇷' },
-    { code: '+7', country: 'RU', flag: '🇷🇺' },
-  ];
+  const countryCodes = [{
+    code: '+1',
+    country: 'US',
+    flag: '🇺🇸'
+  }, {
+    code: '+44',
+    country: 'UK',
+    flag: '🇬🇧'
+  }, {
+    code: '+33',
+    country: 'FR',
+    flag: '🇫🇷'
+  }, {
+    code: '+49',
+    country: 'DE',
+    flag: '🇩🇪'
+  }, {
+    code: '+39',
+    country: 'IT',
+    flag: '🇮🇹'
+  }, {
+    code: '+34',
+    country: 'ES',
+    flag: '🇪🇸'
+  }, {
+    code: '+81',
+    country: 'JP',
+    flag: '🇯🇵'
+  }, {
+    code: '+86',
+    country: 'CN',
+    flag: '🇨🇳'
+  }, {
+    code: '+91',
+    country: 'IN',
+    flag: '🇮🇳'
+  }, {
+    code: '+61',
+    country: 'AU',
+    flag: '🇦🇺'
+  }, {
+    code: '+55',
+    country: 'BR',
+    flag: '🇧🇷'
+  }, {
+    code: '+7',
+    country: 'RU',
+    flag: '🇷🇺'
+  }];
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Simulate registration process
@@ -85,28 +119,12 @@ export default function RegistrationForm({
           {/* Name Fields */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">First Name</Label>
-              <Input 
-                id="firstName" 
-                type="text" 
-                placeholder="John" 
-                value={formData.firstName}
-                onChange={(e) => handleInputChange('firstName', e.target.value)}
-                className="border-gray-200 focus:border-primary focus:ring-primary/20"
-                required 
-              />
+              
+              
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">Last Name</Label>
-              <Input 
-                id="lastName" 
-                type="text" 
-                placeholder="Doe" 
-                value={formData.lastName}
-                onChange={(e) => handleInputChange('lastName', e.target.value)}
-                className="border-gray-200 focus:border-primary focus:ring-primary/20"
-                required 
-              />
+              
+              
             </div>
           </div>
 
@@ -115,15 +133,7 @@ export default function RegistrationForm({
             <Label htmlFor="companyName" className="text-sm font-medium text-gray-700">Company Name</Label>
             <div className="relative">
               <Building className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input 
-                id="companyName" 
-                type="text" 
-                placeholder="Acme Corporation" 
-                value={formData.companyName}
-                onChange={(e) => handleInputChange('companyName', e.target.value)}
-                className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20"
-                required 
-              />
+              <Input id="companyName" type="text" placeholder="Acme Corporation" value={formData.companyName} onChange={e => handleInputChange('companyName', e.target.value)} className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20" required />
             </div>
           </div>
 
@@ -132,15 +142,7 @@ export default function RegistrationForm({
             <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input 
-                id="email" 
-                type="email" 
-                placeholder="john@company.com" 
-                value={formData.email} 
-                onChange={e => handleInputChange('email', e.target.value)} 
-                className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20" 
-                required 
-              />
+              <Input id="email" type="email" placeholder="john@company.com" value={formData.email} onChange={e => handleInputChange('email', e.target.value)} className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20" required />
             </div>
           </div>
 
@@ -148,32 +150,22 @@ export default function RegistrationForm({
           <div className="space-y-2">
             <Label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Phone Number</Label>
             <div className="flex gap-2">
-              <Select value={formData.countryCode} onValueChange={(value) => handleInputChange('countryCode', value)}>
+              <Select value={formData.countryCode} onValueChange={value => handleInputChange('countryCode', value)}>
                 <SelectTrigger className="w-24 border-gray-200 focus:border-primary focus:ring-primary/20">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white border shadow-lg">
-                  {countryCodes.map((country) => (
-                    <SelectItem key={country.code} value={country.code} className="hover:bg-gray-50">
+                  {countryCodes.map(country => <SelectItem key={country.code} value={country.code} className="hover:bg-gray-50">
                       <span className="flex items-center gap-2">
                         <span>{country.flag}</span>
                         <span>{country.code}</span>
                       </span>
-                    </SelectItem>
-                  ))}
+                    </SelectItem>)}
                 </SelectContent>
               </Select>
               <div className="relative flex-1">
                 <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <Input 
-                  id="phoneNumber" 
-                  type="tel" 
-                  placeholder="(555) 123-4567" 
-                  value={formData.phoneNumber}
-                  onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                  className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20"
-                  required 
-                />
+                <Input id="phoneNumber" type="tel" placeholder="(555) 123-4567" value={formData.phoneNumber} onChange={e => handleInputChange('phoneNumber', e.target.value)} className="pl-10 border-gray-200 focus:border-primary focus:ring-primary/20" required />
               </div>
             </div>
           </div>
