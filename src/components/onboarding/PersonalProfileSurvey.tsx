@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Briefcase } from 'lucide-react';
 import { OnboardingData } from '@/pages/OnboardingJourney';
 
 interface PersonalProfileSurveyProps {
@@ -13,25 +14,22 @@ interface PersonalProfileSurveyProps {
   data: OnboardingData;
 }
 
-const countries = [
-  'United States', 'Canada', 'United Kingdom', 'Australia', 'Germany', 'France',
-  'Japan', 'China', 'India', 'Brazil', 'Mexico', 'Other'
-];
+const userRoles = ['Owner/Founder', 'CEO/President', 'CFO', 'Operations Manager', 'Finance Manager', 'Accountant', 'Administrator', 'Other'];
 
 export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({ onNext, data }) => {
   const [firstName, setFirstName] = useState(data.firstName || '');
   const [lastName, setLastName] = useState(data.lastName || '');
-  const [phoneNumber, setPhoneNumber] = useState(data.phoneNumber || '');
+  const [userRole, setUserRole] = useState((data as any).userRole || '');
 
   const handleNext = () => {
     onNext({
       firstName,
       lastName,
-      phoneNumber,
+      userRole,
     });
   };
 
-  const isFormValid = firstName && lastName && phoneNumber;
+  const isFormValid = firstName && lastName && userRole;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 relative overflow-hidden">
@@ -78,14 +76,22 @@ export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({ on
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phoneNumber">Phone Number *</Label>
-                <Input
-                  id="phoneNumber"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
-                  placeholder="Enter your phone number"
-                  className="h-12"
-                />
+                <Label htmlFor="userRole" className="text-base font-medium text-foreground flex items-center gap-2">
+                  <Briefcase className="w-4 h-4 text-primary" />
+                  What's your role? *
+                </Label>
+                <Select value={userRole} onValueChange={setUserRole}>
+                  <SelectTrigger className="h-12">
+                    <SelectValue placeholder="Select your role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {userRoles.map(role => (
+                      <SelectItem key={role} value={role}>
+                        {role}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <Button 

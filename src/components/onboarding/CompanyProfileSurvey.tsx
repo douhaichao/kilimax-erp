@@ -56,7 +56,6 @@ const countries = [{
 
 const industries = ['Manufacturing', 'Wholesale Distribution', 'Professional Services', 'Technology', 'Healthcare', 'Retail', 'Construction', 'Food & Beverage'];
 const employeeCounts = ['1-5 employees', '6-20 employees', '21-50 employees', '51-100 employees', '101-500 employees', '500+ employees'];
-const userRoles = ['Owner/Founder', 'CEO/President', 'CFO', 'Operations Manager', 'Finance Manager', 'Accountant', 'Administrator', 'Other'];
 
 export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
   onNext,
@@ -67,8 +66,7 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
     companyName: data.companyName || '',
     country: data.country || '',
     industry: data.industry || '',
-    employeeCount: (data as any).employeeCount || '',
-    userRole: (data as any).userRole || ''
+    employeeCount: (data as any).employeeCount || ''
   });
 
   const selectedCountry = countries.find(c => c.code === formData.country);
@@ -195,47 +193,25 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
                   </div>
                 </div>
 
-                {/* Employee Count and Role Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="employeeCount" className="text-base font-medium text-foreground flex items-center gap-2">
-                      <Users className="w-4 h-4 text-primary" />
-                      How many employees? *
-                    </Label>
-                    <Select value={formData.employeeCount} onValueChange={value => setFormData(prev => ({
-                    ...prev,
-                    employeeCount: value
-                  }))}>
-                      <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Number of employees" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {employeeCounts.map(count => <SelectItem key={count} value={count}>
-                            {count}
-                          </SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="userRole" className="text-base font-medium text-foreground flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-primary" />
-                      What's your role? *
-                    </Label>
-                    <Select value={formData.userRole} onValueChange={value => setFormData(prev => ({
-                    ...prev,
-                    userRole: value
-                  }))}>
-                      <SelectTrigger className="h-12">
-                        <SelectValue placeholder="Select your role" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {userRoles.map(role => <SelectItem key={role} value={role}>
-                            {role}
-                          </SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                {/* Employee Count */}
+                <div className="space-y-2">
+                  <Label htmlFor="employeeCount" className="text-base font-medium text-foreground flex items-center gap-2">
+                    <Users className="w-4 h-4 text-primary" />
+                    How many employees? *
+                  </Label>
+                  <Select value={formData.employeeCount} onValueChange={value => setFormData(prev => ({
+                  ...prev,
+                  employeeCount: value
+                }))}>
+                    <SelectTrigger className="h-12">
+                      <SelectValue placeholder="Number of employees" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employeeCounts.map(count => <SelectItem key={count} value={count}>
+                          {count}
+                        </SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 {/* AI Smart Suggestion */}
@@ -259,7 +235,7 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
                   <Button type="button" onClick={onBack} variant="outline" className="flex-1 h-12 text-lg">
                     Back
                   </Button>
-                  <Button type="submit" className="flex-1 h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transform hover:scale-[1.02] transition-all duration-200 shadow-lg" disabled={!formData.companyName || !formData.country || !formData.industry || !formData.employeeCount || !formData.userRole}>
+                  <Button type="submit" className="flex-1 h-12 text-lg bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 transform hover:scale-[1.02] transition-all duration-200 shadow-lg" disabled={!formData.companyName || !formData.country || !formData.industry || !formData.employeeCount}>
                     <Bot className="w-5 h-5 mr-2 animate-pulse" />
                     Complete Setup
                     <ArrowRight className="w-5 h-5 ml-2" />
