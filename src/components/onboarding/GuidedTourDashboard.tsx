@@ -168,7 +168,7 @@ export const GuidedTourDashboard: React.FC<GuidedTourDashboardProps> = ({ onNext
                 </div>
               ) : (
                 <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                  <span className="text-primary font-semibold">{currentStep + 1/7}</span>
+                  <span className="text-primary font-semibold">{currentStep + 1}</span>
                 </div>
               )}
             </div>
