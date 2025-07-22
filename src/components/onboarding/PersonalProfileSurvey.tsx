@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -8,31 +7,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Briefcase } from 'lucide-react';
 import { OnboardingData } from '@/pages/OnboardingJourney';
-
 interface PersonalProfileSurveyProps {
   onNext: (data: Partial<OnboardingData>) => void;
   data: OnboardingData;
 }
-
 const userRoles = ['Owner/Founder', 'CEO/President', 'CFO', 'Operations Manager', 'Finance Manager', 'Accountant', 'Administrator', 'Other'];
-
-export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({ onNext, data }) => {
+export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({
+  onNext,
+  data
+}) => {
   const [firstName, setFirstName] = useState(data.firstName || '');
   const [lastName, setLastName] = useState(data.lastName || '');
   const [userRole, setUserRole] = useState((data as any).userRole || '');
-
   const handleNext = () => {
     onNext({
       firstName,
       lastName,
-      userRole,
+      userRole
     });
   };
-
   const isFormValid = firstName && lastName && userRole;
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 relative overflow-hidden">
+  return <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 relative overflow-hidden">
       <div className="relative z-10 container mx-auto px-4 py-8">
         {/* Progress Bar */}
         <div className="max-w-md mx-auto mb-8">
@@ -47,31 +42,17 @@ export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({ on
           <Card className="w-full">
             <CardHeader className="text-center">
               <CardTitle className="text-3xl font-bold text-gray-900">Welcome! Let's start with you</CardTitle>
-              <CardDescription className="text-lg text-gray-600">
-                Tell us about yourself to personalize your experience
-              </CardDescription>
+              <CardDescription className="text-lg text-gray-600">Help us personalize your experience with a few quick questions</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="firstName">First Name *</Label>
-                  <Input
-                    id="firstName"
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="Enter your first name"
-                    className="h-12"
-                  />
+                  <Input id="firstName" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Enter your first name" className="h-12" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="lastName">Last Name *</Label>
-                  <Input
-                    id="lastName"
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    placeholder="Enter your last name"
-                    className="h-12"
-                  />
+                  <Input id="lastName" value={lastName} onChange={e => setLastName(e.target.value)} placeholder="Enter your last name" className="h-12" />
                 </div>
               </div>
 
@@ -85,26 +66,19 @@ export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({ on
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
                   <SelectContent>
-                    {userRoles.map(role => (
-                      <SelectItem key={role} value={role}>
+                    {userRoles.map(role => <SelectItem key={role} value={role}>
                         {role}
-                      </SelectItem>
-                    ))}
+                      </SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
 
-              <Button 
-                onClick={handleNext} 
-                disabled={!isFormValid}
-                className="w-full h-12 text-lg font-semibold"
-              >
+              <Button onClick={handleNext} disabled={!isFormValid} className="w-full h-12 text-lg font-semibold">
                 Next
               </Button>
             </CardContent>
           </Card>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
