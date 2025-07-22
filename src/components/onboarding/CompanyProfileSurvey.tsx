@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -9,13 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { ArrowRight, MapPin, Globe, Bot, Sparkles, Zap, Users, Briefcase } from 'lucide-react';
 import { OnboardingData } from '@/pages/OnboardingJourney';
-
 interface CompanyProfileSurveyProps {
   onNext: (data: Partial<OnboardingData>) => void;
   onBack: () => void;
   data: OnboardingData;
 }
-
 const countries = [{
   code: 'US',
   name: 'United States',
@@ -53,10 +50,8 @@ const countries = [{
   currency: 'AUD',
   timezone: 'AEST'
 }];
-
 const industries = ['Manufacturing', 'Wholesale Distribution', 'Professional Services', 'Technology', 'Healthcare', 'Retail', 'Construction', 'Food & Beverage'];
 const employeeCounts = ['1-5 employees', '6-20 employees', '21-50 employees', '51-100 employees', '101-500 employees', '500+ employees'];
-
 export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
   onNext,
   onBack,
@@ -68,18 +63,13 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
     industry: data.industry || '',
     employeeCount: (data as any).employeeCount || ''
   });
-
   const selectedCountry = countries.find(c => c.code === formData.country);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onNext(formData);
   };
-
   const showVATSuggestion = formData.country === 'DE';
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 relative overflow-hidden">
+  return <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5 relative overflow-hidden">
       {/* AI-Enhanced Background */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
@@ -121,9 +111,7 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
               Tell Us About Your Company
               <Sparkles className="w-6 h-6 text-primary animate-pulse" />
             </h1>
-            <p className="text-muted-foreground">
-              Help us personalize your experience with a few quick questions
-            </p>
+            <p className="text-muted-foreground">Help us personalize So we can tailor your e</p>
           </div>
 
           <Card className="hover:shadow-lg transition-shadow duration-300">
@@ -246,6 +234,5 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
           </Card>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
