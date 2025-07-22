@@ -47,7 +47,7 @@ export const PersonalProfileSurvey: React.FC<PersonalProfileSurveyProps> = ({
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">Tell us about yourself to personalize your experienceHelp us personalize your experience with a few quick questions</Label>
+                  <Label htmlFor="firstName">Help us personalize your experience with a few quick questions</Label>
                   <Input id="firstName" value={firstName} onChange={e => setFirstName(e.target.value)} placeholder="Enter your first name" className="h-12" />
                 </div>
                 <div className="space-y-2">
