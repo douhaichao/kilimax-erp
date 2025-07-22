@@ -111,7 +111,7 @@ export const CompanyProfileSurvey: React.FC<CompanyProfileSurveyProps> = ({
               Tell Us About Your Company
               <Sparkles className="w-6 h-6 text-primary animate-pulse" />
             </h1>
-            <p className="text-muted-foreground">So we can tailor your experience</p>
+            <p className="text-muted-foreground">Help us personalize So we can tailor your e</p>
           </div>
 
           <Card className="hover:shadow-lg transition-shadow duration-300">
